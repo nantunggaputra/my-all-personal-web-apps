@@ -41,6 +41,11 @@ Setiap aplikasi dibuat dengan alur sederhana:
 
 Semua proses dilakukan **tanpa laptop**.
 
+
+> **Mau baca lebih lengkap cara saya membuat setiap tools yang ada di repository ini?**  
+> Silakan kunjungi cara kerjanya di [WORKFLOW](WORKFLOW.md)
+
+
 ---
 
 ## Struktur Repository
@@ -129,7 +134,7 @@ Semuanya **tanpa laptop**.
 
 
 > **Mau baca lebih lengkap cara saya membuat setiap tools yang ada di repository ini?**  
-> Silakan kunjungi LinkedIn post saya [di sini](#link-linkedin) dan [di sini](#link-linkedin).
+> Silakan kunjungi cara kerjanya di [WORKFLOW](WORKFLOW.md)
 
 
 ---
@@ -187,6 +192,11 @@ A: Untuk project sederhana seperti ini, aman. Tapi tetap penting untuk memahami 
 
 **Q: Kenapa semua dikerjakan dari smartphone?**  
 A: Untuk membuktikan bahwa keterbatasan device bukan halangan untuk mulai belajar dan berkarya.
+
+
+> **Mau baca lebih lengkap cara saya membuat setiap tools yang ada di repository ini?**  
+> Silakan kunjungi cara kerjanya di [WORKFLOW](WORKFLOW.md)
+
 
 ---
 
