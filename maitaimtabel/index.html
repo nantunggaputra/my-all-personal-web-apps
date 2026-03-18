@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📅 Maitaimtabel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>📅 Maitaimtabel</h1>
+            <p class="subtitle">Jadwal Harian Kamu</p>
+        </header>
+
+        <!-- Time Navigation -->
+        <nav class="time-nav">
+            <button class="time-btn" data-day="yesterday">
+                <span>◀</span> Kemarin
+            </button>
+            <button class="time-btn active" data-day="today">
+                Hari Ini
+            </button>
+            <button class="time-btn" data-day="tomorrow">
+                Besok <span>▶</span>
+            </button>
+        </nav>
+
+        <!-- Current Date Display -->
+        <div class="current-date" id="currentDate"></div>
+
+        <!-- Action Buttons -->
+        <div class="action-bar">
+            <button class="btn btn-primary" id="addScheduleBtn">
+                ➕ Tambah Jadwal
+            </button>
+            <button class="btn btn-secondary" id="copyBtn">
+                📋 Copy Hari Ini
+            </button>
+        </div>
+
+        <!-- Category Filter -->
+        <div class="category-filter" id="categoryFilter">
+            <button class="category-badge active" data-category="all">
+                Semua
+            </button>
+        </div>
+
+        <!-- Schedule List -->
+        <div class="schedule-list" id="scheduleList">
+            <!-- Empty state akan muncul di sini via JS -->
+        </div>
+
+        <!-- Utility Buttons -->
+        <div class="utility-bar">
+            <button class="btn btn-outline" id="exportBtn">
+                💾 Export
+            </button>
+            <button class="btn btn-outline" id="importBtn">
+                📂 Import
+            </button>
+            <button class="btn btn-outline" id="manageCategoryBtn">
+                🏷️ Kelola Kategori
+            </button>
+        </div>
+
+        <!-- Hidden file input for import -->
+        <input type="file" id="importInput" accept=".json" style="display: none;">
+    </div>
+
+    <!-- Modal: Add/Edit Schedule -->
+    <div class="modal" id="scheduleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Tambah Jadwal</h2>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            <form id="scheduleForm">
+                <div class="form-group">
+                    <label for="scheduleDate">Tanggal *</label>
+                    <input type="date" id="scheduleDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="scheduleTime">Waktu *</label>
+                    <input type="time" id="scheduleTime" required>
+                </div>
+                <div class="form-group">
+                    <label for="scheduleActivity">Kegiatan *</label>
+                    <input type="text" id="scheduleActivity" placeholder="Contoh: Kuliah UI/UX" required>
+                </div>
+                <div class="form-group">
+                    <label for="scheduleLocation">Lokasi</label>
+                    <input type="text" id="scheduleLocation" placeholder="Contoh: Kampus">
+                </div>
+                <div class="form-group">
+                    <label for="scheduleItems">Barang</label>
+                    <input type="text" id="scheduleItems" placeholder="Contoh: Laptop, Charger">
+                </div>
+                <div class="form-group">
+                    <label for="scheduleCategory">Kategori</label>
+                    <select id="scheduleCategory"></select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" id="cancelBtn">Batal</button>
+                    <button type="submit" class="btn btn-primary" id="saveBtn">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Manage Categories -->
+    <div class="modal" id="categoryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Kelola Kategori</h2>
+                <button class="close-btn" id="closeCategoryModal">&times;</button>
+            </div>
+            <div class="category-manager">
+                <div class="form-group">
+                    <label for="newCategoryName">Kategori Baru</label>
+                    <div class="input-group">
+                        <input type="text" id="newCategoryName" placeholder="Nama kategori">
+                        <input type="color" id="newCategoryColor" value="#A5D8FF">
+                        <button class="btn btn-primary" id="addCategoryBtn">Tambah</button>
+                    </div>
+                </div>
+                <div class="category-list" id="categoryList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
