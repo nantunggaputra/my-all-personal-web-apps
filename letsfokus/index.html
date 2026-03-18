@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Letsfokus - Personal Pomodoro & Productivity Tracker">
+    <title>Letsfokus | Productivity Timer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1>🎯 Letsfokus</h1>
+            <p class="tagline">Stay focused, stay productive</p>
+        </header>
+
+        <!-- Tab Navigation -->
+        <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="timer">
+                <span class="tab-icon">⏱️</span>
+                <span>Timer</span>
+            </button>
+            <button class="tab-btn" data-tab="tasks">
+                <span class="tab-icon">📝</span>
+                <span>Tasks</span>
+            </button>
+            <button class="tab-btn" data-tab="history">
+                <span class="tab-icon">📊</span>
+                <span>Riwayat</span>
+            </button>
+            <button class="tab-btn" data-tab="planner">
+                <span class="tab-icon">🗓️</span>
+                <span>Planner</span>
+            </button>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- Timer Tab -->
+            <section id="timer-tab" class="tab-content active">
+                <div class="timer-container">
+                    <canvas id="timer-canvas" width="280" height="280"></canvas>
+                    <div class="timer-display">
+                        <div id="timer-text">25:00</div>
+                        <div id="timer-mode">Fokus</div>
+                    </div>
+                </div>
+
+                <div class="timer-controls">
+                    <button id="start-btn" class="btn btn-primary">Start</button>
+                    <button id="pause-btn" class="btn btn-secondary" disabled>Pause</button>
+                    <button id="reset-btn" class="btn btn-ghost">Reset</button>
+                </div>
+
+                <div class="current-task">
+                    <label>Task saat ini:</label>
+                    <select id="current-task-select">
+                        <option value="">Pilih task...</option>
+                    </select>
+                </div>
+
+                <div class="timer-settings">
+                    <div class="setting-group">
+                        <label for="focus-duration">Durasi Fokus (menit)</label>
+                        <input type="number" id="focus-duration" min="1" max="120" value="25">
+                    </div>
+                    <div class="setting-group">
+                        <label for="break-duration">Durasi Istirahat (menit)</label>
+                        <input type="number" id="break-duration" min="1" max="60" value="5">
+                    </div>
+                </div>
+
+                <div class="today-summary">
+                    <h3>Hari Ini</h3>
+                    <div class="summary-stats">
+                        <div class="stat-item">
+                            <span class="stat-value" id="today-sessions">0</span>
+                            <span class="stat-label">Sesi</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="today-minutes">0</span>
+                            <span class="stat-label">Menit</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tasks Tab -->
+            <section id="tasks-tab" class="tab-content">
+                <div class="section-header">
+                    <h2>Tasks</h2>
+                    <button id="add-task-btn" class="btn btn-primary">+ Task Baru</button>
+                </div>
+
+                <!-- Add Task Form -->
+                <div id="task-form" class="task-form hidden">
+                    <h3>Tambah Task</h3>
+                    <div class="form-group">
+                        <label for="task-name">Nama Task *</label>
+                        <input type="text" id="task-name" placeholder="Contoh: Belajar JavaScript" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-topic">Topik</label>
+                        <input type="text" id="task-topic" placeholder="Contoh: Programming">
+                    </div>
+                    <div class="form-group">
+                        <label for="task-category">Kategori</label>
+                        <select id="task-category">
+                            <option value="">Pilih kategori...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-estimate">Estimasi (jam)</label>
+                        <input type="number" id="task-estimate" min="0.5" step="0.5" placeholder="2">
+                    </div>
+                    <div class="form-actions">
+                        <button id="save-task-btn" class="btn btn-primary">Simpan</button>
+                        <button id="cancel-task-btn" class="btn btn-ghost">Batal</button>
+                    </div>
+                </div>
+
+                <!-- Category Management -->
+                <div class="category-section">
+                    <h3>Kategori</h3>
+                    <div class="category-input">
+                        <input type="text" id="new-category" placeholder="Tambah kategori baru...">
+                        <button id="add-category-btn" class="btn btn-small">+</button>
+                    </div>
+                    <div id="category-list" class="category-tags"></div>
+                </div>
+
+                <!-- Task Filters -->
+                <div class="task-filters">
+                    <select id="filter-category">
+                        <option value="">Semua kategori</option>
+                    </select>
+                    <select id="filter-status">
+                        <option value="all">Semua status</option>
+                        <option value="pending">Belum selesai</option>
+                        <option value="completed">Selesai</option>
+                    </select>
+                </div>
+
+                <!-- Task List -->
+                <div id="task-list" class="task-list">
+                    <p class="empty-state">Belum ada task. Tambah task pertamamu! 🚀</p>
+                </div>
+            </section>
+
+            <!-- History Tab -->
+            <section id="history-tab" class="tab-content">
+                <div class="section-header">
+                    <h2>Riwayat Fokus</h2>
+                    <button id="copy-summary-btn" class="btn btn-secondary">📋 Copy Summary</button>
+                </div>
+
+                <div class="history-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-sessions">0</div>
+                        <div class="stat-title">Total Sesi</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-hours">0</div>
+                        <div class="stat-title">Total Jam</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="avg-duration">0</div>
+                        <div class="stat-title">Rata-rata (mnt)</div>
+                    </div>
+                </div>
+
+                <div class="history-filter">
+                    <input type="date" id="history-date" class="date-input">
+                </div>
+
+                <div id="history-list" class="history-list">
+                    <p class="empty-state">Belum ada riwayat fokus 📊</p>
+                </div>
+            </section>
+
+            <!-- Planner Tab -->
+            <section id="planner-tab" class="tab-content">
+                <div class="section-header">
+                    <h2>Planner Besok</h2>
+                    <button id="save-planner-btn" class="btn btn-primary">💾 Simpan</button>
+                </div>
+
+                <div class="planner-container">
+                    <textarea id="planner-text" placeholder="Tuliskan rencana fokus untuk besok...&#10;&#10;Contoh:&#10;- 08:00 - 10:00: Belajar React Hooks&#10;- 10:30 - 12:00: Coding project freelance&#10;- 14:00 - 16:00: Review PR di GitHub"></textarea>
+                    
+                    <div class="planner-info">
+                        <p>💡 Tips: Buat rencana spesifik dengan waktu untuk hasil maksimal!</p>
+                    </div>
+                </div>
+
+                <div id="saved-planner" class="saved-planner"></div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>Built with focus & intention ♡</p>
+        </footer>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
