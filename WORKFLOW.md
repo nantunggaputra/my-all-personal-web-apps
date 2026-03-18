@@ -156,7 +156,7 @@ Jadi, setelah pilih **Create file:**
 ide → AI → dokumentasi → coding → upload
 ```
 
-Langkah berikutnya?
+**Langkah berikutnya?**
 Kita bikin jadi live.
 
 ---
@@ -202,13 +202,15 @@ Root Directory: ./
 Root Directory: my-1st-tools/
 ```
 
+1. **Root Directory:** `my-1st-tools/`
+
 Kemudian pada bagian lain ada pilihan **Application Preset**
 
-2. **Preset:** `Other` (karena cuma HTML, CSS, JS)
+2. **Application Preset:** `Other` (karena cuma HTML, CSS, JS)
 
 Kemudian pada bagian atas ada **Project Name**
 
-3. **Isi Nama:** `my-1st-tools` (sesuai dengan nama web app kita)
+3. **Project Name:** `my-1st-tools` (sesuai dengan nama web app kita)
 
 Lalu klik **Deploy**
 
@@ -219,7 +221,7 @@ Lalu klik **Deploy**
 - Kita langsung dapat **link**!
 - Bisa dipakai kita pribadi atau dishare linknya agar bisa dipakai orang lain!
 - Dan yang menarik: **Setiap folder → bisa jadi 1 web app terpisah**!
-- Jadi, **1 Repository:** `my-all-personal-web-apps` → bisa punya banyak link web app!
+- Jadi, **1 Repository:** `my-all-personal-web-apps` → bisa punya banyak link web apps!
 
 ---
 
