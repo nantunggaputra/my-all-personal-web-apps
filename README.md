@@ -13,7 +13,7 @@ Repository ini berisi kumpulan web app sederhana yang saya bangun langsung dari 
 
 - [My All Personal Web Apps](https://nantunggaputra.github.io/my-all-personal-web-apps/)
 
-**Tujuan dari repo ini adalah:**
+### **Tujuan dari repo ini adalah:**
 
 - Mendokumentasikan proses belajar dan eksplorasi saya
 - Membuktikan bahwa kita bisa membangun aplikasi tanpa laptop
