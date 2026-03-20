@@ -2,6 +2,17 @@
 
 Repository ini berisi kumpulan web app sederhana yang saya bangun langsung dari smartphone menggunakan bantuan AI.
 
+#### Versi Standalone Link
+
+- [Maitaimtabel](https://maitaimtabel.vercel.app/)
+- [Letsfokus](https://letsfokus.vercel.app/)
+- [Znippetmep](https://znippetmep.vercel.app/)
+- Masih banyak lagi nantinya
+
+#### Versi Integrated Link
+
+- [My All Personal Web Apps](https://nantunggaputra.github.io/my-all-personal-web-apps/)
+
 **Tujuan dari repo ini adalah:**
 
 - Mendokumentasikan proses belajar dan eksplorasi saya
