@@ -64,8 +64,7 @@ dst.
 - `index.html`
 - `style.css`
 - `script.js`
-atau
-- hanya `index.html` termasuk style css dan script js di dalamnya
+- atau hanya `index.html` termasuk style css dan script js di dalamnya
 
 ---
 
