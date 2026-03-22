@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🔢 Playculator - Bermain & Berhitung</title>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --primary: #2563eb;
+            --accent: #3b82f6;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --calc-btn: #f1f5f9;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px 15px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        header { text-align: center; margin-bottom: 4px; }
+        h1 { font-size: 1.6rem; color: var(--primary); letter-spacing: -0.02em; }
+        
+        /* Difficulty Selector */
+        .diff-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .diff-btn {
+            flex: 1;
+            padding: 10px 5px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--card);
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .diff-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+        }
+
+        /* Quiz Section */
+        .quiz-area {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        #quiz-canvas {
+            width: 100%;
+            height: 100px;
+            background: #fdfdfd;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        #main-answer {
+            width: 100%;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 1.5rem;
+            text-align: center;
+            color: var(--primary);
+            font-weight: 700;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        #main-answer:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+
+        /* Stats Row */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-box {
+            background: var(--card);
+            padding: 12px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+        .stat-value { display: block; font-size: 1.1rem; font-weight: 700; margin-top: 4px; color: var(--text-main); }
+
+        /* Calculator Section */
+        .calc-box {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+
+        #calc-display {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: right;
+            font-size: 1.4rem;
+            font-family: monospace;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-bottom: 12px;
+            color: var(--text-main);
+            border: 1px inset var(--border);
+            overflow: hidden;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 12px;
+            padding: 18px 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: var(--calc-btn);
+            color: var(--text-main);
+            transition: all 0.1s;
+        }
+
+        .btn:active { transform: scale(0.95); background: #e2e8f0; }
+        .btn.op { background: #dbeafe; color: var(--primary); }
+        .btn.clear { color: var(--danger); }
+        .btn.action { background: var(--primary); color: white; grid-column: span 2; }
+        .btn.copy { background: #f1f5f9; color: var(--text-muted); font-size: 0.85rem; grid-column: span 2; }
+
+        /* Controls */
+        .main-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .cta {
+            padding: 16px;
+            border-radius: 16px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #btn-check { background: var(--success); color: white; }
+        #btn-reset { background: var(--border); color: var(--text-muted); }
+        #btn-reset:not(:disabled) { background: var(--accent); color: white; }
+
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <h1>PLAYCULATOR</h1>
+    </header>
+
+    <!-- Difficulty Switcher -->
+    <div class="diff-container">
+        <button id="diff-easy" class="diff-btn" onclick="setDifficulty('easy')">MUDAH</button>
+        <button id="diff-normal" class="diff-btn active" onclick="setDifficulty('normal')">BIASA</button>
+        <button id="diff-hard" class="diff-btn" onclick="setDifficulty('SULIT')">SULIT</button>
+    </div>
+
+    <div class="quiz-area">
+        <canvas id="quiz-canvas"></canvas>
+        <input type="number" id="main-answer" placeholder="Jawaban?" inputmode="numeric">
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-box">
+            <span class="stat-label">Kecepatan</span>
+            <span id="timer-val" class="stat-value">0,0s</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-label">Tercepat</span>
+            <span id="best-val" class="stat-value">--</span>
+        </div>
+    </div>
+
+    <div class="calc-box">
+        <div id="calc-display">0</div>
+        <div class="grid">
+            <button class="btn" onclick="calcInput('7')">7</button>
+            <button class="btn" onclick="calcInput('8')">8</button>
+            <button class="btn" onclick="calcInput('9')">9</button>
+            <button class="btn op" onclick="calcInput('/')">÷</button>
+            
+            <button class="btn" onclick="calcInput('4')">4</button>
+            <button class="btn" onclick="calcInput('5')">5</button>
+            <button class="btn" onclick="calcInput('6')">6</button>
+            <button class="btn op" onclick="calcInput('*')">×</button>
+            
+            <button class="btn" onclick="calcInput('1')">1</button>
+            <button class="btn" onclick="calcInput('2')">2</button>
+            <button class="btn" onclick="calcInput('3')">3</button>
+            <button class="btn op" onclick="calcInput('-')">−</button>
+            
+            <button class="btn clear" onclick="calcInput('AC')">AC</button>
+            <button class="btn" onclick="calcInput('0')">0</button>
+            <button class="btn clear" onclick="calcInput('C')">⌫</button>
+            <button class="btn op" onclick="calcInput('+')">+</button>
+            
+            <button class="btn action" onclick="calcSolve()">=</button>
+            <button class="btn copy" onclick="calcCopy()">Salin Jawaban</button>
+        </div>
+    </div>
+
+    <div class="main-actions">
+        <button id="btn-check" class="cta" onclick="validate()">CEK JAWABAN</button>
+        <button id="btn-reset" class="cta" onclick="newGame()" disabled>HITUNG LAGI!</button>
+    </div>
+</div>
+
+<script>
+    // --- Application State ---
+    let target = 0;
+    let startTime = 0;
+    let timerRef = null;
+    let calcBuffer = "0";
+    let hasResult = false;
+    let particles = [];
+    let currentDifficulty = 'normal'; // default
+    
+    const canvas = document.getElementById('quiz-canvas');
+    const ctx = canvas.getContext('2d');
+    let displayMessage = "";
+    let colorTheme = "#2563eb";
+
+    // --- Core Game Logic ---
+    function init() {
+        resize();
+        loadBest();
+        newGame();
+        loop();
+    }
+
+    function resize() {
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = canvas.offsetWidth * dpr;
+        canvas.height = canvas.offsetHeight * dpr;
+        ctx.scale(dpr, dpr);
+    }
+
+    function loadBest() {
+        // Simpan best score per difficulty agar lebih adil
+        const best = localStorage.getItem(`playculator_v2_best_${currentDifficulty}`);
+        document.getElementById('best-val').innerText = best ? (best/1000).toFixed(1).replace('.', ',') + 's' : '--';
+    }
+
+    function setDifficulty(level) {
+        currentDifficulty = level;
+        
+        // Update UI buttons
+        document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.remove('active'));
+        if(level === 'easy') document.getElementById('diff-easy').classList.add('active');
+        if(level === 'normal') document.getElementById('diff-normal').classList.add('active');
+        if(level === 'SULIT') document.getElementById('diff-hard').classList.add('active');
+        
+        loadBest();
+        newGame();
+    }
+
+    function newGame() {
+        // Clear UI
+        document.getElementById('main-answer').value = "";
+        document.getElementById('main-answer').disabled = false;
+        document.getElementById('btn-check').disabled = false;
+        document.getElementById('btn-reset').disabled = true;
+        
+        // Difficulty Based Random Range
+        let min, max;
+        if(currentDifficulty === 'easy') {
+            min = 1; max = 100;
+        } else if(currentDifficulty === 'normal') {
+            min = 100; max = 10000;
+        } else {
+            min = 10000; max = 1000000;
+        }
+
+        const n1 = Math.floor(Math.random() * (max - min + 1)) + min;
+        const n2 = Math.floor(Math.random() * (max - min + 1)) + min;
+        
+        // Batasi operator untuk level mudah agar lebih ramah
+        const ops = (currentDifficulty === 'easy') ? ['+', '-'] : ['+', '-', '*'];
+        const op = ops[Math.floor(Math.random() * ops.length)];
+        
+        target = eval(`${n1} ${op} ${n2}`);
+        displayMessage = `${n1.toLocaleString('id-ID')} ${op === '*' ? '×' : op} ${n2.toLocaleString('id-ID')}`;
+        colorTheme = "#2563eb";
+
+        calcBuffer = "0";
+        updateCalcUI();
+        
+        startTime = Date.now();
+        if(timerRef) clearInterval(timerRef);
+        timerRef = setInterval(() => {
+            const ms = Date.now() - startTime;
+            document.getElementById('timer-val').innerText = (ms/1000).toFixed(1).replace('.', ',') + 's';
+        }, 50);
+    }
+
+    function validate() {
+        const inputStr = document.getElementById('main-answer').value;
+        if(inputStr === "") return;
+        const input = parseFloat(inputStr);
+
+        if(input === target) {
+            clearInterval(timerRef);
+            const time = Date.now() - startTime;
+            displayMessage = "BENAR!";
+            colorTheme = "#16a34a";
+            spawnParticles("#16a34a");
+            
+            const bestKey = `playculator_v2_best_${currentDifficulty}`;
+            const best = localStorage.getItem(bestKey);
+            if(!best || time < parseFloat(best)) {
+                localStorage.setItem(bestKey, time);
+                loadBest();
+                displayMessage = "REKOR BARU!";
+            }
+
+            document.getElementById('main-answer').disabled = true;
+            document.getElementById('btn-check').disabled = true;
+            document.getElementById('btn-reset').disabled = false;
+        } else {
+            displayMessage = "SALAH!";
+            colorTheme = "#dc2626";
+            spawnParticles("#dc2626");
+        }
+    }
+
+    // --- Calculator Engine ---
+    function calcInput(key) {
+        const operators = ['+', '-', '*', '/'];
+        
+        if((calcBuffer === "Error" || hasResult) && !operators.includes(key) && key !== 'C' && key !== 'AC') {
+            calcBuffer = "0";
+            hasResult = false;
+        }
+
+        if(key === 'AC') {
+            calcBuffer = "0";
+            hasResult = false;
+        } else if (key === 'C') {
+            calcBuffer = calcBuffer.length > 1 ? calcBuffer.slice(0, -1) : "0";
+        } else if (operators.includes(key)) {
+            hasResult = false;
+            const lastChar = calcBuffer.slice(-1);
+            if(operators.includes(lastChar)) {
+                calcBuffer = calcBuffer.slice(0, -1) + key;
+            } else {
+                calcBuffer += key;
+            }
+        } else {
+            if(calcBuffer === "0") calcBuffer = key;
+            else calcBuffer += key;
+        }
+        updateCalcUI();
+    }
+
+    function calcSolve() {
+        try {
+            const res = eval(calcBuffer.replace(/[^-+*/.0-9]/g, ''));
+            calcBuffer = res.toString();
+            hasResult = true;
+        } catch {
+            calcBuffer = "Error";
+        }
+        updateCalcUI();
+    }
+
+    function updateCalcUI() {
+        document.getElementById('calc-display').innerText = calcBuffer;
+    }
+
+    function calcCopy() {
+        if(calcBuffer !== "Error" && calcBuffer !== "0") {
+            document.getElementById('main-answer').value = calcBuffer;
+        }
+    }
+
+    // --- Canvas Logic ---
+    function spawnParticles(color) {
+        const w = canvas.width / (window.devicePixelRatio || 1);
+        const h = canvas.height / (window.devicePixelRatio || 1);
+        for(let i=0; i<20; i++) {
+            particles.push({
+                x: w/2, y: h/2,
+                vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10,
+                life: 1.0, color: color, size: Math.random()*4+2
+            });
+        }
+    }
+
+    function loop() {
+        const w = canvas.width / (window.devicePixelRatio || 1);
+        const h = canvas.height / (window.devicePixelRatio || 1);
+        ctx.clearRect(0,0,w,h);
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = colorTheme;
+        ctx.font = `bold ${displayMessage.length > 15 ? '18px' : '24px'} sans-serif`;
+        ctx.fillText(displayMessage, w/2, h/2);
+
+        particles.forEach((p, i) => {
+            p.x += p.vx; p.y += p.vy;
+            p.life -= 0.02;
+            ctx.globalAlpha = p.life;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+            ctx.fill();
+        });
+        particles = particles.filter(p => p.life > 0);
+        ctx.globalAlpha = 1;
+
+        requestAnimationFrame(loop);
+    }
+
+    window.onload = init;
+    window.onresize = resize;
+</script>
+
+</body>
+</html>
