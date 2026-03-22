@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Buku Pustaka - Koleksi Pribadi</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 16px;
+            padding-bottom: 100px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin: 0;
+            color: var(--primary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .tab {
+            padding: 6px 16px;
+            background: #e2e8f0;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            cursor: pointer;
+            border: none;
+        }
+
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .book-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .book-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .book-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .book-author {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-right: 5px;
+        }
+
+        .badge-owned { background: #dcfce7; color: #166534; }
+        .badge-wishlist { background: #fef3c7; color: #92400e; }
+        .badge-reading { background: #dbeafe; color: #1e40af; }
+        .badge-finished { background: #f3e8ff; color: #6b21a8; }
+
+        .rating {
+            color: var(--warning);
+            margin: 8px 0;
+            font-size: 1.2rem;
+        }
+
+        .book-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            font-size: 1.2rem;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: flex-end;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            border-radius: 20px 20px 0 0;
+            padding: 24px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            background: var(--primary);
+            color: white;
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+            border: none;
+            z-index: 99;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+        }
+
+        .star-input {
+            display: flex;
+            gap: 10px;
+            font-size: 1.5rem;
+        }
+        .star-input span { cursor: pointer; color: #ccc; }
+        .star-input span.active { color: var(--warning); }
+
+        .import-export {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .btn-outline {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Buku Pustaka</h1>
+        <div id="date-display" style="font-size: 0.8rem; color: var(--text-light)"></div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-value" id="stat-total">0</span>
+            <span class="stat-label">Total Buku</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-value" id="stat-finished">0</span>
+            <span class="stat-label">Selesai Baca</span>
+        </div>
+    </div>
+
+    <div class="controls">
+        <input type="text" id="search-input" placeholder="Cari judul atau penulis...">
+        <div class="filter-tabs">
+            <button class="tab active" onclick="filterBooks('all', this)">Semua</button>
+            <button class="tab" onclick="filterBooks('owned', this)">Milik Saya</button>
+            <button class="tab" onclick="filterBooks('wishlist', this)">Wishlist</button>
+            <button class="tab" onclick="filterBooks('reading', this)">Sedang Baca</button>
+            <button class="tab" onclick="filterBooks('finished', this)">Selesai</button>
+        </div>
+    </div>
+
+    <div id="book-list" class="book-list">
+        <!-- Buku akan tampil di sini -->
+    </div>
+
+    <div class="import-export">
+        <button class="btn-outline" onclick="exportData()">💾 Ekspor Data</button>
+        <button class="btn-outline" onclick="document.getElementById('import-file').click()">📂 Impor Data</button>
+        <input type="file" id="import-file" style="display:none" accept=".json" onchange="importData(event)">
+    </div>
+</div>
+
+<button class="fab" onclick="openModal()">+</button>
+
+<!-- Modal Form -->
+<div id="book-modal" class="modal">
+    <div class="modal-content">
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 id="modal-title" style="margin:0">Tambah Buku</h2>
+            <button onclick="closeModal()" style="background:none; border:none; font-size: 1.5rem;">&times;</button>
+        </div>
+        
+        <form id="book-form">
+            <input type="hidden" id="edit-id">
+            
+            <div class="form-group">
+                <label>Judul Buku*</label>
+                <input type="text" id="title" required placeholder="Contoh: Filosofi Teras">
+            </div>
+
+            <div class="form-group">
+                <label>Penulis / Pengarang</label>
+                <input type="text" id="author" placeholder="Nama Penulis">
+            </div>
+
+            <div class="form-group">
+                <label>Penerbit</label>
+                <input type="text" id="publisher" placeholder="Nama Penerbit">
+            </div>
+
+            <div class="form-group">
+                <label>Status Kepemilikan</label>
+                <select id="buy-status">
+                    <option value="owned">Sudah Dimiliki (Owned)</option>
+                    <option value="wishlist">Daftar Keinginan (Wishlist)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Status Baca</label>
+                <select id="read-status" onchange="toggleReviewSection()">
+                    <option value="unread">Belum Dibaca</option>
+                    <option value="reading">Sedang Dibaca</option>
+                    <option value="finished">Selesai Dibaca</option>
+                </select>
+            </div>
+
+            <div id="review-section" style="display:none; border-top: 1px solid #eee; padding-top: 10px;">
+                <div class="form-group">
+                    <label>Rating</label>
+                    <div class="star-input" id="star-rating">
+                        <span onclick="setRating(1)">★</span>
+                        <span onclick="setRating(2)">★</span>
+                        <span onclick="setRating(3)">★</span>
+                        <span onclick="setRating(4)">★</span>
+                        <span onclick="setRating(5)">★</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Catatan / Review Singkat</label>
+                    <textarea id="notes" rows="3" placeholder="Apa pendapatmu tentang buku ini?"></textarea>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Link Pembelian (URL)</label>
+                <input type="url" id="buy-link" placeholder="https://shopee.co.id/...">
+            </div>
+
+            <button type="submit" class="btn-primary">Simpan Buku</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    let books = JSON.parse(localStorage.getItem('buku_pustaka')) || [];
+    let currentRating = 0;
+    let currentFilter = 'all';
+
+    // Inisialisasi
+    window.onload = () => {
+        renderBooks();
+        updateStats();
+        // Set tanggal dalam bahasa Indonesia
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('date-display').innerText = new Date().toLocaleDateString('id-ID', options);
+    };
+
+    // Fungsi Render Daftar Buku
+    function renderBooks() {
+        const listElement = document.getElementById('book-list');
+        const searchTerm = document.getElementById('search-input').value.toLowerCase();
+        
+        listElement.innerHTML = '';
+
+        const filtered = books.filter(book => {
+            const matchesSearch = book.title.toLowerCase().includes(searchTerm) || (book.author && book.author.toLowerCase().includes(searchTerm));
+            const matchesFilter = currentFilter === 'all' || 
+                                 (currentFilter === 'owned' && book.buyStatus === 'owned') ||
+                                 (currentFilter === 'wishlist' && book.buyStatus === 'wishlist') ||
+                                 (currentFilter === 'reading' && book.readStatus === 'reading') ||
+                                 (currentFilter === 'finished' && book.readStatus === 'finished');
+            return matchesSearch && matchesFilter;
+        });
+
+        if (filtered.length === 0) {
+            listElement.innerHTML = `<div class="empty-state">Tidak ada buku ditemukan. Yuk, tambah koleksimu!</div>`;
+            return;
+        }
+
+        // Urutkan dari yang terbaru ditambahkan
+        filtered.slice().reverse().forEach(book => {
+            const card = document.createElement('div');
+            card.className = 'book-card';
+            
+            const stars = '★'.repeat(book.rating || 0) + '☆'.repeat(5 - (book.rating || 0));
+            
+            // Terjemahan label status untuk tampilan
+            const buyLabel = book.buyStatus === 'owned' ? 'Milik Saya' : 'Wishlist';
+            const readLabel = book.readStatus === 'reading' ? 'Sedang Baca' : (book.readStatus === 'finished' ? 'Selesai' : 'Belum Baca');
+
+            card.innerHTML = `
+                <span class="book-title">${book.title}</span>
+                <span class="book-author">${book.author || 'Penulis Tidak Diketahui'}</span>
+                <div>
+                    <span class="badge ${book.buyStatus === 'owned' ? 'badge-owned' : 'badge-wishlist'}">${buyLabel}</span>
+                    <span class="badge ${book.readStatus === 'reading' ? 'badge-reading' : (book.readStatus === 'finished' ? 'badge-finished' : '')}">${readLabel}</span>
+                </div>
+                ${book.readStatus === 'finished' ? `<div class="rating">${stars}</div>` : ''}
+                ${book.notes ? `<p style="font-size:0.85rem; color:var(--text-light); margin:8px 0; font-style: italic">"${book.notes}"</p>` : ''}
+                <div class="book-actions">
+                    <button class="btn-icon" onclick="editBook('${book.id}')" title="Ubah">📝</button>
+                    <button class="btn-icon" onclick="deleteBook('${book.id}')" title="Hapus">🗑️</button>
+                    ${book.buyLink ? `<button class="btn-icon" onclick="window.open('${book.buyLink}', '_blank')" title="Beli">🛒</button>` : ''}
+                    <button class="btn-icon" onclick="copyInfo('${book.id}')" title="Salin Info">📋</button>
+                </div>
+            `;
+            listElement.appendChild(card);
+        });
+    }
+
+    // CRUD Logic
+    document.getElementById('book-form').onsubmit = (e) => {
+        e.preventDefault();
+        const id = document.getElementById('edit-id').value || Date.now().toString();
+        
+        const bookData = {
+            id: id,
+            title: document.getElementById('title').value,
+            author: document.getElementById('author').value,
+            publisher: document.getElementById('publisher').value,
+            buyStatus: document.getElementById('buy-status').value,
+            readStatus: document.getElementById('read-status').value,
+            buyLink: document.getElementById('buy-link').value,
+            rating: currentRating,
+            notes: document.getElementById('notes').value
+        };
+
+        const existingIndex = books.findIndex(b => b.id === id);
+        if (existingIndex > -1) {
+            books[existingIndex] = bookData;
+        } else {
+            books.push(bookData);
+        }
+
+        saveAndRefresh();
+        closeModal();
+    };
+
+    function deleteBook(id) {
+        if(confirm('Apakah kamu yakin ingin menghapus buku ini dari daftar?')) {
+            books = books.filter(b => b.id !== id);
+            saveAndRefresh();
+        }
+    }
+
+    function editBook(id) {
+        const book = books.find(b => b.id === id);
+        if(!book) return;
+
+        document.getElementById('modal-title').innerText = 'Ubah Data Buku';
+        document.getElementById('edit-id').value = book.id;
+        document.getElementById('title').value = book.title;
+        document.getElementById('author').value = book.author;
+        document.getElementById('publisher').value = book.publisher;
+        document.getElementById('buy-status').value = book.buyStatus;
+        document.getElementById('read-status').value = book.readStatus;
+        document.getElementById('buy-link').value = book.buyLink;
+        document.getElementById('notes').value = book.notes || '';
+        
+        setRating(book.rating || 0);
+        toggleReviewSection();
+        openModal();
+    }
+
+    // Helpers
+    function saveAndRefresh() {
+        localStorage.setItem('buku_pustaka', JSON.stringify(books));
+        renderBooks();
+        updateStats();
+    }
+
+    function updateStats() {
+        document.getElementById('stat-total').innerText = books.length;
+        document.getElementById('stat-finished').innerText = books.filter(b => b.readStatus === 'finished').length;
+    }
+
+    function openModal() {
+        document.getElementById('book-modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('book-modal').style.display = 'none';
+        document.getElementById('book-form').reset();
+        document.getElementById('edit-id').value = '';
+        document.getElementById('modal-title').innerText = 'Tambah Buku';
+        setRating(0);
+        toggleReviewSection();
+    }
+
+    function toggleReviewSection() {
+        const status = document.getElementById('read-status').value;
+        document.getElementById('review-section').style.display = (status === 'finished') ? 'block' : 'none';
+    }
+
+    function setRating(r) {
+        currentRating = r;
+        const stars = document.querySelectorAll('.star-input span');
+        stars.forEach((s, i) => {
+            s.className = (i < r) ? 'active' : '';
+        });
+    }
+
+    function filterBooks(f, el) {
+        currentFilter = f;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        renderBooks();
+    }
+
+    document.getElementById('search-input').oninput = renderBooks;
+
+    // Clipboard API
+    function copyInfo(id) {
+        const book = books.find(b => b.id === id);
+        const text = `Judul: ${book.title}\nPenulis: ${book.author || '-'}\nStatus: ${book.buyStatus === 'owned' ? 'Milik Saya' : 'Wishlist'}\nLink: ${book.buyLink || 'Tidak ada'}`;
+        
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            // Ganti alert dengan feedback UI sederhana jika perlu, di sini tetap pakai alert bawaan browser
+            alert('Info buku berhasil disalin ke clipboard!');
+        } catch (err) {
+            console.error('Gagal menyalin', err);
+        }
+        document.body.removeChild(textArea);
+    }
+
+    // File API: Export
+    function exportData() {
+        const dataStr = JSON.stringify(books, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const date = new Date().toISOString().split('T')[0];
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', url);
+        linkElement.setAttribute('download', `backup_buku_pustaka_${date}.json`);
+        linkElement.click();
+        URL.revokeObjectURL(url);
+    }
+
+    // File API: Import
+    function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const importedBooks = JSON.parse(e.target.result);
+                if (Array.isArray(importedBooks)) {
+                    if (confirm(`Impor ${importedBooks.length} data buku? Data dengan ID yang sama akan diperbarui, data baru akan ditambahkan.`)) {
+                        const currentBooksMap = new Map(books.map(b => [b.id, b]));
+                        importedBooks.forEach(ib => {
+                            currentBooksMap.set(ib.id, ib);
+                        });
+                        books = Array.from(currentBooksMap.values());
+                        saveAndRefresh();
+                        alert('Data berhasil diimpor!');
+                    }
+                }
+            } catch (err) {
+                alert('Format file JSON tidak valid!');
+            }
+        };
+        reader.readAsText(file);
+        event.target.value = ''; // Reset input file
+    }
+</script>
+
+</body>
+</html>
