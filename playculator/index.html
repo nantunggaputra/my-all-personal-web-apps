@@ -46,7 +46,7 @@
 
         header { text-align: center; margin-bottom: 4px; }
         h1 { font-size: 1.6rem; color: var(--primary); letter-spacing: -0.02em; }
-        
+
         /* Difficulty Selector */
         .diff-container {
             display: flex;
@@ -106,6 +106,27 @@
         }
 
         #main-answer:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+
+        /* Controls - UPDATED POSITION */
+        .main-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .cta {
+            padding: 16px;
+            border-radius: 16px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #btn-check { background: var(--success); color: white; }
+        #btn-reset { background: var(--border); color: var(--text-muted); }
+        #btn-reset:not(:disabled) { background: var(--accent); color: white; }
 
         /* Stats Row */
         .stats-grid {
@@ -175,27 +196,6 @@
         .btn.action { background: var(--primary); color: white; grid-column: span 2; }
         .btn.copy { background: #f1f5f9; color: var(--text-muted); font-size: 0.85rem; grid-column: span 2; }
 
-        /* Controls */
-        .main-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .cta {
-            padding: 16px;
-            border-radius: 16px;
-            border: none;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        #btn-check { background: var(--success); color: white; }
-        #btn-reset { background: var(--border); color: var(--text-muted); }
-        #btn-reset:not(:disabled) { background: var(--accent); color: white; }
-
         button:disabled { opacity: 0.5; cursor: not-allowed; }
     </style>
 </head>
@@ -213,11 +213,19 @@
         <button id="diff-hard" class="diff-btn" onclick="setDifficulty('SULIT')">SULIT</button>
     </div>
 
+    <!-- Quiz Area -->
     <div class="quiz-area">
         <canvas id="quiz-canvas"></canvas>
         <input type="number" id="main-answer" placeholder="Jawaban?" inputmode="numeric">
     </div>
 
+    <!-- Main Actions Moved Up -->
+    <div class="main-actions">
+        <button id="btn-check" class="cta" onclick="validate()">CEK JAWABAN</button>
+        <button id="btn-reset" class="cta" onclick="newGame()" disabled>HITUNG LAGI!</button>
+    </div>
+
+    <!-- Stats Info -->
     <div class="stats-grid">
         <div class="stat-box">
             <span class="stat-label">Kecepatan</span>
@@ -229,6 +237,7 @@
         </div>
     </div>
 
+    <!-- Calculator Utility -->
     <div class="calc-box">
         <div id="calc-display">0</div>
         <div class="grid">
@@ -236,30 +245,25 @@
             <button class="btn" onclick="calcInput('8')">8</button>
             <button class="btn" onclick="calcInput('9')">9</button>
             <button class="btn op" onclick="calcInput('/')">÷</button>
-            
+
             <button class="btn" onclick="calcInput('4')">4</button>
             <button class="btn" onclick="calcInput('5')">5</button>
             <button class="btn" onclick="calcInput('6')">6</button>
             <button class="btn op" onclick="calcInput('*')">×</button>
-            
+
             <button class="btn" onclick="calcInput('1')">1</button>
             <button class="btn" onclick="calcInput('2')">2</button>
             <button class="btn" onclick="calcInput('3')">3</button>
             <button class="btn op" onclick="calcInput('-')">−</button>
-            
+
             <button class="btn clear" onclick="calcInput('AC')">AC</button>
             <button class="btn" onclick="calcInput('0')">0</button>
             <button class="btn clear" onclick="calcInput('C')">⌫</button>
             <button class="btn op" onclick="calcInput('+')">+</button>
-            
+
             <button class="btn action" onclick="calcSolve()">=</button>
             <button class="btn copy" onclick="calcCopy()">Salin Jawaban</button>
         </div>
-    </div>
-
-    <div class="main-actions">
-        <button id="btn-check" class="cta" onclick="validate()">CEK JAWABAN</button>
-        <button id="btn-reset" class="cta" onclick="newGame()" disabled>HITUNG LAGI!</button>
     </div>
 </div>
 
@@ -271,10 +275,11 @@
     let calcBuffer = "0";
     let hasResult = false;
     let particles = [];
-    let currentDifficulty = 'normal'; // default
-    
+    let currentDifficulty = 'normal';
+
     const canvas = document.getElementById('quiz-canvas');
     const ctx = canvas.getContext('2d');
+    const answerInput = document.getElementById('main-answer');
     let displayMessage = "";
     let colorTheme = "#2563eb";
 
@@ -282,6 +287,12 @@
     function init() {
         resize();
         loadBest();
+        
+        // Listener for Enter Key
+        answerInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') validate();
+        });
+
         newGame();
         loop();
     }
@@ -294,55 +305,55 @@
     }
 
     function loadBest() {
-        // Simpan best score per difficulty agar lebih adil
         const best = localStorage.getItem(`playculator_v2_best_${currentDifficulty}`);
         document.getElementById('best-val').innerText = best ? (best/1000).toFixed(1).replace('.', ',') + 's' : '--';
     }
 
     function setDifficulty(level) {
         currentDifficulty = level;
-        
-        // Update UI buttons
+
         document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.remove('active'));
         if(level === 'easy') document.getElementById('diff-easy').classList.add('active');
         if(level === 'normal') document.getElementById('diff-normal').classList.add('active');
         if(level === 'SULIT') document.getElementById('diff-hard').classList.add('active');
-        
+
         loadBest();
         newGame();
     }
 
     function newGame() {
-        // Clear UI
-        document.getElementById('main-answer').value = "";
-        document.getElementById('main-answer').disabled = false;
+        // Reset UI components
+        answerInput.value = "";
+        answerInput.disabled = false;
         document.getElementById('btn-check').disabled = false;
         document.getElementById('btn-reset').disabled = true;
-        
-        // Difficulty Based Random Range
+
+        // AUTO FOCUS: Langsung aktifkan input setiap soal baru muncul
+        setTimeout(() => answerInput.focus(), 100);
+
+        // Difficulty Range
         let min, max;
         if(currentDifficulty === 'easy') {
-            min = 1; max = 100;
+            min = 1; max = 50;
         } else if(currentDifficulty === 'normal') {
-            min = 100; max = 10000;
+            min = 50; max = 500;
         } else {
-            min = 10000; max = 1000000;
+            min = 500; max = 5000;
         }
 
         const n1 = Math.floor(Math.random() * (max - min + 1)) + min;
         const n2 = Math.floor(Math.random() * (max - min + 1)) + min;
-        
-        // Batasi operator untuk level mudah agar lebih ramah
+
         const ops = (currentDifficulty === 'easy') ? ['+', '-'] : ['+', '-', '*'];
         const op = ops[Math.floor(Math.random() * ops.length)];
-        
+
         target = eval(`${n1} ${op} ${n2}`);
         displayMessage = `${n1.toLocaleString('id-ID')} ${op === '*' ? '×' : op} ${n2.toLocaleString('id-ID')}`;
         colorTheme = "#2563eb";
 
         calcBuffer = "0";
         updateCalcUI();
-        
+
         startTime = Date.now();
         if(timerRef) clearInterval(timerRef);
         timerRef = setInterval(() => {
@@ -352,7 +363,7 @@
     }
 
     function validate() {
-        const inputStr = document.getElementById('main-answer').value;
+        const inputStr = answerInput.value;
         if(inputStr === "") return;
         const input = parseFloat(inputStr);
 
@@ -362,7 +373,7 @@
             displayMessage = "BENAR!";
             colorTheme = "#16a34a";
             spawnParticles("#16a34a");
-            
+
             const bestKey = `playculator_v2_best_${currentDifficulty}`;
             const best = localStorage.getItem(bestKey);
             if(!best || time < parseFloat(best)) {
@@ -371,9 +382,11 @@
                 displayMessage = "REKOR BARU!";
             }
 
-            document.getElementById('main-answer').disabled = true;
+            answerInput.disabled = true;
             document.getElementById('btn-check').disabled = true;
             document.getElementById('btn-reset').disabled = false;
+            // Focus on "New Game" button after win for fast workflow
+            document.getElementById('btn-reset').focus();
         } else {
             displayMessage = "SALAH!";
             colorTheme = "#dc2626";
@@ -384,7 +397,7 @@
     // --- Calculator Engine ---
     function calcInput(key) {
         const operators = ['+', '-', '*', '/'];
-        
+
         if((calcBuffer === "Error" || hasResult) && !operators.includes(key) && key !== 'C' && key !== 'AC') {
             calcBuffer = "0";
             hasResult = false;
@@ -427,11 +440,13 @@
 
     function calcCopy() {
         if(calcBuffer !== "Error" && calcBuffer !== "0") {
-            document.getElementById('main-answer').value = calcBuffer;
+            answerInput.value = calcBuffer;
+            // Tetap berikan fokus ke input setelah menyalin hasil kalkulator
+            answerInput.focus();
         }
     }
 
-    // --- Canvas Logic ---
+    // --- Canvas & Animation Loop ---
     function spawnParticles(color) {
         const w = canvas.width / (window.devicePixelRatio || 1);
         const h = canvas.height / (window.devicePixelRatio || 1);
