@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Window Garden Pro</title>
+    <style>
+        :root {
+            --bg-day: linear-gradient(180deg, #A1E3FF 0%, #E3F2FD 100%);
+            --bg-night: linear-gradient(180deg, #1A237E 0%, #000000 100%);
+            --sun-moon: #FFD600;
+            --soil-wet: #5D4037;
+            --soil-dry: #D7CCC8;
+            --primary: #2ECC71;
+            --text-main: #2C3E50;
+            --card-glass: rgba(255, 255, 255, 0.85);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: background 1s ease;
+            color: var(--text-main);
+        }
+
+        body.day { background: var(--bg-day); }
+        body.night { background: var(--bg-night); color: #FFF; }
+
+        /* Ambient Elements */
+        .sky-body {
+            position: absolute;
+            top: 50px;
+            right: 50px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--sun-moon);
+            box-shadow: 0 0 30px var(--sun-moon);
+            transition: all 1s ease;
+        }
+        body.night .sky-body { background: #F1C40F; box-shadow: 0 0 15px #F1C40F; transform: translateY(20px); }
+
+        /* Plant Display */
+        .stage {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: 55vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        #plant-svg {
+            width: 280px;
+            height: 350px;
+            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1));
+            z-index: 5;
+        }
+
+        .stem { fill: none; stroke-width: 5; stroke-linecap: round; transition: all 0.8s ease; }
+        .leaf { transition: all 0.8s ease; transform-origin: center bottom; }
+        .pot-soil { transition: stroke 1s ease; }
+
+        /* UI Panel */
+        .panel {
+            width: 90%;
+            max-width: 360px;
+            background: var(--card-glass);
+            backdrop-filter: blur(15px);
+            padding: 25px;
+            border-radius: 30px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            z-index: 20;
+        }
+        body.night .panel { background: rgba(30, 30, 50, 0.9); color: white; border: 1px solid rgba(255,255,255,0.1); }
+
+        .streak-badge {
+            background: #E67E22;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .level-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 10px;
+            margin: 15px 0 5px;
+            overflow: hidden;
+        }
+        body.night .level-bar { background: rgba(255,255,255,0.1); }
+        .level-progress {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .status-pill {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        .s-segar { background: #D4EFDF; color: #196F3D; }
+        .s-normal { background: #EAF9F0; color: #1E8449; }
+        .s-haus { background: #FCF3CF; color: #9A7D0A; }
+        .s-layu { background: #FADBD8; color: #943126; }
+        .s-libur { background: #E5E7E9; color: #566573; }
+
+        .btn-water {
+            background: #3498DB;
+            color: white;
+            border: none;
+            padding: 18px;
+            width: 100%;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+        .btn-water:hover:not(:disabled) { background: #2980B9; transform: translateY(-2px); }
+        .btn-water:active:not(:disabled) { transform: scale(0.95); }
+        .btn-water:disabled { background: #BDC3C7; cursor: not-allowed; opacity: 0.7; }
+
+        /* Settings Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        .modal {
+            background: white;
+            padding: 30px;
+            border-radius: 25px;
+            width: 90%;
+            max-width: 340px;
+            text-align: left;
+        }
+        body.night .modal { background: #1e1e2f; color: white; }
+        .modal h2 { margin-bottom: 20px; font-size: 1.2rem; }
+        .modal label { display: block; font-size: 0.85rem; margin-bottom: 8px; opacity: 0.8; }
+        .modal input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            background: #f9f9f9;
+            outline: none;
+        }
+        body.night .modal input[type="number"] { background: #2d2d44; border-color: #444; color: white; }
+        
+        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(26px); }
+
+        .modal-btns { display: flex; gap: 10px; }
+        .btn-save { flex: 1; padding: 12px; background: var(--primary); border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; }
+        .btn-close { padding: 12px; background: #eee; border: none; border-radius: 10px; cursor: pointer; }
+        body.night .btn-close { background: #333; color: white; }
+
+        /* Advanced Ambient CSS */
+        .btn-settings { position: absolute; top: 20px; left: 20px; background: rgba(255,255,255,0.2); border: none; font-size: 1.2rem; cursor: pointer; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.3s; z-index: 50; }
+        .btn-settings:hover { background: rgba(255,255,255,0.4); transform: rotate(45deg); }
+        
+        /* Daun Berjatuhan */
+        .floating-leaf { position: absolute; pointer-events: none; z-index: 1; }
+        @keyframes fall {
+            0% { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(110vh) translateX(100px) rotate(360deg); opacity: 0; }
+        }
+
+        /* Kupu-kupu Ambient */
+        .butterfly {
+            position: absolute;
+            font-size: 20px;
+            pointer-events: none;
+            z-index: 15;
+            transition: all 4s linear;
+        }
+
+        /* Sparkle Ambient */
+        .sparkle {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: white;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+        @keyframes sparkle-anim {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: scale(1.5) rotate(180deg); opacity: 0; }
+        }
+
+        .name-edit {
+            background: transparent;
+            border: none;
+            color: inherit;
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-align: center;
+            width: 100%;
+            margin-bottom: 5px;
+            outline: none;
+            border-bottom: 2px solid transparent;
+            transition: 0.3s;
+        }
+        .name-edit:focus { border-bottom-color: var(--primary); }
+    </style>
+</head>
+<body class="day">
+
+    <button class="btn-settings" onclick="toggleModal(true)">🌸</button>
+    <div class="sky-body"></div>
+
+    <div class="stage" id="stage">
+        <svg id="plant-svg" viewBox="0 0 100 120">
+            <path d="M30 110 L70 110 L75 85 L25 85 Z" fill="#8D6E63" />
+            <rect x="23" y="80" width="54" height="7" rx="2" fill="#795548" />
+            <path id="soil" class="pot-soil" d="M26 82 Q50 78 74 82" stroke="#5D4037" stroke-width="4" fill="none" />
+            <path id="stem" class="stem" d="M50 80 Q50 50 50 30" stroke="#27AE60" />
+            <g id="leaves">
+                <path class="leaf" d="M50 65 Q30 55 20 70 Q35 80 50 65" fill="#2ECC71" />
+                <path class="leaf" d="M50 50 Q75 40 85 55 Q65 65 50 50" fill="#27AE60" />
+                <path id="top-leaf" class="leaf" d="M50 35 Q40 15 50 5 Q60 15 50 35" fill="#2ECC71" />
+            </g>
+        </svg>
+    </div>
+
+    <div class="panel">
+        <div id="streak-info" class="streak-badge">🔥 Streak: 0 Hari</div>
+        <input type="text" id="plant-name" class="name-edit" placeholder="Nama Tanaman" maxlength="15">
+        
+        <div id="status-pill" class="status-pill s-segar">Memuat...</div>
+        
+        <p id="timer-text" style="font-size: 0.85rem; margin-bottom: 10px; font-weight: 500;">Menghitung waktu...</p>
+
+        <div class="level-bar">
+            <div id="level-progress" class="level-progress"></div>
+        </div>
+        <p style="font-size: 0.75rem; margin-bottom: 15px; opacity: 0.8;">
+            Level <span id="level-txt">1</span> • <span id="exp-txt">0</span>/100 XP
+        </p>
+
+        <button id="btn-water" class="btn-water" onclick="doWatering()">
+            <span>💧</span> SIRAM SEKARANG
+        </button>
+    </div>
+
+    <!-- Modal Settings -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal">
+            <h2>Pengaturan Kebun</h2>
+            
+            <label>Interval Siram (Jam)</label>
+            <input type="number" id="input-interval" min="1" max="720">
+
+            <div class="setting-row">
+                <label style="margin:0">Mode Libur (Jeda)</label>
+                <label class="switch">
+                    <input type="checkbox" id="input-pause">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="modal-btns">
+                <button class="btn-close" onclick="toggleModal(false)">Batal</button>
+                <button class="btn-save" onclick="saveSettings()">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA & STORAGE ---
+        let db = {
+            name: localStorage.getItem('garden_name') || 'Si Hijau',
+            lastWatered: parseInt(localStorage.getItem('garden_last')) || Date.now(),
+            interval: parseInt(localStorage.getItem('garden_int')) || 86400000, 
+            exp: parseInt(localStorage.getItem('garden_exp')) || 0,
+            level: parseInt(localStorage.getItem('garden_lvl')) || 1,
+            streak: parseInt(localStorage.getItem('garden_str')) || 0,
+            lastStreakUpdate: localStorage.getItem('garden_str_date') || '',
+            isPaused: localStorage.getItem('garden_paused') === 'true',
+            pauseStart: parseInt(localStorage.getItem('garden_pause_start')) || 0
+        };
+
+        const save = () => {
+            localStorage.setItem('garden_name', db.name);
+            localStorage.setItem('garden_last', db.lastWatered);
+            localStorage.setItem('garden_int', db.interval);
+            localStorage.setItem('garden_exp', db.exp);
+            localStorage.setItem('garden_lvl', db.level);
+            localStorage.setItem('garden_str', db.streak);
+            localStorage.setItem('garden_str_date', db.lastStreakUpdate);
+            localStorage.setItem('garden_paused', db.isPaused);
+            localStorage.setItem('garden_pause_start', db.pauseStart);
+        };
+
+        // --- STEM PATH GENERATOR ---
+        function getStemPath(state, level) {
+            let baseY = 80;
+            let targetY = 35;
+            let curveX = 50;
+            const growth = Math.min((level - 1) * 2, 25);
+            
+            if (state === 'normal') targetY = 40;
+            if (state === 'haus') { targetY = 50; curveX = 55; }
+            if (state === 'layu') { targetY = 65; curveX = 65; }
+
+            const finalY = targetY - growth;
+            return `M50 ${baseY} Q${curveX} ${(baseY + finalY)/2} 50 ${finalY}`;
+        }
+
+        // --- LOGIC ---
+        function update() {
+            const now = Date.now();
+            const hour = new Date().getHours();
+            document.body.className = (hour >= 18 || hour < 6) ? 'night' : 'day';
+
+            if (db.isPaused) {
+                render('libur', 0);
+                return;
+            }
+
+            const diff = now - db.lastWatered;
+            let state = 'segar';
+            if (diff > db.interval * 1.5) state = 'layu';
+            else if (diff > db.interval) state = 'haus';
+            else if (diff > db.interval * 0.6) state = 'normal';
+
+            render(state, diff);
+            
+            // Random chance for sparkle if fresh
+            if (state === 'segar' && Math.random() > 0.95) spawnSparkle();
+        }
+
+        function render(state, diff) {
+            const pill = document.getElementById('status-pill');
+            const timer = document.getElementById('timer-text');
+            const stem = document.getElementById('stem');
+            const soil = document.getElementById('soil');
+            const leaves = document.querySelectorAll('.leaf');
+            const progress = document.getElementById('level-progress');
+            const btnWater = document.getElementById('btn-water');
+            
+            document.getElementById('level-txt').innerText = db.level;
+            document.getElementById('exp-txt').innerText = db.exp;
+            document.getElementById('streak-info').innerText = `🔥 Streak: ${db.streak} Hari`;
+            progress.style.width = `${db.exp}%`;
+
+            let color, badge, txt, soilColor;
+
+            if (state === 'libur') {
+                color = '#BDC3C7'; badge = 's-libur'; txt = 'Sedang Libur 💤'; soilColor = "#5D4037";
+                timer.innerText = "Waktu sedang dihentikan.";
+                btnWater.disabled = true;
+            } else {
+                btnWater.disabled = false;
+                const rem = db.interval - diff;
+                if (rem > 0) {
+                    const h = Math.floor(rem/3600000), m = Math.floor((rem%3600000)/60000), s = Math.floor((rem%60000)/1000);
+                    timer.innerText = `Siram berikutnya: ${h}j ${m}m ${s}s`;
+                } else {
+                    timer.innerText = `Tanaman sangat butuh air!`;
+                }
+
+                switch(state) {
+                    case 'segar': color = '#2ECC71'; badge = 's-segar'; txt = 'Segar Bugar 🌱'; soilColor = "#5D4037"; break;
+                    case 'normal': color = '#27AE60'; badge = 's-normal'; txt = 'Baik-baik Saja 🌱'; soilColor = "#5D4037"; break;
+                    case 'haus': color = '#F1C40F'; badge = 's-haus'; txt = 'Mulai Haus 🪵'; soilColor = "#8D6E63"; break;
+                    case 'layu': color = '#A0522D'; badge = 's-layu'; txt = 'Layu Parah 🪵'; soilColor = "#D7CCC8"; break;
+                }
+            }
+
+            pill.className = `status-pill ${badge}`;
+            pill.innerText = txt;
+            stem.setAttribute('d', getStemPath(state, db.level));
+            stem.style.stroke = color;
+            soil.style.stroke = soilColor;
+            leaves.forEach(l => {
+                l.style.fill = color;
+                l.style.transform = (state === 'layu') ? 'scale(0.8) rotate(15deg)' : 'scale(1)';
+            });
+        }
+
+        function doWatering() {
+            if (db.isPaused) return;
+            const now = Date.now();
+            const diff = now - db.lastWatered;
+
+            if (diff > db.interval * 0.5) {
+                db.exp += 20;
+                checkStreak();
+            } else {
+                db.exp += 2;
+            }
+
+            if (db.exp >= 100) { db.level++; db.exp = 0; }
+            db.lastWatered = now;
+            save();
+            update();
+            createWaterFeedback();
+        }
+
+        function checkStreak() {
+            const today = new Date().toDateString();
+            if (db.lastStreakUpdate !== today) {
+                db.streak++;
+                db.lastStreakUpdate = today;
+            }
+        }
+
+        function createWaterFeedback() {
+            for(let i=0; i<10; i++) {
+                const p = document.createElement('div');
+                p.innerText = "💧";
+                p.style.position = "fixed";
+                p.style.left = "50%"; p.style.top = "45%";
+                p.style.fontSize = (Math.random() * 10 + 15) + "px";
+                p.style.pointerEvents = "none";
+                p.style.zIndex = "100";
+                p.style.transition = "all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
+                document.body.appendChild(p);
+                const tx = (Math.random() - 0.5) * 400;
+                const ty = -100 - (Math.random() * 200);
+                setTimeout(() => {
+                    p.style.transform = `translate(${tx}px, ${ty}px) rotate(${tx}deg)`;
+                    p.style.opacity = "0";
+                }, 10);
+                setTimeout(() => p.remove(), 2000);
+            }
+        }
+
+        // --- SETTINGS MODAL ---
+        function toggleModal(show) {
+            const modal = document.getElementById('settings-modal');
+            document.getElementById('input-interval').value = db.interval / 3600000;
+            document.getElementById('input-pause').checked = db.isPaused;
+            modal.style.display = show ? 'flex' : 'none';
+        }
+
+        function saveSettings() {
+            const val = parseFloat(document.getElementById('input-interval').value);
+            const pauseVal = document.getElementById('input-pause').checked;
+            const now = Date.now();
+
+            if (pauseVal && !db.isPaused) {
+                db.isPaused = true;
+                db.pauseStart = now;
+            } else if (!pauseVal && db.isPaused) {
+                const pauseDuration = now - db.pauseStart;
+                db.lastWatered += pauseDuration;
+                db.isPaused = false;
+                db.pauseStart = 0;
+            }
+
+            if (!isNaN(val) && val >= 0.1) {
+                db.interval = val * 3600000;
+            }
+
+            save();
+            update();
+            toggleModal(false);
+        }
+
+        // --- ENRICHED AMBIENT ---
+
+        // 1. Daun Berguguran (Variasi Kecepatan)
+        function spawnAmbientLeaf() {
+            const leaf = document.createElement('div');
+            leaf.className = 'floating-leaf';
+            leaf.innerHTML = Math.random() > 0.5 ? "🌿" : "🍁";
+            leaf.style.left = Math.random() * 100 + "vw";
+            leaf.style.top = "-5vh";
+            leaf.style.fontSize = (Math.random() * 15 + 15) + "px";
+            leaf.style.opacity = Math.random() * 0.5 + 0.3;
+            leaf.style.animation = `fall ${Math.random() * 4 + 6}s linear forwards`;
+            document.body.appendChild(leaf);
+            setTimeout(() => leaf.remove(), 10000);
+            setTimeout(spawnAmbientLeaf, Math.random() * 8000 + 4000);
+        }
+
+        // 2. Kupu-kupu (Lewat secara periodik)
+        function spawnButterfly() {
+            const b = document.createElement('div');
+            b.className = 'butterfly';
+            b.innerHTML = "🐞";
+            const side = Math.random() > 0.5;
+            b.style.left = side ? "-50px" : "110vw";
+            b.style.top = (Math.random() * 40 + 20) + "vh";
+            document.body.appendChild(b);
+
+            setTimeout(() => {
+                b.style.left = side ? "110vw" : "-50px";
+                b.style.top = (Math.random() * 40 + 20) + "vh";
+                b.style.transform = `scaleX(${side ? 1 : -1})`;
+            }, 100);
+
+            setTimeout(() => b.remove(), 8100);
+            setTimeout(spawnButterfly, Math.random() * 20000 + 15000);
+        }
+
+        // 3. Efek Berkilau (Hanya muncul di area tanaman)
+        function spawnSparkle() {
+            const s = document.createElement('div');
+            s.className = 'sparkle';
+            const stage = document.getElementById('stage');
+            const rect = stage.getBoundingClientRect();
+            
+            s.style.left = (rect.left + Math.random() * rect.width) + "px";
+            s.style.top = (rect.top + Math.random() * rect.height * 0.6) + "px";
+            s.style.animation = "sparkle-anim 1.5s ease-out forwards";
+            document.body.appendChild(s);
+            setTimeout(() => s.remove(), 16000);
+        }
+
+        // --- INITIALIZE ---
+        document.getElementById('plant-name').value = db.name;
+        document.getElementById('plant-name').addEventListener('blur', (e) => {
+            db.name = e.target.value || 'Si Hijau';
+            save();
+        });
+
+        update();
+        spawnAmbientLeaf();
+        spawnButterfly();
+        setInterval(update, 1000);
+    </script>
+</body>
+</html>
