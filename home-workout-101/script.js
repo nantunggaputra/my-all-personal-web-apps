@@ -1194,3 +1194,4 @@ window.addEventListener('DOMContentLoaded', () => {
         libraryState.searchQuery = e.target.value;
         renderLibraryList();
     });
+});
