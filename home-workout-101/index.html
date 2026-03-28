@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Home Workout 101 - Your Fitness Workspace">
+    <meta name="theme-color" content="#FFFFFF" id="theme-color-meta">
+    <title>Home Workout 101</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- App Container -->
+    <div class="app-container">
+        
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div>
+                    <h1 class="app-title">Home Workout 101</h1>
+                    <p class="app-subtitle">Your Fitness Workspace</p>
+                </div>
+                <button class="theme-toggle" id="themeToggle">
+                    🌙 Dark
+                </button>
+            </div>
+        </header>
+        
+        <!-- Main Content -->
+        <main class="app-main">
+            
+            <!-- Routine Tabs Navigation -->
+            <nav class="routine-tabs">
+                <button class="routine-tab active" data-routine="monday">
+                    Monday
+                </button>
+                <button class="routine-tab" data-routine="wednesday">
+                    Wednesday
+                </button>
+                <button class="routine-tab" data-routine="friday">
+                    Friday
+                </button>
+                <button class="routine-tab" data-routine="custom">
+                    Custom
+                </button>
+            </nav>
+            
+            <!-- Workout Content Area -->
+            <div class="workout-content">
+                
+                <!-- Monday Routine -->
+                <div class="routine-view active" id="monday-view">
+                    <div class="routine-header">
+                        <h2 class="routine-title">Monday Workout</h2>
+                        <p class="routine-description">Upper body focus: Chest, Arms, Shoulders</p>
+                    </div>
+                    
+                    <!-- Workout Summary -->
+                    <div class="workout-summary" id="monday-summary">
+                        <!-- Will be rendered dynamically -->
+                    </div>
+                    
+                    <div class="exercises-list">
+                        <!-- Exercises will be rendered here -->
+                    </div>
+                </div>
+                
+                <!-- Wednesday Routine -->
+                <div class="routine-view" id="wednesday-view">
+                    <div class="routine-header">
+                        <h2 class="routine-title">Wednesday Workout</h2>
+                        <p class="routine-description">Lower body focus: Legs, Core</p>
+                    </div>
+                    
+                    <!-- Workout Summary -->
+                    <div class="workout-summary" id="wednesday-summary">
+                        <!-- Will be rendered dynamically -->
+                    </div>
+                    
+                    <div class="exercises-list">
+                        <!-- Exercises will be rendered here -->
+                    </div>
+                </div>
+                
+                <!-- Friday Routine -->
+                <div class="routine-view" id="friday-view">
+                    <div class="routine-header">
+                        <h2 class="routine-title">Friday Workout</h2>
+                        <p class="routine-description">Full body: Back, Chest, Legs</p>
+                    </div>
+                    
+                    <!-- Workout Summary -->
+                    <div class="workout-summary" id="friday-summary">
+                        <!-- Will be rendered dynamically -->
+                    </div>
+                    
+                    <div class="exercises-list">
+                        <!-- Exercises will be rendered here -->
+                    </div>
+                </div>
+                
+                <!-- Custom Routine -->
+                <div class="routine-view" id="custom-view">
+                    <div class="routine-header">
+                        <h2 class="routine-title">Custom Workout</h2>
+                        <p class="routine-description">Build your own routine</p>
+                    </div>
+                    
+                    <!-- Workout Summary -->
+                    <div class="workout-summary" id="custom-summary" style="display: none;">
+                        <!-- Will be rendered dynamically -->
+                    </div>
+                    
+                    <div class="exercises-list">
+                        <!-- Exercises will be rendered here -->
+                    </div>
+                </div>
+                
+            </div>
+            
+        </main>
+        
+        <!-- Workout Footer (Sticky Bottom) -->
+        <footer class="workout-footer">
+            <div class="workout-footer-content">
+                <button class="btn btn-large" id="resetWorkoutBtn">
+                    Reset All
+                </button>
+                <button class="btn btn-primary btn-large btn-success" id="completeWorkoutBtn" disabled>
+                    Complete Workout
+                </button>
+            </div>
+        </footer>
+        
+    </div>
+    
+    <!-- Exercise Library Modal (Bottom Sheet) -->
+    <div class="library-overlay" id="libraryOverlay">
+        <div class="library-modal">
+            
+            <!-- Header -->
+            <div class="library-header">
+                <h3 class="library-title">Exercise Library</h3>
+                
+                <!-- Category Filters -->
+                <div class="library-filters">
+                    <button class="filter-btn active" data-category="All">All</button>
+                    <button class="filter-btn" data-category="Chest">Chest</button>
+                    <button class="filter-btn" data-category="Arms">Arms</button>
+                    <button class="filter-btn" data-category="Shoulders">Shoulders</button>
+                    <button class="filter-btn" data-category="Back">Back</button>
+                    <button class="filter-btn" data-category="Legs">Legs</button>
+                </div>
+                
+                <!-- Search Bar -->
+                <input type="text" class="library-search" id="librarySearch" placeholder="Search exercises...">
+            </div>
+            
+            <!-- Exercise List -->
+            <div class="library-content">
+                <div class="library-list" id="libraryList">
+                    <!-- Exercises will be rendered here dynamically -->
+                </div>
+            </div>
+            
+            <!-- Footer Actions -->
+            <div class="library-footer">
+                <button class="btn" id="libraryCancelBtn">Cancel</button>
+                <button class="btn btn-primary" id="libraryAddBtn">
+                    Add Selected (<span id="selectedCount">0</span>)
+                </button>
+            </div>
+            
+        </div>
+    </div>
+    
+    <!-- Rest Timer Modal -->
+    <div class="timer-overlay" id="timerOverlay">
+        <div class="timer-modal">
+            <h3 class="timer-title">Rest Time</h3>
+            
+            <div class="timer-settings">
+                <label for="timerDuration">Duration:</label>
+                <input type="number" id="timerDuration" value="60" min="5" max="300" step="5">
+                <span style="font-size: var(--font-size-sm); color: var(--text-secondary);">sec</span>
+            </div>
+            
+            <div class="timer-progress-ring">
+                <svg width="200" height="200">
+                    <circle class="timer-progress-bg" cx="100" cy="100" r="90"></circle>
+                    <circle class="timer-progress-bar" cx="100" cy="100" r="90" id="timerProgressCircle"></circle>
+                </svg>
+                <div class="timer-progress-text" id="timerProgressText">60</div>
+            </div>
+            
+            <div class="timer-controls">
+                <button class="btn" id="timerCancelBtn">Cancel</button>
+                <button class="btn btn-primary" id="timerStartBtn">Start</button>
+                <button class="btn btn-primary" id="timerSkipBtn" style="display: none;">Skip</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
