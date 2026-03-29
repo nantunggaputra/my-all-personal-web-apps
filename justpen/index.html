@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Justpen - Membuat Coretan</title>
+    <style>
+        :root {
+            --paper: #ffffff;
+            --ink: #1a1a1a;
+            --stabilo: rgba(255, 191, 0, 0.3);
+            --ui-bg: #f8f9fa;
+            --accent: #007AFF;
+            --danger: #ff3b30;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--ui-bg);
+            font-family: -apple-system, system-ui, sans-serif;
+        }
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Canvas Area */
+        #canvas-wrapper {
+            flex: 1;
+            background-color: var(--paper);
+            position: relative;
+            touch-action: none;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        /* Toolbar */
+        #toolbar {
+            height: 90px;
+            background: #ffffff;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: env(safe-area-inset-bottom);
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.03);
+            z-index: 10;
+        }
+
+        .tool-btn {
+            background: none;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            min-width: 70px;
+        }
+
+        .icon-box {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+        }
+
+        .tool-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #999;
+        }
+
+        .active .icon-box {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: 0 4px 10px rgba(0, 122, 255, 0.2);
+        }
+
+        .active .tool-label {
+            color: var(--accent);
+        }
+
+        /* Tool Colors */
+        .bg-pen { background-color: var(--ink); }
+        .bg-stabilo { background-color: #ffcc00; }
+        .bg-tipex { background-color: #fff; border: 2px solid #ddd !important; }
+        .bg-reset { background-color: var(--danger); }
+
+        /* Modal Styles */
+        #modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.4);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            backdrop-filter: blur(4px);
+        }
+
+        #modal {
+            background: white;
+            width: 85%;
+            max-width: 320px;
+            border-radius: 20px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transform: scale(0.9);
+            transition: transform 0.2s ease;
+        }
+
+        #modal.show { transform: scale(1); }
+
+        #modal h3 { margin-bottom: 12px; font-size: 18px; color: #333; }
+        #modal p { margin-bottom: 24px; font-size: 14px; color: #666; line-height: 1.5; }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn-cancel { background: #eee; color: #333; }
+        .btn-confirm { background: var(--danger); color: white; }
+
+        #status {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.05);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            color: #aaa;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <div id="canvas-wrapper">
+        <div id="status">Tersimpan otomatis</div>
+        <canvas id="mainCanvas"></canvas>
+    </div>
+
+    <nav id="toolbar">
+        <button class="tool-btn active" id="btn-pen" onclick="setTool('pen')">
+            <div class="icon-box bg-pen"></div>
+            <span class="tool-label">Pulpen</span>
+        </button>
+        
+        <button class="tool-btn" id="btn-stabilo" onclick="setTool('stabilo')">
+            <div class="icon-box bg-stabilo"></div>
+            <span class="tool-label">Stabilo</span>
+        </button>
+
+        <button class="tool-btn" id="btn-tipex" onclick="setTool('tipex')">
+            <div class="icon-box bg-tipex"></div>
+            <span class="tool-label">Tip-Ex</span>
+        </button>
+
+        <button class="tool-btn" onclick="showResetModal()">
+            <div class="icon-box bg-reset"></div>
+            <span class="tool-label">Ganti Kertas</span>
+        </button>
+    </nav>
+</div>
+
+<!-- Custom Modal -->
+<div id="modal-overlay">
+    <div id="modal">
+        <h3>Ganti Kertas Baru?</h3>
+        <p>Seluruh coretan di halaman ini akan dihapus permanen. Siap untuk kertas baru?</p>
+        <div class="modal-actions">
+            <button class="btn btn-cancel" onclick="hideResetModal()">Batal</button>
+            <button class="btn btn-confirm" onclick="resetCanvas()">Hapus & Ganti</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+    const wrapper = document.getElementById('canvas-wrapper');
+    const statusText = document.getElementById('status');
+    const modalOverlay = document.getElementById('modal-overlay');
+    const modal = document.getElementById('modal');
+    
+    let isDrawing = false;
+    let currentTool = 'pen';
+    let lastX = 0, lastY = 0;
+
+    function resizeCanvas() {
+        const tempData = canvas.toDataURL();
+        canvas.width = wrapper.clientWidth;
+        canvas.height = wrapper.clientHeight;
+        
+        const img = new Image();
+        img.onload = () => ctx.drawImage(img, 0, 0);
+        img.src = localStorage.getItem('justpen_storage') || tempData;
+        
+        updateToolLogic();
+    }
+
+    function setTool(toolName) {
+        currentTool = toolName;
+        document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`btn-${toolName}`).classList.add('active');
+        updateToolLogic();
+    }
+
+    function updateToolLogic() {
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.globalAlpha = 1.0;
+
+        if (currentTool === 'pen') {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.strokeStyle = '#1a1a1a';
+            ctx.lineWidth = 2.2;
+        } else if (currentTool === 'stabilo') {
+            // Menggunakan opacity rendah di strokeStyle + globalAlpha agar tumpang tindih halus
+            ctx.globalCompositeOperation = 'multiply';
+            ctx.strokeStyle = 'rgba(255, 204, 0, 0.15)'; 
+            ctx.lineWidth = 30;
+        } else if (currentTool === 'tipex') {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 40;
+        }
+    }
+
+    function startDraw(e) {
+        isDrawing = true;
+        const { x, y } = getCoord(e);
+        [lastX, lastY] = [x, y];
+        
+        // Memulai goresan
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+    }
+
+    function drawing(e) {
+        if (!isDrawing) return;
+        const { x, y } = getCoord(e);
+        
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        
+        [lastX, lastY] = [x, y];
+    }
+
+    function stopDraw() {
+        if (!isDrawing) return;
+        isDrawing = false;
+        saveData();
+    }
+
+    function getCoord(e) {
+        const rect = canvas.getBoundingClientRect();
+        const cx = e.touches ? e.touches[0].clientX : e.clientX;
+        const cy = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: cx - rect.left, y: cy - rect.top };
+    }
+
+    // Modal Control
+    function showResetModal() {
+        modalOverlay.style.display = 'flex';
+        setTimeout(() => modal.classList.add('show'), 10);
+    }
+
+    function hideResetModal() {
+        modal.classList.remove('show');
+        setTimeout(() => modalOverlay.style.display = 'none', 200);
+    }
+
+    function resetCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        localStorage.removeItem('justpen_storage');
+        hideResetModal();
+        flashStatus('Kertas baru siap!');
+    }
+
+    // Storage
+    function saveData() {
+        localStorage.setItem('justpen_storage', canvas.toDataURL());
+        flashStatus('Tersimpan otomatis');
+    }
+
+    function flashStatus(msg) {
+        statusText.textContent = msg;
+        statusText.style.opacity = '1';
+        setTimeout(() => statusText.style.opacity = '0', 1500);
+    }
+
+    // Events
+    canvas.addEventListener('mousedown', startDraw);
+    window.addEventListener('mousemove', drawing);
+    window.addEventListener('mouseup', stopDraw);
+
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); }, {passive: false});
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); drawing(e); }, {passive: false});
+    canvas.addEventListener('touchend', stopDraw);
+
+    window.addEventListener('resize', resizeCanvas);
+
+    window.onload = () => {
+        resizeCanvas();
+        const saved = localStorage.getItem('justpen_storage');
+        if (saved) {
+            const img = new Image();
+            img.onload = () => ctx.drawImage(img, 0, 0);
+            img.src = saved;
+        }
+    };
+</script>
+
+</body>
+</html>
