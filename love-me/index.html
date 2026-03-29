@@ -303,6 +303,7 @@
     <script>
         // State
         let isZenActive = false;
+        let isInhale = true;
         let audioCtx = null;
         let oscillator = null;
         let gainNode = null;
@@ -384,14 +385,15 @@
                 oscillator = audioCtx.createOscillator();
                 gainNode = audioCtx.createGain();
                 oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(110, audioCtx.currentTime); 
+                oscillator.frequency.setValueAtTime(160, audioCtx.currentTime); 
                 gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-                gainNode.gain.linearRampToValueAtTime(0.04, audioCtx.currentTime + 2); 
+                gainNode.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 2); 
                 oscillator.connect(gainNode);
                 gainNode.connect(audioCtx.destination);
                 oscillator.start();
                 
                 isZenActive = true;
+                isInhale = true;
                 statusText.innerText = "Tarik Napas...";
                 mainUi.classList.add('hidden');
                 btnZen.classList.add('active-mode');
@@ -507,7 +509,12 @@
         // Breathing cycle text
         setInterval(() => {
             if (isZenActive) {
-                statusText.innerText = statusText.innerText === "Tarik Napas..." ? "Hembuskan..." : "Tarik Napas...";
+                if (isInhale) {
+                    statusText.innerText = "Tarik Napas...";
+                } else {
+                    statusText.innerText = "Hembuskan...";
+                }
+                isInhale = !isInhale;
             }
         }, 4000);
 
