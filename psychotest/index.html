@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Psychotest for Job Seeker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Psychotest for Job Seeker</h1>
+            <div class="controls">
+                <button id="darkModeToggle" aria-label="Toggle dark mode">❨</button>
+                <button id="readingModeToggle" aria-label="Toggle reading mode">⧉</button>
+            </div>
+        </header>
+        <main id="app">
+            <section class="page active" id="landingPage">
+                <div class="landing-content">
+                    <h2>Welcome to Psychotest for Job Seeker</h2>
+                    <p class="landing-description">
+                        This is a self-reflection tool designed to help you understand your career patterns, emotional state, and personal tendencies through a series of word-choice questions.
+                    </p>
+                    <div class="landing-info">
+                        <div class="info-item">
+                            <div class="info-icon">◉</div>
+                            <div class="info-text">
+                                <strong>60 Questions</strong>
+                                <span>Choose one word that resonates most with you</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-icon">⏱</div>
+                            <div class="info-text">
+                                <strong>10-15 Minutes</strong>
+                                <span>Take your time, answer honestly</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-icon">ꄗ</div>
+                            <div class="info-text">
+                                <strong>Privacy First</strong>
+                                <span>All data stays on your device</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-icon">ıııl</div>
+                            <div class="info-text">
+                                <strong>6 Dimensions</strong>
+                                <span>Career, Emotion, Validation, Resilience, Optimism, System Awareness</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="startBtn" class="btn btn-primary">Start Test</button>
+                </div>
+            </section>
+            <div id="progressBar">
+                <div id="progressFill"></div>
+            </div>
+            <div id="progressText">Question <span id="currentQ">0</span> / 60</div>
+            <section class="page" data-page="1">
+                <h2>Page 1 / 3</h2>
+                <div class="question">
+                    <p class="question-number">1.</p>
+                    <label><input type="radio" name="q1" value="jobs"> jobs</label>
+                    <label><input type="radio" name="q1" value="internship"> internship</label>
+                    <label><input type="radio" name="q1" value="professional profile"> professional profile</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">2.</p>
+                    <label><input type="radio" name="q2" value="effort"> effort</label>
+                    <label><input type="radio" name="q2" value="fear"> fear</label>
+                    <label><input type="radio" name="q2" value="financial pressure"> financial pressure</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">3.</p>
+                    <label><input type="radio" name="q3" value="tired"> tired</label>
+                    <label><input type="radio" name="q3" value="rushed"> rushed</label>
+                    <label><input type="radio" name="q3" value="less genuine"> less genuine</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">4.</p>
+                    <label><input type="radio" name="q4" value="portfolio"> portfolio</label>
+                    <label><input type="radio" name="q4" value="resume"> resume</label>
+                    <label><input type="radio" name="q4" value="personal branding"> personal branding</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">5.</p>
+                    <label><input type="radio" name="q5" value="connections"> connections</label>
+                    <label><input type="radio" name="q5" value="insider access"> insider access</label>
+                    <label><input type="radio" name="q5" value="asking for opportunities"> asking for opportunities</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">6.</p>
+                    <label><input type="radio" name="q6" value="policy issues"> policy issues</label>
+                    <label><input type="radio" name="q6" value="unemployment"> unemployment</label>
+                    <label><input type="radio" name="q6" value="unreliable platforms"> unreliable platforms</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">7.</p>
+                    <label><input type="radio" name="q7" value="coding"> coding</label>
+                    <label><input type="radio" name="q7" value="physical work"> physical work</label>
+                    <label><input type="radio" name="q7" value="trading"> trading</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">8.</p>
+                    <label><input type="radio" name="q8" value="AI"> AI</label>
+                    <label><input type="radio" name="q8" value="efficiency"> efficiency</label>
+                    <label><input type="radio" name="q8" value="economic system"> economic system</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">9.</p>
+                    <label><input type="radio" name="q9" value="politics"> politics</label>
+                    <label><input type="radio" name="q9" value="economics"> economics</label>
+                    <label><input type="radio" name="q9" value="environment"> environment</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">10.</p>
+                    <label><input type="radio" name="q10" value="recognition"> recognition</label>
+                    <label><input type="radio" name="q10" value="financial security"> financial security</label>
+                    <label><input type="radio" name="q10" value="desire"> desire</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">11.</p>
+                    <label><input type="radio" name="q11" value="difficulty sleeping"> difficulty sleeping</label>
+                    <label><input type="radio" name="q11" value="difficulty relaxing"> difficulty relaxing</label>
+                    <label><input type="radio" name="q11" value="difficulty earning"> difficulty earning</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">12.</p>
+                    <label><input type="radio" name="q12" value="less fit"> less fit</label>
+                    <label><input type="radio" name="q12" value="less happy"> less happy</label>
+                    <label><input type="radio" name="q12" value="less spiritual"> less spiritual</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">13.</p>
+                    <label><input type="radio" name="q13" value="anger"> anger</label>
+                    <label><input type="radio" name="q13" value="love"> love</label>
+                    <label><input type="radio" name="q13" value="fear"> fear</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">14.</p>
+                    <label><input type="radio" name="q14" value="God"> God</label>
+                    <label><input type="radio" name="q14" value="yourself"> yourself</label>
+                    <label><input type="radio" name="q14" value="others"> others</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">15.</p>
+                    <label><input type="radio" name="q15" value="stability"> stability</label>
+                    <label><input type="radio" name="q15" value="growth"> growth</label>
+                    <label><input type="radio" name="q15" value="freedom"> freedom</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">16.</p>
+                    <label><input type="radio" name="q16" value="recognition"> recognition</label>
+                    <label><input type="radio" name="q16" value="income"> income</label>
+                    <label><input type="radio" name="q16" value="passion"> passion</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">17.</p>
+                    <label><input type="radio" name="q17" value="overthinking"> overthinking</label>
+                    <label><input type="radio" name="q17" value="clarity"> clarity</label>
+                    <label><input type="radio" name="q17" value="distraction"> distraction</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">18.</p>
+                    <label><input type="radio" name="q18" value="burnout"> burnout</label>
+                    <label><input type="radio" name="q18" value="pressure"> pressure</label>
+                    <label><input type="radio" name="q18" value="emptiness"> emptiness</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">19.</p>
+                    <label><input type="radio" name="q19" value="opportunity"> opportunity</label>
+                    <label><input type="radio" name="q19" value="luck"> luck</label>
+                    <label><input type="radio" name="q19" value="advantage"> advantage</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">20.</p>
+                    <label><input type="radio" name="q20" value="routine"> routine</label>
+                    <label><input type="radio" name="q20" value="chaos"> chaos</label>
+                    <label><input type="radio" name="q20" value="control"> control</label>
+                </div>
+            </section>
+            <section class="page" data-page="2">
+                <h2>Page 2 / 3</h2>
+                <div class="question">
+                    <p class="question-number">21.</p>
+                    <label><input type="radio" name="q21" value="discipline"> discipline</label>
+                    <label><input type="radio" name="q21" value="motivation"> motivation</label>
+                    <label><input type="radio" name="q21" value="consistency"> consistency</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">22.</p>
+                    <label><input type="radio" name="q22" value="comparison"> comparison</label>
+                    <label><input type="radio" name="q22" value="self-acceptance"> self-acceptance</label>
+                    <label><input type="radio" name="q22" value="ambition"> ambition</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">23.</p>
+                    <label><input type="radio" name="q23" value="risk"> risk</label>
+                    <label><input type="radio" name="q23" value="safety"> safety</label>
+                    <label><input type="radio" name="q23" value="uncertainty"> uncertainty</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">24.</p>
+                    <label><input type="radio" name="q24" value="learning"> learning</label>
+                    <label><input type="radio" name="q24" value="earning"> earning</label>
+                    <label><input type="radio" name="q24" value="waiting"> waiting</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">25.</p>
+                    <label><input type="radio" name="q25" value="isolation"> isolation</label>
+                    <label><input type="radio" name="q25" value="connection"> connection</label>
+                    <label><input type="radio" name="q25" value="independence"> independence</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">26.</p>
+                    <label><input type="radio" name="q26" value="purpose"> purpose</label>
+                    <label><input type="radio" name="q26" value="survival"> survival</label>
+                    <label><input type="radio" name="q26" value="success"> success</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">27.</p>
+                    <label><input type="radio" name="q27" value="doubt"> doubt</label>
+                    <label><input type="radio" name="q27" value="confidence"> confidence</label>
+                    <label><input type="radio" name="q27" value="denial"> denial</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">28.</p>
+                    <label><input type="radio" name="q28" value="rest"> rest</label>
+                    <label><input type="radio" name="q28" value="productivity"> productivity</label>
+                    <label><input type="radio" name="q28" value="guilt"> guilt</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">29.</p>
+                    <label><input type="radio" name="q29" value="patience"> patience</label>
+                    <label><input type="radio" name="q29" value="urgency"> urgency</label>
+                    <label><input type="radio" name="q29" value="hesitation"> hesitation</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">30.</p>
+                    <label><input type="radio" name="q30" value="meaning"> meaning</label>
+                    <label><input type="radio" name="q30" value="achievement"> achievement</label>
+                    <label><input type="radio" name="q30" value="approval"> approval</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">31.</p>
+                    <label><input type="radio" name="q31" value="hope"> hope</label>
+                    <label><input type="radio" name="q31" value="progress"> progress</label>
+                    <label><input type="radio" name="q31" value="peace"> peace</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">32.</p>
+                    <label><input type="radio" name="q32" value="growth"> growth</label>
+                    <label><input type="radio" name="q32" value="support"> support</label>
+                    <label><input type="radio" name="q32" value="direction"> direction</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">33.</p>
+                    <label><input type="radio" name="q33" value="calm"> calm</label>
+                    <label><input type="radio" name="q33" value="resilience"> resilience</label>
+                    <label><input type="radio" name="q33" value="trust"> trust</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">34.</p>
+                    <label><input type="radio" name="q34" value="opportunity"> opportunity</label>
+                    <label><input type="radio" name="q34" value="connection"> connection</label>
+                    <label><input type="radio" name="q34" value="preparation"> preparation</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">35.</p>
+                    <label><input type="radio" name="q35" value="purpose"> purpose</label>
+                    <label><input type="radio" name="q35" value="balance"> balance</label>
+                    <label><input type="radio" name="q35" value="recovery"> recovery</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">36.</p>
+                    <label><input type="radio" name="q36" value="gratitude"> gratitude</label>
+                    <label><input type="radio" name="q36" value="clarity"> clarity</label>
+                    <label><input type="radio" name="q36" value="patience"> patience</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">37.</p>
+                    <label><input type="radio" name="q37" value="learning"> learning</label>
+                    <label><input type="radio" name="q37" value="improvement"> improvement</label>
+                    <label><input type="radio" name="q37" value="mastery"> mastery</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">38.</p>
+                    <label><input type="radio" name="q38" value="confidence"> confidence</label>
+                    <label><input type="radio" name="q38" value="sincerity"> sincerity</label>
+                    <label><input type="radio" name="q38" value="warmth"> warmth</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">39.</p>
+                    <label><input type="radio" name="q39" value="stability"> stability</label>
+                    <label><input type="radio" name="q39" value="freedom"> freedom</label>
+                    <label><input type="radio" name="q39" value="fulfillment"> fulfillment</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">40.</p>
+                    <label><input type="radio" name="q40" value="support"> support</label>
+                    <label><input type="radio" name="q40" value="encouragement"> encouragement</label>
+                    <label><input type="radio" name="q40" value="cooperation"> cooperation</label>
+                </div>
+            </section>
+            <section class="page" data-page="3">
+                <h2>Page 3 / 3</h2>
+                <div class="question">
+                    <p class="question-number">41.</p>
+                    <label><input type="radio" name="q41" value="rest"> rest</label>
+                    <label><input type="radio" name="q41" value="renewal"> renewal</label>
+                    <label><input type="radio" name="q41" value="strength"> strength</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">42.</p>
+                    <label><input type="radio" name="q42" value="consistency"> consistency</label>
+                    <label><input type="radio" name="q42" value="discipline"> discipline</label>
+                    <label><input type="radio" name="q42" value="ease"> ease</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">43.</p>
+                    <label><input type="radio" name="q43" value="vision"> vision</label>
+                    <label><input type="radio" name="q43" value="effort"> effort</label>
+                    <label><input type="radio" name="q43" value="results"> results</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">44.</p>
+                    <label><input type="radio" name="q44" value="kindness"> kindness</label>
+                    <label><input type="radio" name="q44" value="honesty"> honesty</label>
+                    <label><input type="radio" name="q44" value="confidence"> confidence</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">45.</p>
+                    <label><input type="radio" name="q45" value="healing"> healing</label>
+                    <label><input type="radio" name="q45" value="acceptance"> acceptance</label>
+                    <label><input type="radio" name="q45" value="courage"> courage</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">46.</p>
+                    <label><input type="radio" name="q46" value="optimism"> optimism</label>
+                    <label><input type="radio" name="q46" value="realism"> realism</label>
+                    <label><input type="radio" name="q46" value="hope"> hope</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">47.</p>
+                    <label><input type="radio" name="q47" value="connection"> connection</label>
+                    <label><input type="radio" name="q47" value="belonging"> belonging</label>
+                    <label><input type="radio" name="q47" value="understanding"> understanding</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">48.</p>
+                    <label><input type="radio" name="q48" value="development"> development</label>
+                    <label><input type="radio" name="q48" value="achievement"> achievement</label>
+                    <label><input type="radio" name="q48" value="self-trust"> self-trust</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">49.</p>
+                    <label><input type="radio" name="q49" value="calmness"> calmness</label>
+                    <label><input type="radio" name="q49" value="focus"> focus</label>
+                    <label><input type="radio" name="q49" value="momentum"> momentum</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">50.</p>
+                    <label><input type="radio" name="q50" value="progress"> progress</label>
+                    <label><input type="radio" name="q50" value="patience"> patience</label>
+                    <label><input type="radio" name="q50" value="confidence"> confidence</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">51.</p>
+                    <label><input type="radio" name="q51" value="creativity"> creativity</label>
+                    <label><input type="radio" name="q51" value="expression"> expression</label>
+                    <label><input type="radio" name="q51" value="confidence"> confidence</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">52.</p>
+                    <label><input type="radio" name="q52" value="support"> support</label>
+                    <label><input type="radio" name="q52" value="appreciation"> appreciation</label>
+                    <label><input type="radio" name="q52" value="encouragement"> encouragement</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">53.</p>
+                    <label><input type="radio" name="q53" value="purpose"> purpose</label>
+                    <label><input type="radio" name="q53" value="growth"> growth</label>
+                    <label><input type="radio" name="q53" value="contribution"> contribution</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">54.</p>
+                    <label><input type="radio" name="q54" value="resilience"> resilience</label>
+                    <label><input type="radio" name="q54" value="recovery"> recovery</label>
+                    <label><input type="radio" name="q54" value="balance"> balance</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">55.</p>
+                    <label><input type="radio" name="q55" value="sincerity"> sincerity</label>
+                    <label><input type="radio" name="q55" value="trust"> trust</label>
+                    <label><input type="radio" name="q55" value="openness"> openness</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">56.</p>
+                    <label><input type="radio" name="q56" value="learning"> learning</label>
+                    <label><input type="radio" name="q56" value="adaptability"> adaptability</label>
+                    <label><input type="radio" name="q56" value="readiness"> readiness</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">57.</p>
+                    <label><input type="radio" name="q57" value="peace"> peace</label>
+                    <label><input type="radio" name="q57" value="clarity"> clarity</label>
+                    <label><input type="radio" name="q57" value="renewal"> renewal</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">58.</p>
+                    <label><input type="radio" name="q58" value="kindness"> kindness</label>
+                    <label><input type="radio" name="q58" value="strength"> strength</label>
+                    <label><input type="radio" name="q58" value="wisdom"> wisdom</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">59.</p>
+                    <label><input type="radio" name="q59" value="effort"> effort</label>
+                    <label><input type="radio" name="q59" value="consistency"> consistency</label>
+                    <label><input type="radio" name="q59" value="success"> success</label>
+                </div>
+                <div class="question">
+                    <p class="question-number">60.</p>
+                    <label><input type="radio" name="q60" value="hope"> hope</label>
+                    <label><input type="radio" name="q60" value="dignity"> dignity</label>
+                    <label><input type="radio" name="q60" value="direction"> direction</label>
+                </div>
+            </section>
+            <section class="page" id="resultPage">
+                <h2>Your Result</h2>
+                <div id="resultContent"></div>
+                <div class="result-actions">
+                    <button id="tryAgainBtn" class="btn btn-primary">Try Again</button>
+                </div>
+            </section>
+            <nav class="nav-buttons">
+                <button id="prevBtn" class="btn btn-secondary" disabled>Previous</button>
+                <button id="nextBtn" class="btn btn-primary">Next</button>
+                <button id="submitBtn" class="btn btn-primary" style="display:none;">See Result</button>
+            </nav>
+            <div class="reset-container">
+                <button id="resetBtn" class="btn btn-secondary btn-small">Reset All Answers</button>
+            </div>
+            <div id="validationModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-icon">⚠︎</div>
+                    <h3 id="modalTitle">Incomplete Answers</h3>
+                    <p id="modalMessage">Please answer all questions before proceeding.</p>
+                    <button id="modalCloseBtn" class="btn btn-primary">OK</button>
+                </div>
+            </div>
+            <div id="resetModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-icon">⟳</div>
+                    <h3>Reset Test?</h3>
+                    <p>This will clear all your answers and start fresh. This action cannot be undone.</p>
+                    <div class="modal-actions">
+                        <button id="confirmResetBtn" class="btn btn-primary">Reset</button>
+                        <button id="cancelResetBtn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
