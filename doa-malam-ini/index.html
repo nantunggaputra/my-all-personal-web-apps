@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Do'a Malam Ini</title>
+    <style>
+        :root {
+            --bg-dark: #061A3B;
+            --bg-mid: #112D5C;
+            --bg-deep: #033485;
+            --accent-glow: #1355BF;
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.82);
+            --text-muted: rgba(255, 255, 255, 0.58);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 16px;
+            position: relative;
+            overflow-x: hidden;
+            background:
+                radial-gradient(
+                    circle at 50% 85%,
+                    rgba(19, 85, 191, 0.35),
+                    transparent 40%
+                ),
+                linear-gradient(
+                    180deg,
+                    #061A3B 0%,
+                    #112D5C 45%,
+                    #033485 100%
+                );
+            background-attachment: fixed;
+        }
+
+        /* Continuous Ambient Glow Effect */
+        body::before {
+            content: "";
+            position: fixed;
+            width: clamp(320px, 70vw, 650px);
+            height: clamp(320px, 70vw, 650px);
+            left: 50%;
+            bottom: -300px;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            background: var(--accent-glow);
+            opacity: 0.10;
+            filter: blur(40px);
+            pointer-events: none;
+            animation: subtleGlow 9s ease-in-out infinite alternate;
+            z-index: 0;
+        }
+
+        /* Subtle Starscape Background */
+        .stars {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image:
+                radial-gradient(1px 1px at 20% 30%, rgba(255, 255, 255, 0.45), transparent),
+                radial-gradient(1px 1px at 70% 20%, rgba(255, 255, 255, 0.35), transparent),
+                radial-gradient(1px 1px at 85% 65%, rgba(255, 255, 255, 0.30), transparent),
+                radial-gradient(1.5px 1.5px at 35% 75%, rgba(255, 255, 255, 0.40), transparent),
+                radial-gradient(1px 1px at 12% 80%, rgba(255, 255, 255, 0.25), transparent);
+        }
+
+        /* Horizon Line Accent */
+        body::after {
+            content: "";
+            position: fixed;
+            left: 10%;
+            right: 10%;
+            bottom: 5%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 25px rgba(19, 85, 191, 0.35);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Layout & Content Box */
+        main {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 40px 32px;
+            background: rgba(6, 26, 59, 0.55);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 36px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: clamp(1.5rem, 4vw, 2.1rem);
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: 0.5px;
+        }
+
+        article {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+            line-height: 1.8;
+            color: var(--text-secondary);
+            text-align: left;
+        }
+
+        p {
+            margin: 0;
+            word-wrap: break-word;
+        }
+
+        .highlight-call {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        @keyframes subtleGlow {
+            0% {
+                opacity: 0.06;
+                transform: translateX(-50%) scale(0.95);
+            }
+            100% {
+                opacity: 0.12;
+                transform: translateX(-50%) scale(1.05);
+            }
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 12px;
+            }
+
+            main {
+                padding: 24px 18px;
+                border-radius: 12px;
+            }
+
+            header {
+                margin-bottom: 24px;
+                padding-bottom: 16px;
+            }
+
+            article {
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" aria-hidden="true"></div>
+
+    <main>
+        <header>
+            <h1>Do'a Malam Ini</h1>
+        </header>
+
+        <article>
+            <p>Bismillāhirraḥmānirraḥīm.</p>
+
+            <p>Alḥamdulillāhi Rabbil ‘ālamīn.<br>Segala puji bagi-Mu, ya Allah, Tuhan semesta alam.</p>
+
+            <p>Shalawat dan salam semoga senantiasa tercurah kepada junjungan kami, Nabi Muhammad ﷺ, kepada keluarga beliau, para sahabat beliau, dan orang-orang yang mengikuti beliau hingga akhir zaman.</p>
+
+            <p class="highlight-call">Ya Allah...</p>
+
+            <p>Malam ini kami datang kepada-Mu dengan segala keadaan kami.</p>
+
+            <p>Dengan hati yang mungkin tidak selalu kuat.<br>Dengan pikiran yang mungkin terlalu penuh.<br>Dengan tubuh yang mungkin lelah.<br>Dengan hidup yang mungkin sedang tidak berjalan seperti yang kami harapkan.</p>
+
+            <p>Kami datang bukan karena kami merasa sudah baik.</p>
+
+            <p>Kami datang karena kami tahu bahwa hanya kepada-Mu kami dapat kembali.</p>
+
+            <p class="highlight-call">Ya Allah...</p>
+
+            <p>Untuk siapa pun yang malam ini sedang susah,<br>lapangkanlah kesusahannya.</p>
+
+            <p>Untuk siapa pun yang sedang terlilit masalah,<br>berikanlah jalan keluar yang tidak pernah ia sangka.</p>
+
+            <p>Untuk siapa pun yang sedang kekurangan,<br>cukupkanlah rezekinya dengan rezeki yang halal, baik, luas, dan penuh keberkahan.</p>
+
+            <p>Untuk siapa pun yang sedang mencari pekerjaan,<br>bukakanlah pintu pekerjaan yang baik.</p>
+
+            <p>Untuk siapa pun yang sedang berusaha mempertahankan keluarganya,<br>kuatkanlah langkahnya.</p>
+
+            <p>Untuk siapa pun yang sedang berjuang memenuhi kebutuhan hidup,<br>jangan biarkan ia merasa sendirian dalam perjuangannya.</p>
+
+            <p class="highlight-call">Ya Allah...</p>
+
+            <p>Untuk mereka yang sedang sakit,<br>sembuhkanlah.</p>
+
+            <p>Angkatlah rasa sakit dari tubuh mereka.<br>Ringankanlah penderitaan mereka.<br>Berikanlah kesabaran kepada mereka dan keluarganya.</p>
+
+            <p>Jika sakit itu menjadi penghapus dosa,<br>jadikanlah ia penghapus dosa yang penuh rahmat.</p>
+
+            <p>Jika sakit itu menjadi jalan untuk mendekat kepada-Mu,<br>dekatkanlah hati mereka kepada-Mu tanpa harus membuat mereka kehilangan harapan.</p>
+
+            <p>Berikanlah kesembuhan yang sempurna,<br>kesembuhan yang tidak menyisakan penyakit.</p>
+
+            <p>Allāhumma rabban-nās, adzhibil-ba'sa, isyfi antasy-Syāfī, lā syifā'a illā syifā'uka, syifā'an lā yugādiru saqaman.</p>
+
+            <p>Ya Allah, Tuhan manusia, hilangkanlah penyakit.<br>Sembuhkanlah, karena Engkaulah Yang Maha Menyembuhkan.<br>Tidak ada kesembuhan kecuali kesembuhan dari-Mu,<br>kesembuhan yang tidak meninggalkan penyakit.</p>
+
+            <p class="highlight-call">Ya Allah...</p>
+
+            <p>Untuk mereka yang sedang berjuang,<br>meskipun tidak ada yang melihat perjuangannya,<br>Engkau melihat.</p>
+
+            <p>Ketika orang lain hanya melihat hasilnya,<br>Engkau melihat setiap langkahnya.</p>
+
+            <p>Ketika orang lain hanya melihat senyumnya,<br>Engkau mengetahui air mata yang disembunyikannya.</p>
+
+            <p>Ketika orang lain berkata,<br>"Kamu baik-baik saja,"<br>Engkau mengetahui bahwa mungkin sebenarnya ia sedang tidak baik-baik saja.</p>
+
+            <p>Maka ya Allah,<br>kuatkanlah mereka.</p>
+
+            <p>Jika jalannya panjang,<br>berikanlah mereka kesabaran.</p>
+
+            <p>Jika jalannya berat,<br>berikanlah mereka kekuatan.</p>
+
+            <p>Jika mereka berkali-kali gagal,<br>berikanlah mereka keberanian untuk mencoba lagi.</p>
+
+            <p>Jika mereka merasa tertinggal,<br>ingatkanlah mereka bahwa setiap manusia memiliki waktunya sendiri.</p>
+
+            <p>Dan jika mereka hampir menyerah,<br>hadirkanlah pertolongan-Mu sebelum mereka benar-benar kehilangan harapan.</p>
+
+            <p class="highlight-call">Ya Allah...</p>
+
+            <p>Untuk mereka yang sedang diuji,<br>jangan biarkan ujian itu menjauhkan mereka dari-Mu.</p>
+
+            <p>Jadikan ujian sebagai jalan untuk mendewasakan mereka.<br>Jadikan kesulitan sebagai jalan menuju kedekatan kepada-Mu.<br>Jadikan air mata sebagai saksi bahwa mereka pernah bertahan.</p>
+
+            <p>Berikanlah kepada mereka kesabaran yang indah.</p>
+
+            <p>Dan jangan uji mereka dengan sesuatu yang melebihi kemampuan mereka.</p>
+
+            <p>Rabbanā lā tuḥammilnā mā lā ṭāqata lanā bih.</p>
+
+            <p>Ya Tuhan kami, janganlah Engkau membebani kami dengan sesuatu yang tidak sanggup kami pikul.</p>
+
+            <p class="highlight-call">Ya Allah...</p>
+
+            <p>Untuk mereka yang sedang berada di titik terendah dalam hidupnya,<br>yang merasa hidupnya sudah tidak memiliki arah...</p>
+
+            <p>Tolong genggam mereka.</p>
+
+            <p>Saat mereka tidak tahu harus melangkah ke mana,<br>tunjukkan satu langkah kecil.</p>
+
+            <p>Saat mereka tidak mampu melihat masa depan,<br>berikan mereka cukup cahaya untuk melewati hari ini.</p>
+
+            <p>Saat mereka merasa tidak berguna,<br>ingatkan mereka bahwa hidup mereka tetap berharga.</p>
+
+            <p>Saat mereka merasa tidak dicintai,<br>hadirkan orang-orang yang tulus menyayangi mereka.</p>
+
+            <p>Saat mereka merasa sendirian,<br>ingatkan hati mereka bahwa Engkau tidak pernah meninggalkan mereka.</p>
+
+            <p>Dan jika malam terasa terlalu panjang,<br>jadikan pagi sebagai tanda bahwa tidak ada malam yang berlangsung selamanya.</p>
+
+            <p>Fa-inna ma'al-'usri yusrā.<br>Inna ma'al-'usri yusrā.</p>
+
+            <p>Sesungguhnya bersama kesulitan ada kemudahan.<br>Sesungguhnya bersama kesulitan ada kemudahan.</p>
+
+            <p class="highlight-call">Ya Allah...</p>
+
+            <p>Untuk mereka yang sedang menunggu kabar baik,<br>berikanlah kabar yang membuat hati mereka lega.</p>
+
+            <p>Mereka yang sedang menunggu hasil pemeriksaan,<br>berikanlah hasil yang baik.</p>
+
+            <p>Mereka yang sedang menunggu jawaban pekerjaan,<br>berikanlah jawaban terbaik.</p>
+
+            <p>Mereka yang sedang menunggu seseorang pulang,<br>jaga orang yang mereka tunggu.</p>
+
+            <p>Mereka yang sedang menunggu sebuah keputusan,<br>jika keputusan itu baik bagi mereka, mudahkanlah.</p>
+
+            <p>Dan jika sesuatu yang mereka tunggu ternyata bukan yang terbaik,<br>berikanlah mereka hati yang lapang untuk menerima keputusan-Mu.</p>
+
+            <p class="highlight-call">Ya Allah...</p>
+
+            <p>Untuk mereka yang sedang menantikan hajatnya terkabul,<br>Engkau mengetahui apa yang mereka minta bahkan sebelum mereka mengucapkannya.</p>
+
+            <p>Engkau mengetahui doa yang hanya mampu mereka bisikkan.</p>
+
+            <p>Engkau mengetahui keinginan yang mereka simpan bertahun-tahun.</p>
+
+            <p>Engkau mengetahui permintaan yang mereka ulang dalam setiap sujud.</p>
+
+            <p>Jika hajat itu baik bagi dunia dan akhirat mereka,<br>kabulkanlah.</p>
+
+            <p>Jika waktunya belum tiba,<br>sabarkanlah mereka.</p>
+
+            <p>Jika ada sesuatu yang harus mereka perbaiki terlebih dahulu,<br>tunjukkanlah kepada mereka.</p>
+
+            <p>Jika ada jalan yang lebih baik daripada apa yang mereka minta,<br>arahkanlah mereka kepadanya.</p>
+
+            <p>Dan jika jawaban-Mu berbeda dari keinginan mereka,<br>berikanlah mereka hati yang mampu memahami bahwa pilihan-Mu selalu lebih luas daripada pengetahuan mereka.</p>
+
+            <p class="highlight-call">Ya Allah...</p>
+
+            <p>Jangan biarkan kami mengira bahwa doa yang belum terkabul berarti Engkau tidak mendengar.</p>
+
+            <p>Ajarkan kami untuk percaya bahwa setiap doa memiliki tempat di sisi-Mu.</p>
+
+            <p>Ada doa yang Engkau kabulkan segera.</p>
+
+            <p>Ada doa yang Engkau tunda karena waktunya belum tepat.</p>
+
+            <p>Ada doa yang Engkau ganti dengan sesuatu yang lebih baik.</p>
+
+            <p>Dan ada doa yang Engkau simpan sebagai pahala bagi kami.</p>
+
+            <p>Maka ajarkan kami untuk tetap percaya.</p>
+
+            <p class="highlight-call">Ya Allah...</p>
+
+            <p>Untuk mereka yang sedang berduka,<br>hiburlah hatinya.</p>
+
+            <p>Untuk mereka yang kehilangan seseorang yang dicintai,<br>berikanlah kesabaran.</p>
+
+            <p>Ampunilah mereka yang telah pergi mendahului kami.</p>
+
+            <p>Lapangkan kubur mereka.<br>Terangi kubur mereka.<br>Rahmati mereka.<br>Tempatkan mereka di tempat terbaik di sisi-Mu.</p>
+
+            <p>Dan berikanlah keluarga yang ditinggalkan kekuatan untuk menjalani hari-hari setelah kehilangan itu.</p>
+
+            <p class="highlight-call">Ya Allah...</p>
+
+            <p>Untuk mereka yang sedang menangis diam-diam,<br>hapuslah air matanya dengan ketenangan.</p>
+
+            <p>Untuk mereka yang tersenyum di depan orang lain tetapi menangis ketika sendirian,<br>berikanlah mereka tempat untuk beristirahat.</p>
+
+            <p>Untuk mereka yang terlalu lelah untuk menjelaskan keadaan mereka,<br>cukupkanlah mereka dengan pertolongan-Mu.</p>
+
+            <p>Untuk mereka yang selalu menjadi tempat orang lain bersandar,<br>jadilah Engkau tempat mereka bersandar ketika mereka sendiri membutuhkan kekuatan.</p>
+
+            <p class="highlight-call">Ya Allah...</p>
+
+            <p>Untuk mereka yang merasa tertinggal dalam hidup,<br>jangan biarkan mereka membandingkan perjalanan mereka dengan perjalanan orang lain sampai mereka lupa mensyukuri langkahnya sendiri.</p>
+
+            <p>Jika teman-temannya sudah sampai lebih dahulu,<br>ajarkan mereka untuk tidak membenci keberhasilan orang lain.</p>
+
+            <p>Jika orang lain telah mendapatkan apa yang mereka impikan,<br>berikan mereka hati yang tetap mampu berkata:</p>
+
+            <p>"Ya Allah, semoga Engkau memberikannya juga kepadaku jika itu baik bagiku."</p>
+
+            <p>Dan ketika waktunya tiba,<br>semoga mereka menyadari bahwa keterlambatan bukan berarti penolakan.</p>
+
+            <p class="highlight-call">Ya Allah...</p>
+
+            <p>Untuk mereka yang sedang mencari jalan pulang,<br>tuntunlah mereka.</p>
+
+            <p>Untuk mereka yang jauh dari-Mu,<br>dekatkanlah.</p>
+
+            <p>Untuk mereka yang banyak melakukan kesalahan,<br>bukakan pintu taubat.</p>
+
+            <p>Untuk mereka yang merasa dosanya terlalu banyak untuk diampuni,<br>ingatkanlah mereka bahwa rahmat-Mu jauh lebih luas daripada dosa-dosa mereka.</p>
+
+            <p>Jangan biarkan dosa membuat kami putus asa dari rahmat-Mu.</p>
+
+            <p>Ampunilah dosa kami.<br>Dosa kedua orang tua kami.<br>Dosa keluarga kami.<br>Dosa guru-guru kami.<br>Dosa orang-orang yang pernah berbuat baik kepada kami.<br>Dan dosa seluruh kaum muslimin dan muslimat.</p>
+
+            <p>Rabbanā ẓalamnā anfusanā, wa illam taghfir lanā wa tarḥamnā lanakūnanna minal-khāsirīn.</p>
+
+            <p>Ya Tuhan kami, kami telah menzalimi diri kami sendiri.<br>Jika Engkau tidak mengampuni kami dan tidak merahmati kami,<br>niscaya kami termasuk orang-orang yang merugi.</p>
+
+            <p class="highlight-call">Ya Allah...</p>
+
+            <p>Berikanlah kami rezeki yang halal.</p>
+
+            <p>Rezeki yang cukup.<br>Rezeki yang berkah.<br>Rezeki yang membuat kami tidak harus meminta-minta kepada manusia.</p>
+
+            <p>Berikanlah kami pekerjaan yang baik.<br>Tempat kerja yang baik.<br>Orang-orang yang baik di sekitar kami.<br>Dan kemampuan untuk menggunakan rezeki kami di jalan yang Engkau ridai.</p>
+
+            <p>Jika rezeki kami sedang sempit,<br>lapangkanlah.</p>
+
+            <p>Jika rezeki kami sedang jauh,<br>dekatkanlah.</p>
+
+            <p>Jika rezeki kami masih tertutup,<br>bukakanlah.</p>
+
+            <p>Dan jika rezeki kami sedang banyak,<br>jangan biarkan hati kami lupa kepada-Mu.</p>
+
+            <p class="highlight-call">Ya Allah...</p>
+
+            <p>Jagalah orang-orang yang kami cintai.</p>
+
+            <p>Jaga orang tua kami.<br>Jaga keluarga kami.<br>Jaga sahabat-sahabat kami.<br>Jaga mereka yang pernah membantu kami.<br>Jaga mereka yang sedang jauh dari kami.</p>
+
+            <p>Lindungi mereka dari penyakit.<br>Dari kecelakaan.<br>Dari kejahatan.<br>Dari fitnah.<br>Dari kesedihan yang tidak sanggup mereka tanggung.</p>
+
+            <p>Jika kami tidak mampu berada di sisi mereka,<br>jadilah penjaga mereka.</p>
+
+            <p class="highlight-call">Ya Allah...</p>
+
+            <p>Dan untuk semua orang yang malam ini sedang menjalani sesuatu yang tidak kami ketahui...</p>
+
+            <p>Engkau tahu.</p>
+
+            <p>Untuk doa yang tidak pernah mereka ceritakan kepada siapa pun...</p>
+
+            <p>Engkau tahu.</p>
+
+            <p>Untuk air mata yang mereka sembunyikan...</p>
+
+            <p>Engkau tahu.</p>
+
+            <p>Untuk perjuangan yang tidak pernah mendapatkan penghargaan...</p>
+
+            <p>Engkau tahu.</p>
+
+            <p>Untuk hati yang patah tetapi tetap mencoba percaya...</p>
+
+            <p>Engkau tahu.</p>
+
+            <p>Untuk seseorang yang malam ini berkata,<br>"Aku sudah tidak sanggup,"<br>berikanlah ia satu alasan lagi untuk bertahan.</p>
+
+            <p>Untuk seseorang yang berkata,<br>"Aku tidak tahu harus bagaimana,"<br>tunjukkanlah jalan.</p>
+
+            <p>Untuk seseorang yang berkata,<br>"Aku hanya ingin semuanya segera selesai,"<br>berikanlah ketenangan dan pertolongan.</p>
+
+            <p>Dan untuk siapa pun yang sedang berada dalam keadaan yang sangat gelap,<br>tolong hadirkan cahaya-Mu.</p>
+
+            <p class="highlight-call">Ya Allah...</p>
+
+            <p>Kami tidak meminta hidup tanpa ujian.</p>
+
+            <p>Kami hanya meminta agar ketika ujian datang,<br>Engkau tidak meninggalkan kami.</p>
+
+            <p>Kami tidak meminta jalan yang selalu mudah.</p>
+
+            <p>Kami meminta kaki yang kuat untuk melewatinya.</p>
+
+            <p>Kami tidak meminta semua keinginan kami dikabulkan.</p>
+
+            <p>Kami meminta hati yang percaya kepada pilihan-Mu.</p>
+
+            <p>Kami tidak meminta umur yang panjang semata.</p>
+
+            <p>Kami meminta umur yang penuh keberkahan.</p>
+
+            <p>Kami tidak meminta kekayaan yang membuat kami lupa.</p>
+
+            <p>Kami meminta rezeki yang membuat kami semakin dekat kepada-Mu.</p>
+
+            <p>Kami tidak meminta kehidupan tanpa kesedihan.</p>
+
+            <p>Kami meminta hati yang tetap mengenal-Mu ketika kesedihan datang.</p>
+
+            <p class="highlight-call">Ya Allah...</p>
+
+            <p>Jika hari ini kami mendapatkan sesuatu yang kami syukuri,<br>jangan jadikan kami sombong.</p>
+
+            <p>Jika hari ini kami kehilangan sesuatu yang kami cintai,<br>jangan jadikan kami putus asa.</p>
+
+            <p>Jika hari ini kami berhasil,<br>ingatkan kami bahwa semua itu karena pertolongan-Mu.</p>
+
+            <p>Jika hari ini kami gagal,<br>ingatkan kami bahwa satu kegagalan bukan akhir dari seluruh kehidupan.</p>
+
+            <p>Jika hari ini kami jatuh,<br>angkatlah kami.</p>
+
+            <p>Jika hari ini kami tersesat,<br>tuntunlah kami.</p>
+
+            <p>Jika hari ini kami lupa kepada-Mu,<br>ingatkanlah kami.</p>
+
+            <p>Jika hari ini kami jauh dari-Mu,<br>panggillah kami kembali.</p>
+
+            <p class="highlight-call">Ya Allah...</p>
+
+            <p>Jadikan hari-hari yang akan datang lebih baik daripada hari-hari yang telah kami lewati.</p>
+
+            <p>Sembuhkan apa yang sakit.</p>
+
+            <p>Pulihkan apa yang patah.</p>
+
+            <p>Tenangkan apa yang gelisah.</p>
+
+            <p>Luruskan apa yang menyimpang.</p>
+
+            <p>Cukupkan apa yang kurang.</p>
+
+            <p>Bukakan apa yang tertutup.</p>
+
+            <p>Mudahkan apa yang sulit.</p>
+
+            <p>Dekatkan apa yang baik.</p>
+
+            <p>Jauhkan apa yang buruk.</p>
+
+            <p>Dan gantilah setiap kehilangan kami dengan sesuatu yang lebih baik menurut-Mu.</p>
+
+            <p class="highlight-call">Ya Allah...</p>
+
+            <p>Ketika akhirnya kabar baik itu datang,<br>jangan biarkan kami lupa kepada malam-malam ketika kami menangis memintanya.</p>
+
+            <p>Ketika akhirnya hajat kami terkabul,<br>jangan biarkan kami lupa kepada-Mu yang mengabulkannya.</p>
+
+            <p>Ketika akhirnya kami sampai di tempat yang selama ini kami impikan,<br>jangan biarkan kami lupa betapa panjang perjalanan yang telah kami lewati.</p>
+
+            <p>Dan jika ternyata yang kami inginkan tidak pernah menjadi milik kami,<br>berikanlah kami hati yang mampu berkata:</p>
+
+            <p>"Allah tahu apa yang tidak aku tahu."</p>
+
+            <p class="highlight-call">Ya Allah...</p>
+
+            <p>Semoga setiap orang yang membaca doa ini mendapatkan bagian dari rahmat-Mu.</p>
+
+            <p>Yang sedang sakit, semoga sembuh.</p>
+
+            <p>Yang sedang sedih, semoga tenang.</p>
+
+            <p>Yang sedang takut, semoga aman.</p>
+
+            <p>Yang sedang bingung, semoga menemukan jalan.</p>
+
+            <p>Yang sedang miskin, semoga dicukupkan.</p>
+
+            <p>Yang sedang berutang, semoga dilunasi.</p>
+
+            <p>Yang sedang mencari pekerjaan, semoga mendapatkan pekerjaan terbaik.</p>
+
+            <p>Yang sedang belajar, semoga dimudahkan memahami ilmu.</p>
+
+            <p>Yang sedang membangun sesuatu dari nol, semoga Engkau kuatkan.</p>
+
+            <p>Yang sedang berjuang untuk keluarganya, semoga Engkau bantu.</p>
+
+            <p>Yang sedang menunggu seseorang, semoga Engkau jaga mereka.</p>
+
+            <p>Yang sedang menunggu kabar, semoga datang kabar baik.</p>
+
+            <p>Yang sedang menunggu jodoh, semoga Engkau pertemukan dengan pasangan yang baik.</p>
+
+            <p>Yang sedang menunggu keturunan, semoga Engkau karuniakan keturunan yang saleh dan salehah jika itu baik bagi mereka.</p>
+
+            <p>Yang sedang menunggu kesembuhan, semoga Engkau sembuhkan.</p>
+
+            <p>Yang sedang menunggu kebebasan dari masalah, semoga Engkau bukakan pintunya.</p>
+
+            <p>Yang sedang menunggu terkabulnya doa, semoga Engkau berikan jawaban terbaik.</p>
+
+            <p>Dan bagi mereka yang tidak tahu lagi apa yang harus mereka doakan...</p>
+
+            <p>Ya Allah, cukupkanlah apa yang mereka butuhkan meskipun mereka tidak tahu bagaimana cara memintanya.</p>
+
+            <p class="highlight-call">Ya Allah...</p>
+
+            <p>Berikan kami husnul khatimah.</p>
+
+            <p>Matikan kami dalam keadaan Engkau ridha kepada kami.</p>
+
+            <p>Jadikan akhir hidup kami sebagai akhir yang baik.</p>
+
+            <p>Ampuni kami sebelum kami bertemu dengan-Mu.</p>
+
+            <p>Rahmati kami ketika kami telah kembali kepada-Mu.</p>
+
+            <p>Dan jangan pisahkan kami dari rahmat-Mu,<br>baik ketika kami masih hidup di dunia<br>maupun ketika kami telah meninggalkan dunia.</p>
+
+            <p>Rabbana ātinā fid-dunyā ḥasanah, wa fil-ākhirati ḥasanah, wa qinā ‘adzāban-nār.</p>
+
+            <p>Ya Tuhan kami, berikanlah kepada kami kebaikan di dunia,<br>kebaikan di akhirat,<br>dan lindungilah kami dari siksa neraka.</p>
+
+            <p>Allāhumma ṣalli ‘alā Sayyidinā Muḥammad, wa ‘alā āli Sayyidinā Muḥammad.</p>
+
+            <p class="highlight-call">Ya Allah...</p>
+
+            <p>Terimalah doa kami.</p>
+
+            <p>Terimalah doa orang-orang yang sedang membaca ini.</p>
+
+            <p>Terimalah doa mereka yang bahkan tidak mampu mengucapkan apa-apa selain:</p>
+
+            <p>"Ya Allah, tolong aku."</p>
+
+            <p>Karena Engkau Maha Mendengar.</p>
+
+            <p>Engkau Maha Mengetahui.</p>
+
+            <p>Engkau Maha Pengasih.</p>
+
+            <p>Engkau Maha Penyayang.</p>
+
+            <p>Dan kepada-Mu lah kami menyerahkan segala sesuatu yang tidak mampu kami kendalikan.</p>
+
+            <p>Hasbunallāhu wa ni‘mal-wakīl.</p>
+
+            <p>Cukuplah Allah menjadi penolong kami,<br>dan Dia adalah sebaik-baik pelindung.</p>
+
+            <p>Āmīn yā Rabbal ‘ālamīn.</p>
+        </article>
+    </main>
+</body>
+</html>
