@@ -1,1 +1,740 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Do'a Malam Ini</title>
+    <!-- Google Fonts untuk Tipografi yang Nyaman Dibaca -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet">
 
+    <style>
+        /* ==========================================================================
+           1. VARIABEL & RESET DASAR
+           ========================================================================== */
+        :root {
+            /* Palet Warna Utama */
+            --bg-deep-night: #061A3B;
+            --bg-secondary-night: #112D5C;
+            --bg-mid-blue: #033485;
+            --accent-glow: #1355BF;
+
+            /* Hirarki Teks */
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.78);
+            --text-tertiary: rgba(255, 255, 255, 0.55);
+            --text-arabic: #E8F1FF;
+
+            /* Font Family */
+            --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-arabic: 'Amiri', serif;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            background: var(--bg-mid-blue);
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        /* ==========================================================================
+           2. TATA LETAK UTAMA & BACKGROUND (NIGHT SKY)
+           ========================================================================== */
+        body {
+            font-family: var(--font-sans);
+            color: var(--text-primary);
+            line-height: 1.8;
+            min-height: 125vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow-x: hidden;
+            padding: 2.5rem 1.25rem;
+
+            /* Layer 1: Base Gradient */
+            background:
+                radial-gradient(
+                    circle at 50% 85%,
+                    rgba(19, 85, 191, 0.35),
+                    transparent 40%
+                ),
+                linear-gradient(
+                    180deg,
+                    var(--bg-deep-night) 0%,
+                    var(--bg-secondary-night) 45%,
+                    var(--bg-mid-blue) 100%
+                );
+            background-attachment: fixed;
+        }
+
+        /* Layer 2: Bintik Bintang Samar & Langit Malam */
+        .stars-layer {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background-image:
+                radial-gradient(1px 1px at 15% 20%, rgba(255,255,255,0.45), transparent),
+                radial-gradient(1.5px 1.5px at 75% 15%, rgba(255,255,255,0.35), transparent),
+                radial-gradient(1px 1px at 85% 60%, rgba(255,255,255,0.3), transparent),
+                radial-gradient(1.2px 1.2px at 30% 70%, rgba(255,255,255,0.25), transparent),
+                radial-gradient(1px 1px at 50% 35%, rgba(255,255,255,0.2), transparent);
+        }
+
+        /* Layer 3: Soft Glow Circle di Horizon */
+        body::before {
+            content: "";
+            position: fixed;
+            width: clamp(300px, 60vw, 600px);
+            height: clamp(300px, 60vw, 600px);
+            left: 50%;
+            bottom: -300px;
+            transform: translateX(-50%);
+            border-radius: 50%;
+            background: var(--accent-glow);
+            opacity: 0.08;
+            filter: blur(35px);
+            pointer-events: none;
+            z-index: 0;
+            animation: softGlow 10s ease-in-out infinite;
+        }
+
+        /* Layer 4: Horizon Line (Garis Cakrawala Tipis) */
+        body::after {
+            content: "";
+            position: fixed;
+            left: 10%;
+            right: 10%;
+            bottom: 8%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 25px rgba(19, 85, 191, 0.35);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Animasi Nafas Bintang/Horizon */
+        @keyframes softGlow {
+            0%, 100% {
+                opacity: 0.06;
+                transform: translateX(-50%) scale(1);
+            }
+            50% {
+                opacity: 0.12;
+                transform: translateX(-50%) scale(1.06);
+            }
+        }
+
+        /* ==========================================================================
+           3. CONTAINER & CONTENT STYLING
+           ========================================================================== */
+        .container {
+            width: 100%;
+            max-width: 680px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+        }
+
+        /* Header / Judul */
+        header {
+            text-align: center;
+            padding-top: 1.5rem;
+        }
+
+        header .subtitle {
+            font-size: 0.875rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        header h1 {
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Artikel Konten Do'a */
+        article.prayer-card {
+            background: rgba(6, 26, 59, 0.35);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
+            padding: clamp(1.5rem, 5vw, 3rem);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 2.25rem;
+        }
+
+        /* Teks Bahasa Arab */
+        .arabic-text {
+            font-family: var(--font-arabic);
+            font-size: clamp(1.5rem, 3.5vw, 2rem);
+            line-height: 2.2;
+            text-align: center;
+            color: var(--text-arabic);
+            direction: rtl;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Paragraf & Transliterasi */
+        .transliteration {
+            font-style: italic;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .divider {
+            width: 40px;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.15);
+            margin: 0.5rem auto;
+        }
+
+        .prayer-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .prayer-section p {
+            color: var(--text-secondary);
+            font-size: clamp(1rem, 2.5vw, 1.05rem);
+            font-weight: 300;
+        }
+
+        .prayer-section .intro-p {
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Bagian Seruan "Ya Allah..." */
+        .call-to-god {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-top: 0.25rem;
+        }
+
+        /* Daftar Do'a / Curahan Hati */
+        .prayer-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            padding-left: 0.5rem;
+            border-left: 2px solid rgba(19, 85, 191, 0.4);
+        }
+
+        .prayer-list li {
+            color: var(--text-secondary);
+            font-size: clamp(0.95rem, 2.2vw, 1.05rem);
+            font-weight: 300;
+            padding-left: 0.75rem;
+        }
+
+        /* Kesimpulan Do'a */
+        .prayer-closing {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .prayer-closing p {
+            color: var(--text-secondary);
+            font-size: clamp(0.95rem, 2.2vw, 1.05rem);
+            font-weight: 300;
+        }
+
+        .prayer-closing p strong,
+        .prayer-section p strong {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .highlight-box {
+            background: rgba(19, 85, 191, 0.15);
+            border-left: 3px solid var(--accent-glow);
+            padding: 1rem 1.25rem;
+            border-radius: 0 12px 12px 0;
+            margin: 0.5rem 0;
+        }
+
+        .highlight-box p {
+            color: var(--text-primary);
+            font-weight: 400;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0 1rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        footer p {
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+            letter-spacing: 0.05em;
+        }
+
+        /* ==========================================================================
+           4. MEDIA QUERIES & RESPONSIVITAS TIAP LAYAR
+           ========================================================================== */
+        @media (max-width: 480px) {
+            body {
+                padding: 1.25rem 0.875rem;
+            }
+
+            article.prayer-card {
+                padding: 1.5rem 1.25rem;
+                border-radius: 16px;
+                gap: 1.75rem;
+            }
+
+            .arabic-text {
+                line-height: 2;
+            }
+
+            .prayer-list {
+                padding-left: 0.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Layer Bintang -->
+    <div class="stars-layer" aria-hidden="true"></div>
+
+    <div class="container">
+        <!-- Header Utama -->
+        <header>
+            <p class="subtitle">Renungan & Tawaqqu'</p>
+            <h1>Do'a Malam Ini</h1>
+        </header>
+
+        <!-- Artikel Utama Do'a -->
+        <main>
+            <article class="prayer-card">
+                
+                <!-- Pembuka / Basmalah -->
+                <section class="prayer-section">
+                    <p class="arabic-text">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+                    <p class="transliteration">Bismillāhirraḥmānirraḥīm.</p>
+                    
+                    <div class="divider" aria-hidden="true"></div>
+
+                    <p class="arabic-text">الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ</p>
+                    <p class="intro-p">
+                        <strong>Alḥamdulillāhi Rabbil ‘ālamīn.</strong><br>
+                        Segala puji bagi-Mu, ya Allah, Tuhan semesta alam.
+                    </p>
+                    <p>
+                        Shalawat dan salam semoga senantiasa tercurah kepada junjungan kami, Nabi Muhammad ﷺ, kepada keluarga beliau, para sahabat beliau, dan orang-orang yang mengikuti beliau hingga akhir zaman.
+                    </p>
+                </section>
+
+                <div class="divider" aria-hidden="true"></div>
+
+                <!-- Bagian 1: Keadaan Hati Malam Ini -->
+                <section class="prayer-section">
+                    <p class="call-to-god">Ya Allah...</p>
+                    <p>Malam ini kami datang kepada-Mu dengan segala keadaan kami.</p>
+
+                    <ul class="prayer-list">
+                        <li>Dengan hati yang mungkin tidak selalu kuat.</li>
+                        <li>Dengan pikiran yang mungkin terlalu penuh.</li>
+                        <li>Dengan tubuh yang mungkin lelah.</li>
+                        <li>Dengan hidup yang mungkin sedang tidak berjalan seperti yang kami harapkan.</li>
+                    </ul>
+
+                    <div class="prayer-closing">
+                        <p>Kami datang bukan karena kami merasa sudah baik.</p>
+                        <p>Kami datang karena kami tahu bahwa hanya kepada-Mu kami dapat kembali.</p>
+                    </div>
+                </section>
+
+                <div class="divider" aria-hidden="true"></div>
+
+                <!-- Bagian 2: Do'a untuk yang Sedang Kesusahan & Berjuang -->
+                <section class="prayer-section">
+                    <p class="call-to-god">Ya Allah...</p>
+                    
+                    <p>Untuk siapa pun yang malam ini sedang susah, lapangkanlah kesusahannya.</p>
+                    <p>Untuk siapa pun yang sedang terlilit masalah, berikanlah jalan keluar yang tidak pernah ia sangka.</p>
+                    <p>Untuk siapa pun yang sedang kekurangan, cukupkanlah rezekinya dengan rezeki yang halal, baik, luas, dan penuh keberkahan.</p>
+                    <p>Untuk siapa pun yang sedang mencari pekerjaan, bukakanlah pintu pekerjaan yang baik.</p>
+                    <p>Untuk siapa pun yang sedang berusaha mempertahankan keluarganya, kuatkanlah langkahnya.</p>
+                    <p>Untuk siapa pun yang sedang berjuang memenuhi kebutuhan hidup, jangan biarkan ia merasa sendirian dalam perjuangannya.</p>
+                </section>
+
+                <div class="divider" aria-hidden="true"></div>
+
+                <!-- Bagian 3: Do'a untuk yang Sakit -->
+                <section class="prayer-section">
+                    <p class="call-to-god">Ya Allah...</p>
+                    <p>Untuk mereka yang sedang sakit, sembuhkanlah.</p>
+
+                    <ul class="prayer-list">
+                        <li>Angkatlah rasa sakit dari tubuh mereka.</li>
+                        <li>Ringankanlah penderitaan mereka.</li>
+                        <li>Berikanlah kesabaran kepada mereka dan keluarganya.</li>
+                    </ul>
+
+                    <p>Jika sakit itu menjadi penghapus dosa, jadikanlah ia penghapus dosa yang penuh rahmat.</p>
+                    <p>Jika sakit itu menjadi jalan untuk mendekat kepada-Mu, dekatkanlah hati mereka kepada-Mu tanpa harus membuat mereka kehilangan harapan.</p>
+                    <p>Berikanlah kesembuhan yang sempurna, kesembuhan yang tidak menyisakan penyakit.</p>
+
+                    <p class="arabic-text">اللَّهُمَّ رَبَّ النَّاسِ أَذْهِبِ الْبَأْسَ اشْفِ أَنْتَ الشَّافِي لَا شِفَاءَ إِلَّا شِفَاؤُكَ شِفَاءً لَا يُغَادِرُ سَقَمًا</p>
+                    <p class="transliteration">Allāhumma rabban-nās, adzhibil-ba'sa, isyfi antasy-Syāfī, lā syifā'a illā syifā'uka, syifā'an lā yugādiru saqaman.</p>
+                    
+                    <p class="intro-p">
+                        Ya Allah, Tuhan manusia, hilangkanlah penyakit. Sembuhkanlah, karena Engkaulah Yang Maha Menyembuhkan. Tidak ada kesembuhan kecuali kesembuhan dari-Mu, kesembuhan yang tidak meninggalkan penyakit.
+                    </p>
+                </section>
+
+                <div class="divider" aria-hidden="true"></div>
+
+                <!-- Bagian 4: Keteguhan untuk yang Berjuang Sembunyi-sembunyi -->
+                <section class="prayer-section">
+                    <p class="call-to-god">Ya Allah...</p>
+                    <p>Untuk mereka yang sedang berjuang, meskipun tidak ada yang melihat perjuangannya, Engkau melihat.</p>
+
+                    <ul class="prayer-list">
+                        <li>Ketika orang lain hanya melihat hasilnya, Engkau melihat setiap langkahnya.</li>
+                        <li>Ketika orang lain hanya melihat senyumnya, Engkau mengetahui air mata yang disembunyikannya.</li>
+                        <li>Ketika orang lain berkata, "Kamu baik-baik saja," Engkau mengetahui bahwa mungkin sebenarnya ia sedang tidak baik-baik saja.</li>
+                    </ul>
+
+                    <p>Maka ya Allah, kuatkanlah mereka.</p>
+
+                    <ul class="prayer-list">
+                        <li>Jika jalannya panjang, berikanlah mereka kesabaran.</li>
+                        <li>Jika jalannya berat, berikanlah mereka kekuatan.</li>
+                        <li>Jika mereka berkali-kali gagal, berikanlah mereka keberanian untuk mencoba lagi.</li>
+                        <li>Jika mereka merasa tertinggal, ingatkanlah mereka bahwa setiap manusia memiliki waktunya sendiri.</li>
+                        <li>Dan jika mereka hampir menyerah, hadirkanlah pertolongan-Mu sebelum mereka benar-benar kehilangan harapan.</li>
+                    </ul>
+                </section>
+
+                <div class="divider" aria-hidden="true"></div>
+
+                <!-- Bagian 5: Kesabaran dalam Ujian -->
+                <section class="prayer-section">
+                    <p class="call-to-god">Ya Allah...</p>
+                    <p>Untuk mereka yang sedang diuji, jangan biarkan ujian itu menjauhkan mereka dari-Mu.</p>
+
+                    <ul class="prayer-list">
+                        <li>Jadikan ujian sebagai jalan untuk mendewasakan mereka.</li>
+                        <li>Jadikan kesulitan sebagai jalan menuju kedekatan kepada-Mu.</li>
+                        <li>Jadikan air mata sebagai saksi bahwa mereka pernah bertahan.</li>
+                    </ul>
+
+                    <p>Berikanlah kepada mereka kesabaran yang indah. Dan jangan uji mereka dengan sesuatu yang melebihi kemampuan mereka.</p>
+
+                    <p class="arabic-text">رَبَّنَا وَلَا تُحَمِّلْنَا مَا لَا طَاقَةَ لَنَا بِهِ</p>
+                    <p class="transliteration">Rabbanā lā tuḥammilnā mā lā ṭāqata lanā bih.</p>
+                    <p class="intro-p">Ya Tuhan kami, janganlah Engkau membebani kami dengan sesuatu yang tidak sanggup kami pikul.</p>
+                </section>
+
+                <div class="divider" aria-hidden="true"></div>
+
+                <!-- Bagian 6: Titik Terendah & Kemudahan -->
+                <section class="prayer-section">
+                    <p class="call-to-god">Ya Allah...</p>
+                    <p>Untuk mereka yang sedang berada di titik terendah dalam hidupnya, yang merasa hidupnya sudah tidak memiliki arah...</p>
+                    
+                    <div class="highlight-box">
+                        <p>Tolong genggam mereka.</p>
+                    </div>
+
+                    <ul class="prayer-list">
+                        <li>Saat mereka tidak tahu harus melangkah ke mana, tunjukkan satu langkah kecil.</li>
+                        <li>Saat mereka tidak mampu melihat masa depan, berikan mereka cukup cahaya untuk melewati hari ini.</li>
+                        <li>Saat mereka merasa tidak berguna, ingatkan mereka bahwa hidup mereka tetap berharga.</li>
+                        <li>Saat mereka merasa tidak dicintai, hadirkan orang-orang yang tulus menyayangi mereka.</li>
+                        <li>Saat mereka merasa sendirian, ingatkan hati mereka bahwa Engkau tidak pernah meninggalkan mereka.</li>
+                    </ul>
+
+                    <p>Dan jika malam terasa terlalu panjang, jadikan pagi sebagai tanda bahwa tidak ada malam yang berlangsung selamanya.</p>
+
+                    <p class="arabic-text">فَإِنَّ مَعَ الْعُسْرِ يُسْرًا &bull; إِنَّ مَعَ الْعُسْرِ يُسْرًا</p>
+                    <p class="transliteration">Fa-inna ma'al-'usri yusrā. Inna ma'al-'usri yusrā.</p>
+                    <p class="intro-p">Sesungguhnya bersama kesulitan ada kemudahan. Sesungguhnya bersama kesulitan ada kemudahan.</p>
+                </section>
+
+                <div class="divider" aria-hidden="true"></div>
+
+                <!-- Bagian 7: Menunggu Kabar Baik & Hajat -->
+                <section class="prayer-section">
+                    <p class="call-to-god">Ya Allah...</p>
+                    <p>Untuk mereka yang sedang menunggu kabar baik, berikanlah kabar yang membuat hati mereka lega.</p>
+
+                    <ul class="prayer-list">
+                        <li>Mereka yang sedang menunggu hasil pemeriksaan, berikanlah hasil yang baik.</li>
+                        <li>Mereka yang sedang menunggu jawaban pekerjaan, berikanlah jawaban terbaik.</li>
+                        <li>Mereka yang sedang menunggu seseorang pulang, jaga orang yang mereka tunggu.</li>
+                        <li>Mereka yang sedang menunggu sebuah keputusan, jika keputusan itu baik bagi mereka, mudahkanlah.</li>
+                    </ul>
+
+                    <p>Dan jika sesuatu yang mereka tunggu ternyata bukan yang terbaik, berikanlah mereka hati yang lapang untuk menerima keputusan-Mu.</p>
+                </section>
+
+                <div class="divider" aria-hidden="true"></div>
+
+                <!-- Bagian 8: Permohonan Hajat yang Disimpan -->
+                <section class="prayer-section">
+                    <p class="call-to-god">Ya Allah...</p>
+                    <p>Untuk mereka yang sedang menantikan hajatnya terkabul, Engkau mengetahui apa yang mereka minta bahkan sebelum mereka mengucapkannya.</p>
+
+                    <ul class="prayer-list">
+                        <li>Engkau mengetahui doa yang hanya mampu mereka bisikkan.</li>
+                        <li>Engkau mengetahui keinginan yang mereka simpan bertahun-tahun.</li>
+                        <li>Engkau mengetahui permintaan yang mereka ulang dalam setiap sujud.</li>
+                    </ul>
+
+                    <p>Jika hajat itu baik bagi dunia dan akhirat mereka, kabulkanlah.</p>
+
+                    <ul class="prayer-list">
+                        <li>Jika waktunya belum tiba, sabarkanlah mereka.</li>
+                        <li>Jika ada sesuatu yang harus mereka perbaiki terlebih dahulu, tunjukkanlah kepada mereka.</li>
+                        <li>Jika ada jalan yang lebih baik daripada apa yang mereka minta, arahkanlah mereka kepadanya.</li>
+                    </ul>
+
+                    <p>Dan jika jawaban-Mu berbeda dari keinginan mereka, berikanlah mereka hati yang mampu memahami bahwa pilihan-Mu selalu lebih luas daripada pengetahuan mereka.</p>
+
+                    <p>Jangan biarkan kami mengira bahwa doa yang belum terkabul berarti Engkau tidak mendengar. Ajarkan kami untuk percaya bahwa setiap doa memiliki tempat di sisi-Mu.</p>
+
+                    <ul class="prayer-list">
+                        <li>Ada doa yang Engkau kabulkan segera.</li>
+                        <li>Ada doa yang Engkau tunda karena waktunya belum tepat.</li>
+                        <li>Ada doa yang Engkau ganti dengan sesuatu yang lebih baik.</li>
+                        <li>Dan ada doa yang Engkau simpan sebagai pahala bagi kami.</li>
+                    </ul>
+
+                    <p>Maka ajarkan kami untuk tetap percaya.</p>
+                </section>
+
+                <div class="divider" aria-hidden="true"></div>
+
+                <!-- Bagian 9: Do'a Duka, Kehilangan & Tangisan Tersembunyi -->
+                <section class="prayer-section">
+                    <p class="call-to-god">Ya Allah...</p>
+                    <p>Untuk mereka yang sedang berduka, hiburlah hatinya. Untuk mereka yang kehilangan seseorang yang dicintai, berikanlah kesabaran.</p>
+
+                    <p>Ampunilah mereka yang telah pergi mendahului kami. Lapangkan kubur mereka. Terangi kubur mereka. Rahmati mereka. Tempatkan mereka di tempat terbaik di sisi-Mu.</p>
+                    <p>Dan berikanlah keluarga yang ditinggalkan kekuatan untuk menjalani hari-hari setelah kehilangan itu.</p>
+
+                    <p class="call-to-god">Ya Allah...</p>
+                    <ul class="prayer-list">
+                        <li>Untuk mereka yang sedang menangis diam-diam, hapuslah air matanya dengan ketenangan.</li>
+                        <li>Untuk mereka yang tersenyum di depan orang lain tetapi menangis ketika sendirian, berikanlah mereka tempat untuk beristirahat.</li>
+                        <li>Untuk mereka yang terlalu lelah untuk menjelaskan keadaan mereka, cukupkanlah mereka dengan pertolongan-Mu.</li>
+                        <li>Untuk mereka yang selalu menjadi tempat orang lain bersandar, jadilah Engkau tempat mereka bersandar ketika mereka sendiri membutuhkan kekuatan.</li>
+                    </ul>
+                </section>
+
+                <div class="divider" aria-hidden="true"></div>
+
+                <!-- Bagian 10: Merasa Tertinggal & Jalan Pulang -->
+                <section class="prayer-section">
+                    <p class="call-to-god">Ya Allah...</p>
+                    <p>Untuk mereka yang merasa tertinggal dalam hidup, jangan biarkan mereka membandingkan perjalanan mereka dengan perjalanan orang lain sampai mereka lupa mensyukuri langkahnya sendiri.</p>
+
+                    <p>Jika teman-temannya sudah sampai lebih dahulu, ajarkan mereka untuk tidak membenci keberhasilan orang lain. Jika orang lain telah mendapatkan apa yang mereka impikan, berikan mereka hati yang tetap mampu berkata:</p>
+
+                    <div class="highlight-box">
+                        <p>"Ya Allah, semoga Engkau memberikannya juga kepadaku jika itu baik bagiku."</p>
+                    </div>
+
+                    <p>Dan ketika waktunya tiba, semoga mereka menyadari bahwa keterlambatan bukan berarti penolakan.</p>
+
+                    <p class="call-to-god">Ya Allah...</p>
+                    <p>Untuk mereka yang sedang mencari jalan pulang, tuntunlah mereka. Untuk mereka yang jauh dari-Mu, dekatkanlah. Untuk mereka yang banyak melakukan kesalahan, bukakan pintu taubat.</p>
+                    <p>Untuk mereka yang merasa dosanya terlalu banyak untuk diampuni, ingatkanlah mereka bahwa rahmat-Mu jauh lebih luas daripada dosa-dosa mereka. Jangan biarkan dosa membuat kami putus asa dari rahmat-Mu.</p>
+
+                    <p>Ampunilah dosa kami. Dosa kedua orang tua kami. Dosa keluarga kami. Dosa guru-guru kami. Dosa orang-orang yang pernah berbuat baik kepada kami. Dan dosa seluruh kaum muslimin dan muslimat.</p>
+
+                    <p class="arabic-text">رَبَّنَا ظَلَمْنَا أَنْفُسَنَا وَإِنْ لَمْ تَغْفِرْ لَنَا وَتَرْحَمْنَا لَنَكُونَنَّ مِنَ الْخَاسِرِينَ</p>
+                    <p class="transliteration">Rabbanā ẓalamnā anfusanā, wa illam taghfir lanā wa tarḥamnā lanakūnanna minal-khāsirīn.</p>
+                    <p class="intro-p">Ya Tuhan kami, kami telah menzalimi diri kami sendiri. Jika Engkau tidak mengampuni kami dan tidak merahmati kami, niscaya kami termasuk orang-orang yang merugi.</p>
+                </section>
+
+                <div class="divider" aria-hidden="true"></div>
+
+                <!-- Bagian 11: Rezeki & Perlindungan Orang Tercinta -->
+                <section class="prayer-section">
+                    <p class="call-to-god">Ya Allah...</p>
+                    <p>Berikanlah kami rezeki yang halal. Rezeki yang cukup. Rezeki yang berkah. Rezeki yang membuat kami tidak harus meminta-minta kepada manusia.</p>
+                    <p>Berikanlah kami pekerjaan yang baik. Tempat kerja yang baik. Orang-orang yang baik di sekitar kami. Dan kemampuan untuk menggunakan rezeki kami di jalan yang Engkau ridai.</p>
+
+                    <ul class="prayer-list">
+                        <li>Jika rezeki kami sedang sempit, lapangkanlah.</li>
+                        <li>Jika rezeki kami sedang jauh, dekatkanlah.</li>
+                        <li>Jika rezeki kami masih tertutup, bukakanlah.</li>
+                        <li>Dan jika rezeki kami sedang banyak, jangan biarkan hati kami lupa kepada-Mu.</li>
+                    </ul>
+
+                    <p class="call-to-god">Ya Allah...</p>
+                    <p>Jagalah orang-orang yang kami cintai. Jaga orang tua kami. Jaga keluarga kami. Jaga sahabat-sahabat kami. Jaga mereka yang pernah membantu kami. Jaga mereka yang sedang jauh dari kami.</p>
+                    <p>Lindungi mereka dari penyakit. Dari kecelakaan. Dari kejahatan. Dari fitnah. Dari kesedihan yang tidak sanggup mereka tanggung. Jika kami tidak mampu berada di sisi mereka, jadilah penjaga mereka.</p>
+                </section>
+
+                <div class="divider" aria-hidden="true"></div>
+
+                <!-- Bagian 12: Rahasia Hati & Permohonan Keteguhan -->
+                <section class="prayer-section">
+                    <p class="call-to-god">Ya Allah...</p>
+                    <p>Dan untuk semua orang yang malam ini sedang menjalani sesuatu yang tidak kami ketahui... Engkau tahu.</p>
+
+                    <ul class="prayer-list">
+                        <li>Untuk doa yang tidak pernah mereka ceritakan kepada siapa pun... Engkau tahu.</li>
+                        <li>Untuk air mata yang mereka sembunyikan... Engkau tahu.</li>
+                        <li>Untuk perjuangan yang tidak pernah mendapatkan penghargaan... Engkau tahu.</li>
+                        <li>Untuk hati yang patah tetapi tetap mencoba percaya... Engkau tahu.</li>
+                    </ul>
+
+                    <p>Untuk seseorang yang malam ini berkata, "Aku sudah tidak sanggup," berikanlah ia satu alasan lagi untuk bertahan.</p>
+                    <p>Untuk seseorang yang berkata, "Aku tidak tahu harus bagaimana," tunjukkanlah jalan.</p>
+                    <p>Untuk seseorang yang berkata, "Aku hanya ingin semuanya segera selesai," berikanlah ketenangan dan pertolongan.</p>
+                    <p>Dan untuk siapa pun yang sedang berada dalam keadaan yang sangat gelap, tolong hadirkan cahaya-Mu.</p>
+
+                    <p class="call-to-god">Ya Allah...</p>
+                    <p>Kami tidak meminta hidup tanpa ujian. Kami hanya meminta agar ketika ujian datang, Engkau tidak meninggalkan kami.</p>
+
+                    <ul class="prayer-list">
+                        <li>Kami tidak meminta jalan yang selalu mudah. Kami meminta kaki yang kuat untuk melewatinya.</li>
+                        <li>Kami tidak meminta semua keinginan kami dikabulkan. Kami meminta hati yang percaya kepada pilihan-Mu.</li>
+                        <li>Kami tidak meminta umur yang panjang semata. Kami meminta umur yang penuh keberkahan.</li>
+                        <li>Kami tidak meminta kekayaan yang membuat kami lupa. Kami meminta rezeki yang membuat kami semakin dekat kepada-Mu.</li>
+                        <li>Kami tidak meminta kehidupan tanpa kesedihan. Kami meminta hati yang tetap mengenal-Mu ketika kesedihan datang.</li>
+                    </ul>
+                </section>
+
+                <div class="divider" aria-hidden="true"></div>
+
+                <!-- Bagian 13: Syukur, Harapan & Penerimaan -->
+                <section class="prayer-section">
+                    <p class="call-to-god">Ya Allah...</p>
+                    <p>Jika hari ini kami mendapatkan sesuatu yang kami syukuri, jangan jadikan kami sombong.</p>
+                    <p>Jika hari ini kami kehilangan sesuatu yang kami cintai, jangan jadikan kami putus asa.</p>
+                    <p>Jika hari ini kami berhasil, ingatkan kami bahwa semua itu karena pertolongan-Mu.</p>
+                    <p>Jika hari ini kami gagal, ingatkan kami bahwa satu kegagalan bukan akhir dari seluruh kehidupan.</p>
+                    <p>Jika hari ini kami jatuh, angkatlah kami. Jika hari ini kami tersesat, tuntunlah kami. Jika hari ini kami lupa kepada-Mu, ingatkanlah kami. Jika hari ini kami jauh dari-Mu, panggillah kami kembali.</p>
+
+                    <p class="call-to-god">Ya Allah...</p>
+                    <p>Jadikan hari-hari yang akan datang lebih baik daripada hari-hari yang telah kami lewati.</p>
+
+                    <ul class="prayer-list">
+                        <li>Sembuhkan apa yang sakit. Pulihkan apa yang patah. Tenangkan apa yang gelisah.</li>
+                        <li>Luruskan apa yang menyimpang. Cukupkan apa yang kurang. Bukakan apa yang tertutup.</li>
+                        <li>Mudahkan apa yang sulit. Dekatkan apa yang baik. Jauhkan apa yang buruk.</li>
+                        <li>Dan gantilah setiap kehilangan kami dengan sesuatu yang lebih baik menurut-Mu.</li>
+                    </ul>
+
+                    <p class="call-to-god">Ya Allah...</p>
+                    <p>Ketika akhirnya kabar baik itu datang, jangan biarkan kami lupa kepada malam-malam ketika kami menangis memintanya.</p>
+                    <p>Ketika akhirnya hajat kami terkabul, jangan biarkan kami lupa kepada-Mu yang mengabulkannya.</p>
+                    <p>Ketika akhirnya kami sampai di tempat yang selama ini kami impikan, jangan biarkan kami lupa betapa panjang perjalanan yang telah kami lewati.</p>
+                    
+                    <p>Dan jika ternyata yang kami inginkan tidak pernah menjadi milik kami, berikanlah kami hati yang mampu berkata:</p>
+                    <div class="highlight-box">
+                        <p>"Allah tahu apa yang tidak aku tahu."</p>
+                    </div>
+                </section>
+
+                <div class="divider" aria-hidden="true"></div>
+
+                <!-- Bagian 14: Rahmat untuk Setiap Pembaca -->
+                <section class="prayer-section">
+                    <p class="call-to-god">Ya Allah...</p>
+                    <p>Semoga setiap orang yang membaca doa ini mendapatkan bagian dari rahmat-Mu.</p>
+
+                    <ul class="prayer-list">
+                        <li>Yang sedang sakit, semoga sembuh.</li>
+                        <li>Yang sedang sedih, semoga tenang.</li>
+                        <li>Yang sedang takut, semoga aman.</li>
+                        <li>Yang sedang bingung, semoga menemukan jalan.</li>
+                        <li>Yang sedang miskin, semoga dicukupkan.</li>
+                        <li>Yang sedang berutang, semoga dilunasi.</li>
+                        <li>Yang sedang mencari pekerjaan, semoga mendapatkan pekerjaan terbaik.</li>
+                        <li>Yang sedang belajar, semoga dimudahkan memahami ilmu.</li>
+                        <li>Yang sedang membangun sesuatu dari nol, semoga Engkau kuatkan.</li>
+                        <li>Yang sedang berjuang untuk keluarganya, semoga Engkau bantu.</li>
+                        <li>Yang sedang menunggu seseorang, semoga Engkau jaga mereka.</li>
+                        <li>Yang sedang menunggu kabar, semoga datang kabar baik.</li>
+                        <li>Yang sedang menunggu jodoh, semoga Engkau pertemukan dengan pasangan yang baik.</li>
+                        <li>Yang sedang menunggu keturunan, semoga Engkau karuniakan keturunan yang saleh dan salehah jika itu baik bagi mereka.</li>
+                        <li>Yang sedang menunggu kesembuhan, semoga Engkau sembuhkan.</li>
+                        <li>Yang sedang menunggu kebebasan dari masalah, semoga Engkau bukakan pintunya.</li>
+                        <li>Yang sedang menunggu terkabulnya doa, semoga Engkau berikan jawaban terbaik.</li>
+                    </ul>
+
+                    <p>Dan bagi mereka yang tidak tahu lagi apa yang harus mereka doakan... Ya Allah, cukupkanlah apa yang mereka butuhkan meskipun mereka tidak tahu bagaimana cara memintanya.</p>
+                </section>
+
+                <div class="divider" aria-hidden="true"></div>
+
+                <!-- Bagian 15: Penutup, Husnul Khatimah & Amin -->
+                <section class="prayer-section">
+                    <p class="call-to-god">Ya Allah...</p>
+                    <p>Berikan kami husnul khatimah. Matikan kami dalam keadaan Engkau ridha kepada kami. Jadikan akhir hidup kami sebagai akhir yang baik.</p>
+                    <p>Ampuni kami sebelum kami bertemu dengan-Mu. Rahmati kami ketika kami telah kembali kepada-Mu. Dan jangan pisahkan kami dari rahmat-Mu, baik ketika kami masih hidup di dunia maupun ketika kami telah meninggalkan dunia.</p>
+
+                    <p class="arabic-text">رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ</p>
+                    <p class="transliteration">Rabbana ātinā fid-dunyā ḥasanah, wa fil-ākhirati ḥasanah, wa qinā ‘adzāban-nār.</p>
+                    <p class="intro-p">Ya Tuhan kami, berikanlah kepada kami kebaikan di dunia, kebaikan di akhirat, dan lindungilah kami dari siksa neraka.</p>
+
+                    <p class="arabic-text">اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ وَعَلَى آلِ سَيِّدِنَا مُحَمَّدٍ</p>
+                    <p class="transliteration">Allāhumma ṣalli ‘alā Sayyidinā Muḥammad, wa ‘alā āli Sayyidinā Muḥammad.</p>
+
+                    <p class="call-to-god">Ya Allah...</p>
+                    <p>Terimalah doa kami. Terimalah doa orang-orang yang sedang membaca ini. Terimalah doa mereka yang bahkan tidak mampu mengucapkan apa-apa selain:</p>
+                    
+                    <div class="highlight-box">
+                        <p>"Ya Allah, tolong aku."</p>
+                    </div>
+
+                    <p>Karena Engkau Maha Mendengar. Engkau Maha Mengetahui. Engkau Maha Pengasih. Engkau Maha Penyayang. Dan kepada-Mu lah kami menyerahkan segala sesuatu yang tidak mampu kami kendalikan.</p>
+
+                    <p class="arabic-text">حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ</p>
+                    <p class="transliteration">Hasbunallāhu wa ni‘mal-wakīl.</p>
+                    <p class="intro-p">Cukuplah Allah menjadi penolong kami, dan Dia adalah sebaik-baik pelindung.</p>
+
+                    <p class="arabic-text" style="margin-top: 1rem;">آمينَ يا رَبَّ العَالَمِيْنَ</p>
+                    <p class="transliteration" style="font-weight: 600; color: var(--text-primary);">Āmīn yā Rabbal ‘ālamīn.</p>
+                </section>
+
+            </article>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <p>&copy;1448H - Do'a Malam Ini</p>
+        </footer>
+    </div>
+
+</body>
+</html>
