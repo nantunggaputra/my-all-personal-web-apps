@@ -694,7 +694,7 @@
                     const d0 = Math.hypot(path[1].x - path[0].x, path[1].y - path[0].y);
                     this.angle = d0 > 1 ? Math.atan2(path[1].y - path[0].y, path[1].x - path[0].x) : this.faceAngle;
                     this.state = 'enter';             // enter -> drink -> leave -> gone
-                    this.speed = 0.45;
+                    this.speed = 0.6;
                     this.walk = 0;
                     this.timer = 0;
                     this.drinkTime = 220 + Math.random() * 160; // ~4-6 detik
@@ -745,14 +745,16 @@
                 }
 
                 draw(mode, glow) {
-                    // Bayangan (arah & jarak mengikuti waktu, sama seperti ikan & batu)
+                    // Bayangan kucing: dekat dengan tubuh, seolah kaki menyentuh rumput
                     ctx.save();
-                    ctx.translate(this.x + mode.shadowOffset, this.y + mode.shadowOffset * 1.2);
+                    ctx.translate(this.x + 2, this.y + 4);
                     ctx.rotate(this.angle);
-                    ctx.fillStyle = 'rgba(2, 6, 23, 0.35)';
+
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
                     ctx.beginPath();
-                    ctx.ellipse(0, 0, 18, 9, 0, 0, Math.PI * 2);
+                    ctx.ellipse(0, 0, 16, 5, 0, 0, Math.PI * 2);
                     ctx.fill();
+
                     ctx.restore();
 
                     ctx.save();
@@ -1191,6 +1193,10 @@
                 const rect = canvas.getBoundingClientRect();
                 const clickX = e.clientX - rect.left;
                 const clickY = e.clientY - rect.top;
+
+                // Abaikan klik di luar area kolam
+                if (!isInsidePond(clickX, clickY)) return;
+
                 spawnFood(clickX, clickY);
             });
 
