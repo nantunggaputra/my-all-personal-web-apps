@@ -1,1 +1,1208 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kolam Koi - MVP</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Inter & Google Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0f172a;
+            user-select: none;
+            -webkit-user-select: none;
+            overflow: hidden;
+        }
+        /* Custom Styling & Glassmorphism */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .btn-feed {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            box-shadow: 0 4px 14px 0 rgba(249, 115, 22, 0.39);
+            transition: all 0.2s ease;
+        }
+        .btn-feed:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px 0 rgba(249, 115, 22, 0.5);
+        }
+        .btn-feed:active {
+            transform: translateY(1px);
+        }
+    </style>
+</head>
+<body class="w-screen h-screen flex flex-col justify-between items-center relative overflow-hidden bg-slate-950 text-slate-100">
 
+    <!-- Header Glass UI -->
+    <header class="w-full max-w-4xl px-4 pt-4 z-20">
+        <div class="glass-panel rounded-2xl p-4 flex justify-between items-center shadow-lg">
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 bg-orange-500/20 text-orange-400 rounded-xl border border-orange-500/30">
+                    <i data-lucide="waves" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight tracking-wide text-slate-50">Kolam Koi</h1>
+                    <p class="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
+                        <span id="time-status-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                        <span id="time-status-text">Waktu: Pagi hari</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Cycle Lighting Control & Info -->
+            <div class="flex items-center gap-2">
+                <button id="toggle-time-btn" class="glass-panel hover:bg-slate-800/60 text-slate-300 hover:text-white px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 border border-slate-700/50 transition">
+                    <i id="time-icon" data-lucide="sun" class="w-4 h-4 text-amber-400"></i>
+                    <span id="time-mode-label" class="hidden sm:inline">Ubah Waktu</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Interactive Canvas Container -->
+    <main class="absolute inset-0 w-full h-full z-0 cursor-crosshair">
+        <canvas id="pondCanvas" class="w-full h-full block"></canvas>
+    </main>
+
+    <!-- Bottom Controls Glass UI -->
+    <footer class="w-full max-w-md px-4 pb-6 z-20 flex flex-col items-center gap-3">
+        <!-- Main Feed Button -->
+        <button id="feedBtn" class="btn-feed w-full py-3.5 px-6 rounded-2xl text-white font-bold text-base flex items-center justify-center gap-2.5 tracking-wide">
+            <i data-lucide="cookie" class="w-5 h-5"></i>
+            <span>Beri Makan Koi</span>
+        </button>
+
+        <!-- Sub Helper Info -->
+        <div class="glass-panel py-2 px-4 rounded-full text-xs text-slate-400 flex items-center gap-2 shadow-inner">
+            <i data-lucide="mouse-pointer-click" class="w-3.5 h-3.5 text-orange-400"></i>
+            <span>Klik di area kolam untuk menjatuhkan pelet</span>
+        </div>
+    </footer>
+
+    <!-- Canvas Simulation Logic -->
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+
+            const canvas = document.getElementById('pondCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // Responsive Screen Canvas Resize
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+                generatePondShape();
+                generateSpotlights();
+                generatePlantsAndCorals(); // v3.5
+                generateGrassTexture();    // v3.5
+                generateFireflies();       // v3.7
+                resetCat();                // v3.9
+            });
+
+            // Lighting Modes: 0: Morning, 1: Noon, 2: Sunset, 3: Night
+            const LIGHT_MODES = [
+                { name: 'Pagi Hari', icon: 'sun', bgTint: 'rgba(251, 146, 60, 0.08)', shadowOffset: 12, shadowBlur: 8, brightness: 1.0, isNight: false },
+                { name: 'Siang Hari', icon: 'sun-medium', bgTint: 'rgba(255, 255, 255, 0)', shadowOffset: 5, shadowBlur: 5, brightness: 1.1, isNight: false },
+                { name: 'Sore Hari', icon: 'sunset', bgTint: 'rgba(239, 68, 68, 0.15)', shadowOffset: 15, shadowBlur: 10, brightness: 0.85, isNight: false },
+                { name: 'Malam Hari', icon: 'moon', bgTint: 'rgba(15, 23, 42, 0.75)', shadowOffset: 3, shadowBlur: 15, brightness: 0.4, isNight: true }
+            ];
+            
+            // Set initial mode based on current real time
+            const currentHour = new Date().getHours();
+            let currentLightIdx = 0;
+            if (currentHour >= 6 && currentHour < 11) currentLightIdx = 0; // Pagi
+            else if (currentHour >= 11 && currentHour < 15) currentLightIdx = 1; // Siang
+            else if (currentHour >= 15 && currentHour < 18) currentLightIdx = 2; // Sore
+            else currentLightIdx = 3; // Malam
+
+            // Organic Pond Polygon Path
+            let pondPath = [];
+            let pondCenter = { x: width / 2, y: height / 2 };
+            let spotlights = [];
+
+            function generatePondShape() {
+                pondPath = [];
+                pondCenter = { x: width / 2, y: height / 2 };
+                const pointsCount = 14;
+                const baseRadius = Math.min(width, height) * 0.42;
+
+                for (let i = 0; i < pointsCount; i++) {
+                    const angle = (i / pointsCount) * Math.PI * 2;
+                    // Seeded random variation for dynamic organic shape
+                    const variance = Math.sin(i * 2.5) * 40 + Math.cos(i * 1.5) * 30;
+                    const r = baseRadius + variance;
+                    const x = pondCenter.x + Math.cos(angle) * r;
+                    const y = pondCenter.y + Math.sin(angle) * r;
+                    pondPath.push({ x, y });
+                }
+            }
+
+            function generateSpotlights() {
+                spotlights = [];
+                // Place subtle underwater lamps along pond edges
+                const lampCount = 4;
+                for (let i = 0; i < lampCount; i++) {
+                    const idx = Math.floor((i / lampCount) * pondPath.length);
+                    spotlights.push({
+                        x: pondPath[idx].x,
+                        y: pondPath[idx].y,
+                        radius: Math.min(width, height) * 0.28
+                    });
+                }
+            }
+
+            // Generate Seaweed Grass & Corals in Pond Bottom
+            let seaweeds = [];
+            let corals = [];
+
+            let coralColors = [];
+
+            // v3.5: jarak titik ke tepi kolam terdekat
+            function distToPondEdge(x, y) {
+                let min = Infinity;
+                for (let i = 0, j = pondPath.length - 1; i < pondPath.length; j = i++) {
+                    const ax = pondPath[j].x, ay = pondPath[j].y;
+                    const dx = pondPath[i].x - ax, dy = pondPath[i].y - ay;
+                    const t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy)));
+                    min = Math.min(min, Math.hypot(x - (ax + t * dx), y - (ay + t * dy)));
+                }
+                return min;
+            }
+
+            // v3.5: taruh cluster karang hanya jika cukup jauh dari tepi
+            function placeCoralCluster(cx0, cy0, count, colorOffset, rBase, rRange) {
+                const margin = Math.max(45, Math.min(width, height) * 0.1);
+                let placed = 0, tries = 0;
+                while (placed < count && tries < 60) {
+                    tries++;
+                    const cx = cx0 + (Math.random() - 0.5) * 90;
+                    const cy = cy0 + (Math.random() - 0.5) * 80;
+                    if (isInsidePond(cx, cy) && distToPondEdge(cx, cy) > margin) {
+                        corals.push({
+                            x: cx,
+                            y: cy,
+                            radius: rBase + Math.random() * rRange,
+                            branches: 5 + Math.floor(Math.random() * 3),
+                            color: coralColors[(placed + colorOffset) % coralColors.length]
+                        });
+                        placed++;
+                    }
+                }
+            }
+
+            function generatePlantsAndCorals() {
+                seaweeds = [];
+                corals = [];
+                
+                // 1. Generate Seaweed Tufts spread across pond floor (POV Tampak Atas: Titik/Lingkaran Daun Membulat)
+                const seaweedCount = 35; // Jumlah diperbanyak
+                for (let i = 0; i < seaweedCount; i++) {
+                    const rx = pondCenter.x + (Math.random() - 0.5) * (width * 0.65);
+                    const ry = pondCenter.y + (Math.random() - 0.5) * (height * 0.65);
+                    if (isInsidePond(rx, ry)) {
+                        const dotCount = 5 + Math.floor(Math.random() * 6);
+                        const dots = [];
+                        for (let d = 0; d < dotCount; d++) {
+                            const angle = Math.random() * Math.PI * 2;
+                            const dist = 3 + Math.random() * 12;
+                            dots.push({
+                                offsetX: Math.cos(angle) * dist,
+                                offsetY: Math.sin(angle) * dist,
+                                radius: 2.5 + Math.random() * 3.5,
+                                speed: 0.8 + Math.random() * 0.8,
+                                phase: Math.random() * Math.PI * 2,
+                                color: Math.random() > 0.4 ? 'rgba(16, 185, 129, 0.65)' : 'rgba(5, 150, 105, 0.55)'
+                            });
+                        }
+                        seaweeds.push({ x: rx, y: ry, dots });
+                    }
+                }
+
+                // 2. Generate Corals (Top-Left & Bottom-Right)
+                coralColors = [
+                    { body: 'rgba(236, 72, 153, 0.75)', highlight: 'rgba(244, 114, 182, 0.85)' }, // Pink/Rose
+                    { body: 'rgba(168, 85, 247, 0.75)', highlight: 'rgba(192, 132, 252, 0.85)' }, // Violet/Purple
+                    { body: 'rgba(14, 165, 233, 0.75)', highlight: 'rgba(56, 189, 248, 0.85)' },  // Cyan/Blue
+                    { body: 'rgba(245, 158, 11, 0.75)', highlight: 'rgba(251, 191, 36, 0.85)' }   // Amber/Orange
+                ];
+
+                // Cluster Top-Left & Bottom-Right (v3.5: lebih ke dalam, aman dari tepi)
+                const d = Math.min(width, height) * 0.16;
+                placeCoralCluster(pondCenter.x - d, pondCenter.y - d, 4, 0, 14, 10);
+                placeCoralCluster(pondCenter.x + d, pondCenter.y + d, 4, 2, 13, 9);
+            }
+
+            generatePondShape();
+            generateSpotlights();
+            generatePlantsAndCorals();
+
+            // v3.5: tekstur rumput random (titik + gradasi), dibuat sekali lalu di-draw tiap frame
+            let grassTexture = null;
+
+            function generateGrassTexture() {
+                grassTexture = document.createElement('canvas');
+                grassTexture.width = width;
+                grassTexture.height = height;
+                const g = grassTexture.getContext('2d');
+
+                // Gradasi random: bercak terang & gelap
+                for (let i = 0; i < 22; i++) {
+                    const x = Math.random() * width, y = Math.random() * height;
+                    const r = 80 + Math.random() * 180;
+                    const light = Math.random() > 0.5;
+                    const c = light ? '190,242,100' : '2,44,34';
+                    const grad = g.createRadialGradient(x, y, 0, x, y, r);
+                    grad.addColorStop(0, `rgba(${c},${light ? 0.16 : 0.22})`);
+                    grad.addColorStop(1, `rgba(${c},0)`);
+                    g.fillStyle = grad;
+                    g.fillRect(x - r, y - r, r * 2, r * 2);
+                }
+
+                // Titik-titik random
+                const dotColors = ['rgba(190,242,100,0.22)', 'rgba(134,239,172,0.18)', 'rgba(2,44,34,0.28)', 'rgba(20,83,45,0.25)'];
+                const dotCount = Math.floor((width * height) / 260);
+                for (let i = 0; i < dotCount; i++) {
+                    g.fillStyle = dotColors[Math.floor(Math.random() * dotColors.length)];
+                    g.beginPath();
+                    g.arc(Math.random() * width, Math.random() * height, 0.6 + Math.random() * 1.6, 0, Math.PI * 2);
+                    g.fill();
+                }
+            }
+            generateGrassTexture();
+
+            // Check if point is inside pond polygon
+            function isInsidePond(x, y) {
+                let inside = false;
+                for (let i = 0, j = pondPath.length - 1; i < pondPath.length; j = i++) {
+                    const xi = pondPath[i].x, yi = pondPath[i].y;
+                    const xj = pondPath[j].x, yj = pondPath[j].y;
+                    const intersect = ((yi > y) !== (yj > y)) &&
+                        (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+                    if (intersect) inside = !inside;
+                }
+                return inside;
+            }
+
+            // --- Ripple Physics ---
+            let ripples = [];
+
+            function addRipple(x, y, maxR = 40, strength = 1.0) {
+                ripples.push({
+                    x: x,
+                    y: y,
+                    radius: 4,
+                    maxRadius: maxR,
+                    alpha: strength,
+                    speed: 1.5 + Math.random() * 0.8
+                });
+            }
+
+            // Periodic Ambient Ripples (Air Jernih Sedikit Riak)
+            setInterval(() => {
+                if (Math.random() < 0.6) {
+                    const randomPt = {
+                        x: pondCenter.x + (Math.random() - 0.5) * (width * 0.4),
+                        y: pondCenter.y + (Math.random() - 0.5) * (height * 0.4)
+                    };
+                    if (isInsidePond(randomPt.x, randomPt.y)) {
+                        addRipple(randomPt.x, randomPt.y, 25 + Math.random() * 20, 0.4);
+                    }
+                }
+            }, 1800);
+
+            // --- Food Pellets System ---
+            let foods = [];
+
+            function spawnFood(x, y) {
+                // If clicked outside pond, snap to center-ish
+                if (!isInsidePond(x, y)) {
+                    x = pondCenter.x + (Math.random() - 0.5) * 50;
+                    y = pondCenter.y + (Math.random() - 0.5) * 50;
+                }
+
+                // Spawn 3-5 small food pellets around position
+                const count = 3 + Math.floor(Math.random() * 3);
+                for (let i = 0; i < count; i++) {
+                    const offsetX = (Math.random() - 0.5) * 30;
+                    const offsetY = (Math.random() - 0.5) * 30;
+                    const px = x + offsetX;
+                    const py = y + offsetY;
+                    if (!isInsidePond(px, py)) continue; // v3.7: jangan jatuhkan pelet di luar kolam
+                    
+                    foods.push({
+                        x: px,
+                        y: py,
+                        size: 3 + Math.random() * 2,
+                        life: 1.0,
+                        floatOffset: Math.random() * Math.PI * 2
+                    });
+                    addRipple(px, py, 15 + Math.random() * 10, 0.8);
+                }
+            }
+
+            // v3.7: normalisasi selisih sudut ke rentang -PI..PI
+            function normalizeAngle(a) {
+                while (a < -Math.PI) a += Math.PI * 2;
+                while (a > Math.PI) a -= Math.PI * 2;
+                return a;
+            }
+
+            // --- Koi Fish Entity System ---
+            const KOI_COLORS = [
+                { main: '#f97316', secondary: '#ffffff', spots: '#1e293b' }, // Kohaku / Taisho Sanke (Orange-White-Black)
+                { main: '#ffffff', secondary: '#ef4444', spots: '#ef4444' }, // Red-White
+                { main: '#eab308', secondary: '#f97316', spots: '#ffffff' }, // Yamabuki Ogon (Golden/Yellow)
+                { main: '#38bdf8', secondary: '#ffffff', spots: '#0284c7' }, // Asagi (Blue/Cyan hint)
+                { main: '#f43f5e', secondary: '#1e293b', spots: '#f43f5e' }  // Hi Utsuri
+            ];
+
+            class Koi {
+                constructor(isSmall = false) {
+                    this.isSmall = isSmall;
+                    this.size = isSmall ? (12 + Math.random() * 6) : (24 + Math.random() * 10);
+                    
+                    // Spawn inside pond
+                    this.x = pondCenter.x + (Math.random() - 0.5) * (width * 0.3);
+                    this.y = pondCenter.y + (Math.random() - 0.5) * (height * 0.3);
+                    
+                    this.angle = Math.random() * Math.PI * 2;
+                    this.speed = isSmall ? (1.2 + Math.random() * 0.8) : (0.8 + Math.random() * 0.6);
+                    this.maxSpeed = this.speed * 2.2;
+                    this.turnSpeed = 0.04 + Math.random() * 0.03;
+                    
+                    this.colors = KOI_COLORS[Math.floor(Math.random() * KOI_COLORS.length)];
+                    this.tailAngle = 0;
+                    this.swimCycle = Math.random() * 100;
+
+                    // Target AI
+                    this.targetFood = null;
+                    this.isBreaching = false; // Naiknya ikan ke permukaan saat makan
+                    this.breachScale = 1.0;
+                }
+
+                update() {
+                    this.swimCycle += 0.08 * (this.speed * 1.2);
+                    this.tailAngle = Math.sin(this.swimCycle) * 0.45;
+
+                    // Food Sensing & Pursuit AI
+                    if (foods.length > 0) {
+                        let closest = null;
+                        let minDist = 350;
+
+                        for (let f of foods) {
+                            const dx = f.x - this.x;
+                            const dy = f.y - this.y;
+                            const dist = Math.hypot(dx, dy);
+                            if (dist < minDist) {
+                                minDist = dist;
+                                closest = f;
+                            }
+                        }
+
+                        if (closest) {
+                            this.targetFood = closest;
+                            const targetAngle = Math.atan2(closest.y - this.y, closest.x - this.x);
+                            let diff = targetAngle - this.angle;
+                            
+                            // Angle Normalization
+                            while (diff < -Math.PI) diff += Math.PI * 2;
+                            while (diff > Math.PI) diff -= Math.PI * 2;
+                            
+                            this.angle += diff * 0.08;
+                            this.speed = Math.min(this.speed + 0.05, this.maxSpeed);
+
+                            // Eating distance
+                            if (minDist < this.size * 0.8) {
+                                // Eat Food
+                                const idx = foods.indexOf(closest);
+                                if (idx > -1) {
+                                    foods.splice(idx, 1);
+                                    this.isBreaching = true;
+                                    // Make water ripples on surface eating
+                                    addRipple(this.x, this.y, 25 + this.size, 1.2);
+                                }
+                            }
+                        } else {
+                            this.targetFood = null; // v3.7: pelet jauh -> tetap berenang santai
+                            this.angle += (Math.random() - 0.5) * this.turnSpeed;
+                            this.speed = Math.max(this.speed - 0.02, this.isSmall ? 1.2 : 0.8);
+                        }
+                    } else {
+                        this.targetFood = null;
+                        // Wandering behavior with smooth random turns
+                        this.angle += (Math.random() - 0.5) * this.turnSpeed;
+                        this.speed = Math.max(this.speed - 0.02, this.isSmall ? 1.2 : 0.8);
+                    }
+
+                    // Surface Breach Animation Effect (Naik ke permukaan)
+                    if (this.isBreaching) {
+                        this.breachScale += 0.04;
+                        if (this.breachScale > 1.25) {
+                            this.isBreaching = false;
+                        }
+                    } else if (this.breachScale > 1.0) {
+                        this.breachScale -= 0.03;
+                    }
+
+                    // v3.7: zona tepi - makin dekat dinding makin kuat belok ke tengah (kecuali sedang mengejar pelet)
+                    if (!this.targetFood) {
+                        const edgeMargin = 60 + this.size;
+                        const edgeD = distToPondEdge(this.x, this.y);
+                        if (edgeD < edgeMargin) {
+                            const toCenter = Math.atan2(pondCenter.y - this.y, pondCenter.x - this.x);
+                            this.angle += normalizeAngle(toCenter - this.angle) * 0.1 * (1 - edgeD / edgeMargin);
+                        }
+                    }
+
+                    // Move
+                    const vx = Math.cos(this.angle) * this.speed;
+                    const vy = Math.sin(this.angle) * this.speed;
+                    
+                    const nextX = this.x + vx;
+                    const nextY = this.y + vy;
+
+                    // Edge Avoidance Boundary Check
+                    if (isInsidePond(nextX, nextY)) {
+                        this.x = nextX;
+                        this.y = nextY;
+                    } else {
+                        // Turn back towards center when hitting pond edges
+                        const toCenterAngle = Math.atan2(pondCenter.y - this.y, pondCenter.x - this.x);
+                        this.angle += normalizeAngle(toCenterAngle - this.angle) * 0.15; // v3.7: fix belok lewat jalur terpanjang di sisi kanan (batas ±PI)
+                    }
+                }
+
+                draw(isShadow = false, shadowOffsetX = 0, shadowOffsetY = 0) {
+                    ctx.save();
+                    
+                    const currentScale = this.breachScale;
+
+                    if (isShadow) {
+                        // Draw Shadow on Pond Floor
+                        ctx.translate(this.x + shadowOffsetX, this.y + shadowOffsetY);
+                        ctx.rotate(this.angle);
+                        ctx.scale(currentScale * 0.9, currentScale * 0.9);
+                        ctx.fillStyle = 'rgba(2, 6, 23, 0.45)';
+                    } else {
+                        // Draw Real Koi Fish
+                        ctx.translate(this.x, this.y);
+                        ctx.rotate(this.angle);
+                        ctx.scale(currentScale, currentScale);
+                    }
+
+                    const len = this.size;
+                    const w = len * 0.4;
+
+                    if (isShadow) {
+                        // Simplified Shadow Body
+                        ctx.beginPath();
+                        ctx.ellipse(0, 0, len * 0.6, w * 0.8, 0, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        // Tail Shadow
+                        ctx.beginPath();
+                        ctx.moveTo(-len * 0.5, 0);
+                        ctx.lineTo(-len * 0.9 + Math.sin(this.swimCycle) * 4, -w * 0.5);
+                        ctx.lineTo(-len * 0.9 + Math.sin(this.swimCycle) * 4, w * 0.5);
+                        ctx.closePath();
+                        ctx.fill();
+
+                        ctx.restore();
+                        return;
+                    }
+
+                    // --- Real Body Render ---
+                    // Pectoral Fins
+                    ctx.fillStyle = this.colors.secondary;
+                    ctx.beginPath();
+                    ctx.ellipse(len * 0.1, -w * 0.95, len * 0.25, w * 0.35, -Math.PI / 4, 0, Math.PI * 2);
+                    ctx.ellipse(len * 0.1, w * 0.95, len * 0.25, w * 0.35, Math.PI / 4, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Main Body Gradient & Shape
+                    const bodyGrad = ctx.createLinearGradient(-len * 0.6, 0, len * 0.6, 0);
+                    bodyGrad.addColorStop(0, this.colors.secondary);
+                    bodyGrad.addColorStop(0.4, this.colors.main);
+                    bodyGrad.addColorStop(1, this.colors.secondary);
+
+                    ctx.fillStyle = bodyGrad;
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, len * 0.65, w * 0.75, 0, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Koi Spots / Patterns
+                    ctx.fillStyle = this.colors.spots;
+                    ctx.beginPath();
+                    ctx.ellipse(-len * 0.1, -w * 0.2, len * 0.25, w * 0.3, 0.2, 0, Math.PI * 2);
+                    ctx.ellipse(len * 0.25, w * 0.1, len * 0.18, w * 0.25, -0.3, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Flexible Tail
+                    ctx.save();
+                    ctx.translate(-len * 0.55, 0);
+                    ctx.rotate(this.tailAngle);
+
+                    ctx.fillStyle = this.colors.main;
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.lineTo(-len * 0.4, -w * 0.6);
+                    ctx.lineTo(-len * 0.5, 0);
+                    ctx.lineTo(-len * 0.4, w * 0.6);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    ctx.restore();
+
+                    // Eyes
+                    ctx.fillStyle = '#0f172a';
+                    ctx.beginPath();
+                    ctx.arc(len * 0.4, -w * 0.4, len * 0.08, 0, Math.PI * 2);
+                    ctx.arc(len * 0.4, w * 0.4, len * 0.08, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.restore();
+                }
+            }
+
+            // Populate Koi Population
+            const koiList = [];
+            for (let i = 0; i < 7; i++) koiList.push(new Koi(false)); // Medium Koi
+            for (let i = 0; i < 9; i++) koiList.push(new Koi(true));  // Small Koi
+
+            // --- v3.7: Kunang-kunang (hanya tampil saat malam) ---
+            let fireflies = [];
+            let fireflyGlow = 0; // 0..1, fade in/out saat ganti waktu
+
+            class Firefly {
+                constructor(nearEdge) {
+                    let hx = 0, hy = 0;
+                    if (nearEdge) {
+                        // Di sisi luar tepi kolam, usahakan tetap di dalam layar
+                        for (let t = 0; t < 12; t++) {
+                            const pt = pondPath[Math.floor(Math.random() * pondPath.length)];
+                            const a = Math.atan2(pt.y - pondCenter.y, pt.x - pondCenter.x);
+                            const dist = 6 + Math.random() * 50;
+                            hx = pt.x + Math.cos(a) * dist;
+                            hy = pt.y + Math.sin(a) * dist;
+                            if (hx > 10 && hx < width - 10 && hy > 10 && hy < height - 10) break;
+                        }
+                        this.leash = 30 + Math.random() * 30;
+                    } else {
+                        // Tersebar di rerumputan (luar kolam)
+                        for (let t = 0; t < 40; t++) {
+                            hx = Math.random() * width;
+                            hy = Math.random() * height;
+                            if (!isInsidePond(hx, hy)) break;
+                        }
+                        this.leash = 70 + Math.random() * 90;
+                    }
+                    this.homeX = hx; this.homeY = hy;
+                    this.x = hx; this.y = hy;
+                    this.vx = 0; this.vy = 0;
+                    this.wander = Math.random() * Math.PI * 2;
+                    this.phase = Math.random() * Math.PI * 2;
+                    this.blinkSpeed = 0.016 + Math.random() * 0.02; // kedip pelan (~3-6 detik)
+                    this.lightRadius = 28 + Math.random() * 32;      // radius cahaya kecil
+                    this.coreSize = 1.4 + Math.random() * 0.8;
+                }
+
+                update() {
+                    this.wander += (Math.random() - 0.5) * 0.3;
+                    this.vx += Math.cos(this.wander) * 0.01;
+                    this.vy += Math.sin(this.wander) * 0.01;
+
+                    // Tarik pelan kembali ke area asal agar tidak melayang jauh
+                    const dx = this.x - this.homeX, dy = this.y - this.homeY;
+                    const d = Math.hypot(dx, dy);
+                    if (d > this.leash) {
+                        const pull = 0.012 * (d - this.leash) / this.leash;
+                        this.vx -= (dx / d) * pull;
+                        this.vy -= (dy / d) * pull;
+                    }
+
+                    // Redaman + batas kecepatan (melayang pelan)
+                    this.vx *= 0.96; this.vy *= 0.96;
+                    const sp = Math.hypot(this.vx, this.vy);
+                    if (sp > 0.45) { this.vx *= 0.45 / sp; this.vy *= 0.45 / sp; }
+
+                    const nx = this.x + this.vx, ny = this.y + this.vy;
+                    if (isInsidePond(nx, ny)) {
+                        // Berhenti di tepi kolam: belokkan menjauhi pusat kolam
+                        const a = Math.atan2(this.y - pondCenter.y, this.x - pondCenter.x);
+                        this.vx = Math.cos(a) * 0.3;
+                        this.vy = Math.sin(a) * 0.3;
+                    } else {
+                        this.x = Math.max(4, Math.min(width - 4, nx)); // tetap di dalam layar
+                        this.y = Math.max(4, Math.min(height - 4, ny));
+                    }
+                    this.phase += this.blinkSpeed;
+                }
+
+                draw(glow) {
+                    const s = 0.5 + 0.5 * Math.sin(this.phase);
+                    const intensity = (0.1 + 0.9 * s * s) * glow;
+                    const r = this.lightRadius * (0.7 + 0.3 * s);
+
+                    // Cahaya gradasi kecil yang menerangi sekitar
+                    const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, r);
+                    grad.addColorStop(0, `rgba(217, 249, 157, ${0.5 * intensity})`);
+                    grad.addColorStop(0.35, `rgba(190, 242, 100, ${0.2 * intensity})`);
+                    grad.addColorStop(1, 'rgba(190, 242, 100, 0)');
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Titik inti
+                    ctx.fillStyle = `rgba(254, 252, 210, ${0.95 * intensity})`;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.coreSize, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            function generateFireflies() {
+                const total = Math.max(12, Math.min(32, Math.round((width * height) / 40000)));
+                const edgeCount = Math.round(total * 0.35); // sebagian sampai ke tepi kolam
+                fireflies = [];
+                for (let i = 0; i < total; i++) fireflies.push(new Firefly(i < edgeCount));
+            }
+            generateFireflies();
+
+            // --- v3.9: Kucing hitam malam hari (muncul sekali tiap reload, minum di tepi kolam, lalu pergi) ---
+            let cat = null;
+            let catPending = true; // true = belum muncul sejak reload
+            let catDelay = 0;      // jeda singkat agar suasana malam terbentuk dulu
+
+            class Cat {
+                constructor(path) {
+                    this.path = path;                 // [titik muncul, titik pendekatan, titik minum]
+                    this.x = path[0].x;
+                    this.y = path[0].y;
+                    this.idx = 1;                     // indeks waypoint yang sedang dituju
+                    this.faceAngle = Math.atan2(path[2].y - path[1].y, path[2].x - path[1].x); // menghadap air
+                    const d0 = Math.hypot(path[1].x - path[0].x, path[1].y - path[0].y);
+                    this.angle = d0 > 1 ? Math.atan2(path[1].y - path[0].y, path[1].x - path[0].x) : this.faceAngle;
+                    this.state = 'enter';             // enter -> drink -> leave -> gone
+                    this.speed = 1.0;
+                    this.walk = 0;
+                    this.timer = 0;
+                    this.drinkTime = 220 + Math.random() * 160; // ~4-6 detik
+                    this.tailT = Math.random() * 10;
+                }
+
+                beginLeave() {
+                    this.state = 'leave';
+                    this.idx -= 1;                    // pulang lewat waypoint yang sama, mundur
+                    this.speed = 1.3;
+                }
+
+                update(isNight) {
+                    this.tailT += 0.06;
+
+                    // Kalau siang tiba saat kucing masih di sini, langsung pulang
+                    if (!isNight && (this.state === 'enter' || this.state === 'drink')) this.beginLeave();
+
+                    if (this.state === 'drink') {
+                        this.timer++;
+                        this.angle += normalizeAngle(this.faceAngle - this.angle) * 0.1;
+                        if (this.timer % 55 === 0) {
+                            // riak kecil di ujung moncong saat menjilat air
+                            addRipple(this.x + Math.cos(this.angle) * 27, this.y + Math.sin(this.angle) * 27, 16, 0.5);
+                        }
+                        if (this.timer >= this.drinkTime) this.beginLeave();
+                        return;
+                    }
+
+                    const tgt = this.path[this.idx];
+                    const dx = tgt.x - this.x, dy = tgt.y - this.y;
+                    if (Math.hypot(dx, dy) < 3) {
+                        if (this.state === 'enter') {
+                            if (this.idx === this.path.length - 1) { this.state = 'drink'; this.timer = 0; }
+                            else this.idx++;
+                        } else {
+                            this.idx--;
+                            if (this.idx < 0) this.state = 'gone';
+                        }
+                        return;
+                    }
+                    const diff = normalizeAngle(Math.atan2(dy, dx) - this.angle);
+                    this.angle += diff * 0.1;
+                    const v = this.speed * Math.max(0, Math.cos(diff)); // putar dulu di tempat kalau masih membelakangi tujuan
+                    this.x += Math.cos(this.angle) * v;
+                    this.y += Math.sin(this.angle) * v;
+                    this.walk += v * 0.3;
+                }
+
+                draw(mode, glow) {
+                    // Bayangan (arah & jarak mengikuti waktu, sama seperti ikan & batu)
+                    ctx.save();
+                    ctx.translate(this.x + mode.shadowOffset, this.y + mode.shadowOffset * 1.2);
+                    ctx.rotate(this.angle);
+                    ctx.fillStyle = 'rgba(2, 6, 23, 0.35)';
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, 18, 9, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.rotate(this.angle);
+
+                    const fur = '#0a0a0f';
+                    const rim = 'rgba(148, 163, 184, 0.22)'; // garis tipis agar siluet hitam terbaca di rumput gelap
+                    const moving = this.state !== 'drink';
+                    const swing = moving ? Math.sin(this.walk) * 3 : 0;
+
+                    // Ekor
+                    const tail = Math.sin(this.tailT) * (moving ? 6 : 9);
+                    ctx.strokeStyle = fur;
+                    ctx.lineWidth = 3.4;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(-13, 0);
+                    ctx.quadraticCurveTo(-24, tail * 0.4, -33, tail);
+                    ctx.stroke();
+
+                    // Kaki (langkah diagonal)
+                    ctx.fillStyle = fur;
+                    const leg = (lx, ly) => { ctx.beginPath(); ctx.ellipse(lx, ly, 4.2, 2.4, 0, 0, Math.PI * 2); ctx.fill(); };
+                    leg(9 + swing, -6.5); leg(9 - swing, 6.5); leg(-9 - swing, -6.5); leg(-9 + swing, 6.5);
+
+                    // Badan
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, 15, 8.2, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = rim;
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    ctx.fillStyle = 'rgba(148, 163, 184, 0.08)'; // kilau tipis di punggung
+                    ctx.beginPath();
+                    ctx.ellipse(-1, -1.5, 10, 3.2, 0, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Kepala (sedikit bergerak saat minum) + telinga
+                    const hx = 17 + (this.state === 'drink' ? Math.sin(this.timer * 0.3) * 1.2 : 0);
+                    ctx.fillStyle = fur;
+                    ctx.beginPath();
+                    ctx.arc(hx, 0, 6.6, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                    [-1, 1].forEach(sg => {
+                        ctx.beginPath();
+                        ctx.moveTo(hx - 2.5, sg * 4.2);
+                        ctx.lineTo(hx - 4.8, sg * 9.4);
+                        ctx.lineTo(hx + 2.4, sg * 6.2);
+                        ctx.closePath();
+                        ctx.fill();
+                    });
+
+                    // Lidah saat minum
+                    if (this.state === 'drink' && Math.sin(this.timer * 0.5) > 0) {
+                        ctx.fillStyle = 'rgba(244, 114, 182, 0.9)';
+                        ctx.beginPath();
+                        ctx.arc(hx + 7.2, 0, 1.3, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+
+                    // Mata kuning menyala (glow additive, ikut fade malam)
+                    const g = glow * (0.88 + 0.12 * Math.sin(this.tailT * 1.7));
+                    ctx.globalCompositeOperation = 'lighter';
+                    [-1, 1].forEach(sg => {
+                        const ex = hx + 3.8, ey = sg * 2.8;
+                        const grad = ctx.createRadialGradient(ex, ey, 0, ex, ey, 13);
+                        grad.addColorStop(0, `rgba(253, 224, 71, ${0.55 * g})`);
+                        grad.addColorStop(0.4, `rgba(250, 204, 21, ${0.18 * g})`);
+                        grad.addColorStop(1, 'rgba(250, 204, 21, 0)');
+                        ctx.fillStyle = grad;
+                        ctx.beginPath();
+                        ctx.arc(ex, ey, 13, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+                    ctx.globalCompositeOperation = 'source-over';
+                    ctx.fillStyle = `rgba(254, 240, 138, ${Math.min(1, 0.4 + 0.6 * g)})`; // inti mata
+                    [-1, 1].forEach(sg => {
+                        ctx.beginPath();
+                        ctx.arc(hx + 3.8, sg * 2.8, 1.5, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+
+                    ctx.restore();
+                }
+            }
+
+            // Pastikan jalur (garis lurus antar waypoint) tidak melewati air
+            function pathClear(path) {
+                for (let i = 0; i < path.length - 1; i++) {
+                    const a = path[i], b = path[i + 1];
+                    const n = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / 8));
+                    for (let t = 0; t <= n; t++) {
+                        if (isInsidePond(a.x + (b.x - a.x) * t / n, a.y + (b.y - a.y) * t / n)) return false;
+                    }
+                }
+                return true;
+            }
+
+            function trySpawnCat() {
+                const standoff = 24; // pusat badan dari garis air (kepala pas di tepi)
+                const margin = 50;   // titik muncul berada di luar layar
+                const inRect = (x, y, m) => x > m && x < width - m && y > m && y < height - m;
+
+                // Tempat minum = titik tengah antar-titik kolam: dilewati kurva air & ada di celah antar batu.
+                // Segmen terakhir (p13 -> p0) dilewati karena bukan bagian kurva air.
+                const spots = [];
+                for (let k = 0; k < pondPath.length - 1; k++) {
+                    const p = pondPath[k], q = pondPath[k + 1];
+                    const mx = (p.x + q.x) / 2, my = (p.y + q.y) / 2;
+                    let nx = q.y - p.y, ny = -(q.x - p.x);
+                    const len = Math.hypot(nx, ny) || 1;
+                    nx /= len; ny /= len;
+                    if (nx * (mx - pondCenter.x) + ny * (my - pondCenter.y) < 0) { nx = -nx; ny = -ny; } // arah keluar kolam
+                    const dp = { x: mx + nx * standoff, y: my + ny * standoff };
+                    if (inRect(dp.x, dp.y, 24)) spots.push({ x: dp.x, y: dp.y, nx, ny });
+                }
+                for (let i = spots.length - 1; i > 0; i--) { // acak urutan -> arah datang random
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [spots[i], spots[j]] = [spots[j], spots[i]];
+                }
+
+                for (const sp of spots) {
+                    const approach = { x: sp.x + sp.nx * 130, y: sp.y + sp.ny * 130 };
+                    const dir = Math.atan2(sp.ny, sp.nx) + (Math.random() - 0.5) * 1.2; // datang agak miring (+-34 derajat)
+                    const origin = { x: approach.x, y: approach.y };
+                    for (let st = 0; st < 600 && inRect(origin.x, origin.y, -margin); st++) {
+                        origin.x += Math.cos(dir) * 10;
+                        origin.y += Math.sin(dir) * 10;
+                    }
+                    const path = [origin, approach, { x: sp.x, y: sp.y }];
+                    if (pathClear(path)) return new Cat(path);
+                }
+                return null;
+            }
+
+            function resetCat() { // dipanggil saat resize: geometri kolam berubah -> mulai ulang
+                if (cat) { cat = null; catPending = true; catDelay = 0; }
+            }
+
+            // Main Animation & Render Loop
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+
+                const mode = LIGHT_MODES[currentLightIdx];
+
+                // 1. Render Outer Grass Landscape (Warna Penyesuaian 4 Waktu)
+                let grassColor = '#15803d';
+                let stoneBaseColor = '#64748b';
+                if (currentLightIdx === 0) { // Pagi
+                    grassColor = '#16a34a';
+                    stoneBaseColor = '#94a3b8';
+                } else if (currentLightIdx === 1) { // Siang
+                    grassColor = '#15803d';
+                    stoneBaseColor = '#64748b';
+                } else if (currentLightIdx === 2) { // Sore
+                    grassColor = '#166534';
+                    stoneBaseColor = '#475569';
+                } else if (currentLightIdx === 3) { // Malam
+                    grassColor = '#052e16';
+                    stoneBaseColor = '#1e293b';
+                }
+
+                ctx.fillStyle = grassColor;
+                ctx.fillRect(0, 0, width, height);
+
+                // v3.5: titik & gradasi random rumput (lebih redup saat malam)
+                if (grassTexture) {
+                    ctx.globalAlpha = mode.isNight ? 0.5 : 1;
+                    ctx.drawImage(grassTexture, 0, 0);
+                    ctx.globalAlpha = 1;
+                }
+
+                // 2. Render Rocks around Pond Margin (Dijauhkan sedikit agar tidak bersentuhan langsung)
+                const stoneCount = pondPath.length;
+                for (let i = 0; i < stoneCount; i++) {
+                    const pt = pondPath[i];
+                    
+                    // Hitung vektor normal mengarah ke luar kolam untuk menggeser batu
+                    const angleFromCenter = Math.atan2(pt.y - pondCenter.y, pt.x - pondCenter.x);
+                    const offsetDistance = 46; // v3.5: radius batu maks ~24 + rim 4 + celah ~18
+                    const stoneX = pt.x + Math.cos(angleFromCenter) * offsetDistance;
+                    const stoneY = pt.y + Math.sin(angleFromCenter) * offsetDistance;
+
+                    ctx.save();
+                    ctx.translate(stoneX, stoneY);
+
+                    // v3.9: bayangan batu dinamis mengikuti 4 waktu (arah, jarak, blur & kepekatan sama dengan sistem bayangan ikan)
+                    ctx.shadowColor = `rgba(0, 0, 0, ${0.25 + 0.2 * mode.brightness})`;
+                    ctx.shadowBlur = mode.shadowBlur;
+                    ctx.shadowOffsetX = mode.shadowOffset;
+                    ctx.shadowOffsetY = mode.shadowOffset * 1.2;
+
+                    // Main Rock Body (membawa bayangannya)
+                    ctx.fillStyle = stoneBaseColor;
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, 18 + (i % 3) * 3, 13 + (i % 2) * 3, i * 0.5, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Matikan shadow agar highlight tidak ikut berbayang
+                    ctx.shadowColor = 'transparent';
+                    ctx.shadowBlur = 0;
+                    ctx.shadowOffsetX = 0;
+                    ctx.shadowOffsetY = 0;
+
+                    // Rock Highlight Layer
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+                    ctx.beginPath();
+                    ctx.ellipse(-3, -3, 10, 7, i * 0.5, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.restore();
+                }
+
+                // 3. Render Random Organic Pond Base Structure & Water Edge
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(pondPath[0].x, pondPath[0].y);
+                for (let i = 1; i < pondPath.length; i++) {
+                    const xc = (pondPath[i].x + pondPath[i - 1].x) / 2;
+                    const yc = (pondPath[i].y + pondPath[i - 1].y) / 2;
+                    ctx.quadraticCurveTo(pondPath[i - 1].x, pondPath[i - 1].y, xc, yc);
+                }
+                ctx.closePath();
+
+                // Smooth Organic Pond Inner Rim Shadow / Border
+                ctx.lineWidth = 8;
+                ctx.strokeStyle = 'rgba(15, 23, 42, 0.4)';
+                ctx.stroke();
+
+                // Deep Water Interior Clip
+                ctx.clip();
+
+                // Clear Clean Water Background Gradient
+                const waterGrad = ctx.createRadialGradient(
+                    pondCenter.x, pondCenter.y, 50,
+                    pondCenter.x, pondCenter.y, Math.min(width, height) * 0.5
+                );
+                waterGrad.addColorStop(0, '#0284c7'); // Clear turquoise blue center
+                waterGrad.addColorStop(0.7, '#0369a1');
+                waterGrad.addColorStop(1, '#0f4c81'); // Deep water edge
+                ctx.fillStyle = waterGrad;
+                ctx.fillRect(0, 0, width, height);
+
+                // --- 3.5. Render Corals & Seaweeds on Pond Bottom ---
+                const timeSec = Date.now() * 0.002;
+
+                // Render Corals (Tanpa Bayangan Dasar)
+                corals.forEach(coral => {
+                    ctx.save();
+                    ctx.translate(coral.x, coral.y);
+                    
+                    // Coral Clusters
+                    for (let b = 0; b < coral.branches; b++) {
+                        const bAngle = (b / coral.branches) * Math.PI * 2;
+                        const bx = Math.cos(bAngle) * (coral.radius * 0.5);
+                        const by = Math.sin(bAngle) * (coral.radius * 0.5);
+                        const bradius = coral.radius * 0.55;
+
+                        ctx.fillStyle = coral.color.body;
+                        ctx.beginPath();
+                        ctx.arc(bx, by, bradius, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        ctx.fillStyle = coral.color.highlight;
+                        ctx.beginPath();
+                        ctx.arc(bx - 2, by - 2, bradius * 0.5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    ctx.restore();
+                });
+
+                // Render Swaying Seaweed (Rumput Laut POV Atas: Titik-titik Rumpun Bergoyang)
+                seaweeds.forEach(sw => {
+                    ctx.save();
+                    ctx.translate(sw.x, sw.y);
+
+                    sw.dots.forEach(dot => {
+                        const pulse = Math.sin(timeSec * dot.speed + dot.phase) * 2.5;
+                        const dx = dot.offsetX + Math.cos(timeSec * dot.speed + dot.phase) * 1.5;
+                        const dy = dot.offsetY + Math.sin(timeSec * dot.speed + dot.phase) * 1.5;
+
+                        ctx.fillStyle = dot.color;
+                        ctx.beginPath();
+                        ctx.arc(dx, dy, Math.max(1, dot.radius + pulse * 0.3), 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+                    ctx.restore();
+                });
+
+                // 4. Render Koi Fish Bottom Shadows (Berbayang di dasar kolam)
+                koiList.forEach(koi => {
+                    koi.draw(true, mode.shadowOffset, mode.shadowOffset * 1.2);
+                });
+
+                // 5. Update and Render Koi Fish Bodies
+                koiList.forEach(koi => {
+                    koi.update();
+                    koi.draw(false);
+                });
+
+                // 6. Render Floating Food Pellets
+                for (let i = foods.length - 1; i >= 0; i--) {
+                    const f = foods[i];
+                    f.floatOffset += 0.05;
+                    const fy = f.y + Math.sin(f.floatOffset) * 1.5;
+
+                    ctx.fillStyle = '#b45309'; // Pellet Color
+                    ctx.beginPath();
+                    ctx.arc(f.x, fy, f.size, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = '#d97706';
+                    ctx.beginPath();
+                    ctx.arc(f.x - 1, fy - 1, f.size * 0.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // 7. Render Dynamic Water Ripples (Riak Air)
+                for (let i = ripples.length - 1; i >= 0; i--) {
+                    const r = ripples[i];
+                    r.radius += r.speed;
+                    r.alpha -= 0.015;
+
+                    if (r.alpha <= 0 || r.radius >= r.maxRadius) {
+                        ripples.splice(i, 1);
+                        continue;
+                    }
+
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${r.alpha * 0.6})`;
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                // 8. Night Mode Underwater Soft Spotlights (Lampu Otomatis di Sudut Kolam)
+                if (mode.isNight) {
+                    spotlights.forEach(spot => {
+                        const spotGrad = ctx.createRadialGradient(
+                            spot.x, spot.y, 5,
+                            spot.x, spot.y, spot.radius
+                        );
+                        spotGrad.addColorStop(0, 'rgba(253, 224, 71, 0.35)'); // Warm glow center
+                        spotGrad.addColorStop(0.5, 'rgba(251, 146, 60, 0.15)');
+                        spotGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+                        ctx.fillStyle = spotGrad;
+                        ctx.beginPath();
+                        ctx.arc(spot.x, spot.y, spot.radius, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        // Lamp Fixture
+                        ctx.fillStyle = 'rgba(254, 240, 138, 0.8)';
+                        ctx.beginPath();
+                        ctx.arc(spot.x, spot.y, 6, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+                }
+
+                // 9. Overall Ambient Lighting Overlay (Pagi - Siang - Sore - Malam)
+                ctx.fillStyle = mode.bgTint;
+                ctx.fillRect(0, 0, width, height);
+
+                ctx.restore(); // End Pond Clip
+
+                // 10. v3.9: Kucing hitam malam hari (sekali per reload; minum di tepi kolam lalu pergi)
+                if (!cat && catPending && mode.isNight) {
+                    if (++catDelay > 120) { cat = trySpawnCat(); catPending = false; }
+                } else if (!mode.isNight) {
+                    catDelay = 0;
+                }
+                if (cat) {
+                    cat.update(mode.isNight);
+                    if (cat.state === 'gone') cat = null;
+                    else cat.draw(mode, fireflyGlow);
+                }
+
+                // 11. v3.7: Kunang-kunang malam hari (di luar clip kolam, glow additive)
+                fireflyGlow += ((mode.isNight ? 1 : 0) - fireflyGlow) * 0.03;
+                if (fireflyGlow > 0.01) {
+                    ctx.save();
+                    ctx.globalCompositeOperation = 'lighter';
+                    fireflies.forEach(ff => { ff.update(); ff.draw(fireflyGlow); });
+                    ctx.restore();
+                }
+
+                requestAnimationFrame(animate);
+            }
+
+            // Start Loop
+            animate();
+
+            // --- UI & Interaction Handling ---
+            const feedBtn = document.getElementById('feedBtn');
+            const toggleTimeBtn = document.getElementById('toggle-time-btn');
+            const timeStatusText = document.getElementById('time-status-text');
+            const timeModeLabel = document.getElementById('time-mode-label');
+            const timeIcon = document.getElementById('time-icon');
+            const timeDot = document.getElementById('time-status-dot');
+
+            function updateUIForLighting() {
+                const mode = LIGHT_MODES[currentLightIdx];
+                timeStatusText.textContent = `Waktu: ${mode.name}`;
+                timeModeLabel.textContent = mode.name;
+
+                // Update icon
+                timeIcon.setAttribute('data-lucide', mode.icon);
+                
+                // Dot color
+                if (mode.isNight) {
+                    timeDot.className = "w-2 h-2 rounded-full bg-indigo-400 animate-pulse";
+                } else if (currentLightIdx === 2) {
+                    timeDot.className = "w-2 h-2 rounded-full bg-rose-400 animate-pulse";
+                } else {
+                    timeDot.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
+                }
+
+                lucide.createIcons();
+            }
+
+            // Button Feed Trigger
+            feedBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Scatter food around pond center
+                const rx = pondCenter.x + (Math.random() - 0.5) * 120;
+                const ry = pondCenter.y + (Math.random() - 0.5) * 120;
+                spawnFood(rx, ry);
+            });
+
+            // Tap / Click on Canvas to Feed at Specific Spot
+            canvas.addEventListener('click', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const clickY = e.clientY - rect.top;
+                spawnFood(clickX, clickY);
+            });
+
+            // Toggle Lighting Manual Cycle
+            toggleTimeBtn.addEventListener('click', () => {
+                currentLightIdx = (currentLightIdx + 1) % LIGHT_MODES.length;
+                updateUIForLighting();
+            });
+
+            // Init UI
+            updateUIForLighting();
+        });
+    </script>
+</body>
+</html>
