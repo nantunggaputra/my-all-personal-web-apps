@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kolam Koi - MVP</title>
+    <title>Kolam Koi</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Inter & Google Icons -->
@@ -16,6 +16,10 @@
             user-select: none;
             -webkit-user-select: none;
             overflow: hidden;
+
+            /* Mengikuti tinggi viewport aktual pada perangkat mobile */
+            height: 100vh;
+            height: 100dvh;
         }
         /* Custom Styling & Glassmorphism */
         .glass-panel {
@@ -36,9 +40,18 @@
         .btn-feed:active {
             transform: translateY(1px);
         }
+        /* Bottom Controls: aman dari browser toolbar mobile */
+        footer {
+            position: fixed;
+            left: 50%;
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+            transform: translateX(-50%);
+            z-index: 30;
+            padding-bottom: 0;
+        }
     </style>
 </head>
-<body class="w-screen h-screen flex flex-col justify-between items-center relative overflow-hidden bg-slate-950 text-slate-100">
+<body class="w-screen flex flex-col justify-between items-center relative overflow-hidden bg-slate-950 text-slate-100">
 
     <!-- Header Glass UI -->
     <header class="w-full max-w-4xl px-4 pt-4 z-20">
@@ -943,23 +956,23 @@
                     ctx.save();
                     ctx.translate(stoneX, stoneY);
 
-                    // v3.9: bayangan batu dinamis mengikuti 4 waktu (arah, jarak, blur & kepekatan sama dengan sistem bayangan ikan)
-                    // ctx.shadowColor = `rgba(0, 0, 0, ${0.25 + 0.2 * mode.brightness})`;
-                    // ctx.shadowBlur = mode.shadowBlur;
-                    // ctx.shadowOffsetX = mode.shadowOffset;
-                    // ctx.shadowOffsetY = mode.shadowOffset * 1.2;
+                    // v3.9: bayangan batu dinamis mengikuti 4 waktu
+                    ctx.save();
+                    ctx.translate(2, 4);
+                    ctx.rotate(i * 0.5);
 
-                    // Main Rock Body (membawa bayangannya)
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, 20 + (i % 3) * 3, 6 + (i % 2), 0, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.restore();
+
+                    // Main Rock Body
                     ctx.fillStyle = stoneBaseColor;
                     ctx.beginPath();
                     ctx.ellipse(0, 0, 18 + (i % 3) * 3, 13 + (i % 2) * 3, i * 0.5, 0, Math.PI * 2);
                     ctx.fill();
-
-                    // Matikan shadow agar highlight tidak ikut berbayang
-                    ctx.shadowColor = 'transparent';
-                    ctx.shadowBlur = 0;
-                    ctx.shadowOffsetX = 0;
-                    ctx.shadowOffsetY = 0;
 
                     // Rock Highlight Layer
                     ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
