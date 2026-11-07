@@ -48,10 +48,10 @@
                     <i data-lucide="waves" class="w-6 h-6"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg leading-tight tracking-wide text-slate-50">Kolam Koi</h1>
+                    <h1 class="font-bold text-lg leading-tight tracking-wide text-slate-50">Berkunjung ke Kolam Koi</h1>
                     <p class="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
                         <span id="time-status-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                        <span id="time-status-text">Waktu: Pagi hari</span>
+                        <span id="time-status-text">Saat Pagi hari</span>
                     </p>
                 </div>
             </div>
@@ -694,7 +694,7 @@
                     const d0 = Math.hypot(path[1].x - path[0].x, path[1].y - path[0].y);
                     this.angle = d0 > 1 ? Math.atan2(path[1].y - path[0].y, path[1].x - path[0].x) : this.faceAngle;
                     this.state = 'enter';             // enter -> drink -> leave -> gone
-                    this.speed = 1.0;
+                    this.speed = 0.45;
                     this.walk = 0;
                     this.timer = 0;
                     this.drinkTime = 220 + Math.random() * 160; // ~4-6 detik
@@ -704,18 +704,18 @@
                 beginLeave() {
                     this.state = 'leave';
                     this.idx -= 1;                    // pulang lewat waypoint yang sama, mundur
-                    this.speed = 1.3;
+                    this.speed = 0.6;
                 }
 
                 update(isNight) {
-                    this.tailT += 0.06;
+                    this.tailT += 0.02;
 
                     // Kalau siang tiba saat kucing masih di sini, langsung pulang
                     if (!isNight && (this.state === 'enter' || this.state === 'drink')) this.beginLeave();
 
                     if (this.state === 'drink') {
                         this.timer++;
-                        this.angle += normalizeAngle(this.faceAngle - this.angle) * 0.1;
+                        this.angle += normalizeAngle(this.faceAngle - this.angle) * 0.08;
                         if (this.timer % 55 === 0) {
                             // riak kecil di ujung moncong saat menjilat air
                             addRipple(this.x + Math.cos(this.angle) * 27, this.y + Math.sin(this.angle) * 27, 16, 0.5);
@@ -737,11 +737,11 @@
                         return;
                     }
                     const diff = normalizeAngle(Math.atan2(dy, dx) - this.angle);
-                    this.angle += diff * 0.1;
+                    this.angle += diff * 0.08;
                     const v = this.speed * Math.max(0, Math.cos(diff)); // putar dulu di tempat kalau masih membelakangi tujuan
                     this.x += Math.cos(this.angle) * v;
                     this.y += Math.sin(this.angle) * v;
-                    this.walk += v * 0.3;
+                    this.walk += v * 0.15;
                 }
 
                 draw(mode, glow) {
@@ -792,7 +792,7 @@
                     ctx.fill();
 
                     // Kepala (sedikit bergerak saat minum) + telinga
-                    const hx = 17 + (this.state === 'drink' ? Math.sin(this.timer * 0.3) * 1.2 : 0);
+                    const hx = 17 + (this.state === 'drink' ? Math.sin(this.timer * 0.12) * 1.2 : 0);
                     ctx.fillStyle = fur;
                     ctx.beginPath();
                     ctx.arc(hx, 0, 6.6, 0, Math.PI * 2);
@@ -808,7 +808,7 @@
                     });
 
                     // Lidah saat minum
-                    if (this.state === 'drink' && Math.sin(this.timer * 0.5) > 0) {
+                    if (this.state === 'drink' && Math.sin(this.timer * 0.2) > 0) {
                         ctx.fillStyle = 'rgba(244, 114, 182, 0.9)';
                         ctx.beginPath();
                         ctx.arc(hx + 7.2, 0, 1.3, 0, Math.PI * 2);
@@ -942,10 +942,10 @@
                     ctx.translate(stoneX, stoneY);
 
                     // v3.9: bayangan batu dinamis mengikuti 4 waktu (arah, jarak, blur & kepekatan sama dengan sistem bayangan ikan)
-                    ctx.shadowColor = `rgba(0, 0, 0, ${0.25 + 0.2 * mode.brightness})`;
-                    ctx.shadowBlur = mode.shadowBlur;
-                    ctx.shadowOffsetX = mode.shadowOffset;
-                    ctx.shadowOffsetY = mode.shadowOffset * 1.2;
+                    // ctx.shadowColor = `rgba(0, 0, 0, ${0.25 + 0.2 * mode.brightness})`;
+                    // ctx.shadowBlur = mode.shadowBlur;
+                    // ctx.shadowOffsetX = mode.shadowOffset;
+                    // ctx.shadowOffsetY = mode.shadowOffset * 1.2;
 
                     // Main Rock Body (membawa bayangannya)
                     ctx.fillStyle = stoneBaseColor;
@@ -1159,7 +1159,7 @@
 
             function updateUIForLighting() {
                 const mode = LIGHT_MODES[currentLightIdx];
-                timeStatusText.textContent = `Waktu: ${mode.name}`;
+                timeStatusText.textContent = `Saat ${mode.name}`;
                 timeModeLabel.textContent = mode.name;
 
                 // Update icon
