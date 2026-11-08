@@ -1018,7 +1018,7 @@
 
             function updateSwifts() {
                 swiftGlow += ((currentLightIdx === 1 ? 1 : 0) - swiftGlow) * 0.02;
-                if (currentLightIdx === 1 && ++swiftTimer > 600 && Math.random() < 0.02 && swifts.length < 2) {
+                if (currentLightIdx === 1 && ++swiftTimer > 300 && Math.random() < 0.01 && swifts.length < 3) {
                     swifts.push(new Swift());
                     swiftTimer = 0;
                 }
@@ -1591,7 +1591,7 @@
 
                 // v4.4: bayangan burung walet (menimpa rumput, batu, air, koi, dan karang)
                 if (swiftGlow > 0.01) {
-                swifts.forEach(s => s.drawShadow(0.34 * swiftGlow));
+                swifts.forEach(s => s.drawShadow(0.42 * swiftGlow));
                 }
 
                 // 10. v3.9: Kucing hitam malam hari (sekali per reload; minum di tepi kolam lalu pergi)
