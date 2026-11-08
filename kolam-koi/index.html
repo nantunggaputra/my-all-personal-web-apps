@@ -364,6 +364,67 @@
                 });
             }
 
+            // --- v4.1: Gelembung udara dari dasar kolam ---
+            let bubbles = [];
+
+            class Bubble {
+                constructor() {
+                    // Mulai dari area tengah dasar kolam
+                    const p = { x: pondCenter.x + (Math.random() - 0.5) * width * 0.35,
+                                y: pondCenter.y + (Math.random() - 0.5) * height * 0.35 };
+                    this.x = p.x;
+                    this.y = p.y;
+                    this.sx = p.x;
+                    this.sy = p.y;
+                    // Arah naik: sedikit miring dan menjauh dari pusat, seperti aliran air
+                    this.angle = Math.random() * Math.PI * 2;
+                    this.dist = 0;
+                    this.maxDist = 60 + Math.random() * 120; // jarak tempuh sebelum pecah
+                    this.speed = 0.35 + Math.random() * 0.25;
+                    this.size = 1.5 + Math.random() * 2.5;
+                    this.wobble = Math.random() * Math.PI * 2;
+                    this.done = false;
+                }
+
+                update() {
+                    this.dist += this.speed;
+                    this.wobble += 0.1;
+                    // Goyangan kecil saat naik
+                    const sway = Math.sin(this.wobble) * 0.6;
+                    this.x = this.sx + Math.cos(this.angle) * this.dist + Math.cos(this.angle + Math.PI / 2) * sway;
+                    this.y = this.sy + Math.sin(this.angle) * this.dist + Math.sin(this.angle + Math.PI / 2) * sway;
+
+                    if (this.dist >= this.maxDist) {
+                        this.done = true;
+                        // Gelembung pecah di permukaan: munculkan riak
+                        addRipple(this.x, this.y, 22 + this.size * 4, 0.7);
+                        addRipple(this.x, this.y, 14 + this.size * 2, 0.5);
+                    }
+                }
+
+                draw() {
+                    const t = this.dist / this.maxDist; // 0 -> 1
+                    const fade = Math.min(1, (1 - t) * 3); // memudar mendekati pecah
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${0.55 * fade})`;
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    ctx.fillStyle = `rgba(255, 255, 255, ${0.08 * fade})`;
+                    ctx.fill();
+                    // kilau kecil
+                    ctx.beginPath();
+                    ctx.arc(this.x - this.size * 0.35, this.y - this.size * 0.35, this.size * 0.25, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${0.6 * fade})`;
+                    ctx.fill();
+                }
+            }
+
+            // Spawn berkala: beberapa gelembung tiap detik, lebih jarang dari riak ambient
+            setInterval(() => {
+                if (bubbles.length < 25 && Math.random() < 0.7) bubbles.push(new Bubble());
+            }, 600);
+
             // Periodic Ambient Ripples (Air Jernih Sedikit Riak)
             setInterval(() => {
                 if (Math.random() < 0.6) {
@@ -727,8 +788,8 @@
                     // Sirip dada lebar
                     ctx.fillStyle = '#44403c';
                     ctx.beginPath();
-                    ctx.ellipse(len * 0.18, -w * 1.15, len * 0.26, w * 0.4, -0.6, 0, Math.PI * 2);
-                    ctx.ellipse(len * 0.18, w * 1.15, len * 0.26, w * 0.4, 0.6, 0, Math.PI * 2);
+                    ctx.ellipse(len * 0.2, -w * 1.0, len * 0.14, w * 0.22, -0.6, 0, Math.PI * 2);
+                    ctx.ellipse(len * 0.2, w * 1.0, len * 0.14, w * 0.22, 0.6, 0, Math.PI * 2);
                     ctx.fill();
 
                     // Ekor
@@ -1292,6 +1353,14 @@
                     ctx.beginPath();
                     ctx.arc(f.x - 1, fy - 1, f.size * 0.5, 0, Math.PI * 2);
                     ctx.fill();
+                }
+
+                // v4.1: gelembung naik dari dasar
+                for (let i = bubbles.length - 1; i >= 0; i--) {
+                    const b = bubbles[i];
+                    b.update();
+                    if (b.done) { bubbles.splice(i, 1); continue; }
+                    b.draw();
                 }
 
                 // 7. Render Dynamic Water Ripples (Riak Air)
