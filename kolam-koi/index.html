@@ -968,6 +968,24 @@
                 ctx.restore();
             }
 
+            // --- v4.5: Kabut tipis pagi hari (memudar saat siang) ---
+            let fogAlpha = 0; // 0..1, fade in/out saat ganti waktu
+
+            function drawMorningFog(time) {
+                fogAlpha += ((currentLightIdx === 0 ? 1 : 0) - fogAlpha) * 0.01;
+                if (fogAlpha < 0.01) return;
+
+                for (let i = 0; i < 4; i++) {
+                    const x = (Math.sin(time * 0.05 + i * 2) * 0.5 + 0.5) * width;
+                    const y = (Math.cos(time * 0.03 + i * 3) * 0.5 + 0.5) * height;
+                    const g = ctx.createRadialGradient(x, y, 0, x, y, width * 0.5);
+                    g.addColorStop(0, `rgba(226, 232, 240, ${0.12 * fogAlpha})`);
+                    g.addColorStop(1, 'rgba(226, 232, 240, 0)');
+                    ctx.fillStyle = g;
+                    ctx.fillRect(0, 0, width, height);
+                }
+            }
+
             // --- v4.4: Bayangan burung walet melintas saat Siang (matahari di atas) ---
             const SWIFT_SHADOW_X = 3; // offset bayangan, sama untuk rumput dan air
             const SWIFT_SHADOW_Y = 3;
@@ -1588,6 +1606,9 @@
                 // v4.3: cahaya sunset dari barat (di atas air dan rumput)
                 sunsetGlow += ((currentLightIdx === 2 ? 1 : 0) - sunsetGlow) * 0.02;
                 drawSunsetLight(Date.now() * 0.001);
+
+                // v4.5: Kabut tipis pagi hari (memudar saat siang)
+                drawMorningFog(Date.now() * 0.001);
 
                 // v4.4: bayangan burung walet (menimpa rumput, batu, air, koi, dan karang)
                 if (swiftGlow > 0.01) {
