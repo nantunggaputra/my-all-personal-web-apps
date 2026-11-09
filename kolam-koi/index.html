@@ -158,7 +158,7 @@
             <div id="panel-welcome" class="welcome-scroll flex-1 overflow-y-auto p-5 text-sm leading-relaxed text-slate-200 space-y-3">
                 <p>Halo kawan lama, selamat datang kembali di Kolam Koi milik Kakek-ku ini. Di sinilah, di sudut tenang di sebuah pedesaan Kabupaten Kebumen, waktu seolah berjalan lebih pelan dari biasanya.</p>
                 <p>Kalau kamu datang di <span class="text-amber-300 font-semibold">pagi hari</span>, kabut tipis masih menyelimuti air dan embun menggantung di rerumputan. Bunga-bunga kecil baru mekar, dan seekor kumbang merah mungil hinggap dari kelopak ke kelopak, seperti sedang menyapa satu per satu.</p>
-                <p>Saat <span class="text-yellow-200 font-semibold">siang</span> tiba, matahari tepat di atas kepala. Bayangan burung walet melintas pelan di atas air dan rumput, sementara bunga-bunga menguncup, beristirahat dari terik.</p>
+                <p>Saat <span class="text-yellow-200 font-semibold">siang</span> tiba, matahari tepat di atas kepala. Bayangan burung walet melintas pelan di atas air dan rumput, sementara bunga-bunga menguncup, beristirahat dari terik. Tiga sprinkler Kakek menyemprotkan percikan-percikan air, menjaga rumput tetap segar sampai sore menjemput.</p>
                 <p>Lalu <span class="text-orange-300 font-semibold">sore</span> datang membawa cahaya jingga dari barat. Air kolam berkilau hangat, dan para koi berenang malas seolah ikut menikmati senja yang sama denganmu.</p>
                 <p>Ketika <span class="text-indigo-300 font-semibold">malam</span> turun, kunang-kunang menari pelan di antara rerumputan. Lampu-lampu remang-remang kecil menyala di tepi kolam, ikan-ikan berenang lebih tenang, dan kalau kamu sabar menunggu, seekor kucing hitam mungkin akan datang mampir untuk minum, lalu pergi lagi tanpa suara.</p>
                 <p>Duduklah sebentar. Beri makan para koi, dengarkan hening yang ramah, dan biarkan penatmu larut bersama riak air. Kolam ini selalu menunggumu pulang.</p>
@@ -866,6 +866,26 @@
                     const len = this.size, w = len * 0.28;
                     const tail = Math.sin(this.swimCycle) * 0.3;
 
+                    // Bayangan tipis di dasar, jadi offset kecil & tetap (tidak ikut waktu)
+                    ctx.save();
+                    ctx.translate(this.x + 1.5, this.y + 2);
+                    ctx.rotate(this.angle);
+                    ctx.fillStyle = 'rgba(2, 6, 23, 0.3)';
+                    ctx.beginPath();
+                    ctx.ellipse(-len * 0.05, 0, len * 0.55, w * 0.7, 0, 0, Math.PI * 2);
+                    ctx.ellipse(len * 0.4, 0, len * 0.26, w * 0.72, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.translate(-len * 0.5, 0);
+                    ctx.rotate(tail);
+                    ctx.beginPath();
+                    ctx.moveTo(0, -w * 0.25);
+                    ctx.lineTo(-len * 0.38, -w * 0.55);
+                    ctx.lineTo(-len * 0.38, w * 0.55);
+                    ctx.lineTo(0, w * 0.25);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.restore();
+                    
                     ctx.save();
                     ctx.translate(this.x, this.y);
                     ctx.rotate(this.angle);
