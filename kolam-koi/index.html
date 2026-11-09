@@ -668,7 +668,7 @@
                     }
 
                     // v4.0: malam + tidak mengejar pelet -> 0.5x, transisi halus
-                    const wantScale = (LIGHT_MODES[currentLightIdx].isNight && !this.targetFood) ? 0.3 : 1;
+                    const wantScale = (LIGHT_MODES[currentLightIdx].isNight && !this.targetFood) ? 0.46 : 1;
                     this.timeScale += (wantScale - this.timeScale) * 0.05;
 
                     // Move
@@ -1933,6 +1933,23 @@
             const tabMap = document.getElementById('tab-map');
             const soonToast = document.getElementById('soon-toast');
             let toastTimer = null;
+            
+            // Ambient: mulai saat tombol wave pertama kali ditekan, loop terus, tanpa kontrol pause
+            const ambient = new Audio('./ambient.mp3');
+            ambient.loop = true;
+            ambient.volume = 0.5;
+            let ambientStarted = false;
+
+            // Kalau terpause dari luar (kontrol media OS), lanjutkan lagi
+            ambient.addEventListener('pause', () => {
+                if (ambientStarted && !document.hidden) ambient.play().catch(() => {});
+            });
+
+            function startAmbient() {
+                if (ambientStarted) return;
+                ambientStarted = true;
+                ambient.play().catch(() => { ambientStarted = false; });
+            }
 
             function toggleModal(force) {
                 const open = typeof force === 'boolean' ? force : !welcomeModal.classList.contains('open');
@@ -1942,6 +1959,7 @@
 
             wavesBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
+                startAmbient();
                 toggleModal();
             });
             modalOk.addEventListener('click', () => toggleModal(false));
