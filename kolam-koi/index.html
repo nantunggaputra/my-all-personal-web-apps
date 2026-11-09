@@ -49,6 +49,45 @@
             z-index: 30;
             padding-bottom: 0;
         }
+        /* v4.7: Pop up Papan Sambutan (mulai 30dvh dari atas, header tetap terlihat & bisa diklik) */
+        #welcome-modal {
+            top: 30vh;
+            top: 30dvh;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        #welcome-modal.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #welcome-modal .modal-card {
+            transform: translateY(12px) scale(0.97);
+            transition: transform 0.25s ease;
+        }
+        #welcome-modal.open .modal-card {
+            transform: translateY(0) scale(1);
+        }
+        .tab-btn.active {
+            color: #fdba74;
+            border-bottom-color: #f97316;
+        }
+        .tab-btn.disabled {
+            color: #64748b;
+            cursor: not-allowed;
+        }
+        .welcome-scroll::-webkit-scrollbar { width: 4px; }
+        .welcome-scroll::-webkit-scrollbar-thumb { background: rgba(249, 115, 22, 0.4); border-radius: 4px; }
+        .welcome-scroll { user-select: text; -webkit-user-select: text; }
+
+        /* Toast Coming Soon */
+        #soon-toast {
+            opacity: 0;
+            transform: translateY(6px);
+            pointer-events: none;
+            transition: all 0.25s ease;
+        }
+        #soon-toast.show { opacity: 1; transform: translateY(0); }
     </style>
 </head>
 <body class="w-screen flex flex-col justify-between items-center relative overflow-hidden bg-slate-950 text-slate-100">
@@ -57,9 +96,9 @@
     <header class="w-full max-w-4xl px-4 pt-4 z-20">
         <div class="glass-panel rounded-2xl p-4 flex justify-between items-center shadow-lg">
             <div class="flex items-center gap-3">
-                <div class="p-2.5 bg-orange-500/20 text-orange-400 rounded-xl border border-orange-500/30">
+                <button id="waves-btn" aria-label="Buka Papan Sambutan" class="p-2.5 bg-orange-500/20 text-orange-400 rounded-xl border border-orange-500/30 hover:bg-orange-500/30 active:scale-95 transition">
                     <i data-lucide="waves" class="w-6 h-6"></i>
-                </div>
+                </button>
                 <div>
                     <h1 class="font-bold text-lg leading-tight tracking-wide text-slate-50">Berkunjung ke Kolam Koi</h1>
                     <p class="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
@@ -98,6 +137,42 @@
             <span>Klik di area kolam untuk menjatuhkan pelet</span>
         </div>
     </footer>
+
+    <!-- v4.7: Pop up Papan Sambutan -->
+    <div id="welcome-modal" class="fixed left-0 right-0 bottom-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
+        <div class="modal-card glass-panel w-full max-w-md rounded-2xl shadow-2xl flex flex-col overflow-hidden" style="max-height: 100%; background: rgba(15, 23, 42, 0.9);">
+
+            <!-- Tabs -->
+            <div class="flex border-b border-slate-700/60 shrink-0">
+                <button id="tab-welcome" class="tab-btn active flex-1 py-3 text-sm font-semibold border-b-2 border-transparent transition">
+                    Papan Sambutan
+                </button>
+                <button id="tab-map" class="tab-btn disabled flex-1 py-3 text-sm font-semibold border-b-2 border-transparent transition">
+                    Peta Denah Kolam
+                </button>
+            </div>
+
+            <!-- Isi tab Papan Sambutan -->
+            <div id="panel-welcome" class="welcome-scroll flex-1 overflow-y-auto p-5 text-sm leading-relaxed text-slate-200 space-y-3">
+                <p>Halo kawan lama, selamat datang kembali di Kolam Koi milik kakek-ku ini. Di sinilah, di sudut tenang Kebumen, waktu seolah berjalan lebih pelan dari biasanya.</p>
+                <p>Kalau kamu datang di <span class="text-amber-300 font-semibold">pagi hari</span>, kabut tipis masih menyelimuti air dan embun menggantung di rerumputan. Bunga-bunga kecil baru mekar, dan seekor kumbang merah mungil hinggap dari kelopak ke kelopak, seperti sedang menyapa satu per satu.</p>
+                <p>Saat <span class="text-yellow-200 font-semibold">siang</span> tiba, matahari tepat di atas kepala. Bayangan burung walet melintas pelan di atas air dan rumput, sementara bunga-bunga menguncup, beristirahat dari terik.</p>
+                <p>Lalu <span class="text-orange-300 font-semibold">sore</span> datang membawa cahaya jingga dari barat. Air kolam berkilau hangat, dan para koi berenang malas seolah ikut menikmati senja yang sama denganmu.</p>
+                <p>Ketika <span class="text-indigo-300 font-semibold">malam</span> turun, kunang-kunang menari pelan di antara rerumputan. Lampu-lampu kecil menyala di tepi kolam, ikan-ikan berenang lebih tenang, dan kalau kamu sabar menunggu, seekor kucing hitam mungkin akan datang untuk minum, lalu pergi tanpa suara.</p>
+                <p>Duduklah sebentar. Beri makan para koi, dengarkan hening yang ramah, dan biarkan penatmu larut bersama riak air. Kolam ini selalu menunggumu pulang.</p>
+                <p class="pt-2 text-orange-300 font-semibold italic">Salam Hangat dari Nan</p>
+            </div>
+
+            <!-- Footer pop up -->
+            <div class="relative p-4 border-t border-slate-700/60 shrink-0">
+                <div id="soon-toast" class="glass-panel absolute -top-9 left-1/2 -translate-x-1/2 py-1.5 px-3 rounded-full text-xs text-slate-300 flex items-center gap-1.5 whitespace-nowrap shadow-inner">
+                    <i data-lucide="clock" class="w-3.5 h-3.5 text-orange-400"></i>
+                    <span>Coming Soon</span>
+                </div>
+                <button id="modal-ok" class="btn-feed w-full py-2.5 rounded-xl text-white font-bold text-sm">OK</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Canvas Simulation Logic -->
     <script>
@@ -1823,6 +1898,38 @@
             toggleTimeBtn.addEventListener('click', () => {
                 currentLightIdx = (currentLightIdx + 1) % LIGHT_MODES.length;
                 updateUIForLighting();
+            });
+
+            // --- v4.7: Pop up Papan Sambutan ---
+            const welcomeModal = document.getElementById('welcome-modal');
+            const wavesBtn = document.getElementById('waves-btn');
+            const modalOk = document.getElementById('modal-ok');
+            const tabMap = document.getElementById('tab-map');
+            const soonToast = document.getElementById('soon-toast');
+            let toastTimer = null;
+
+            function toggleModal(force) {
+                const open = typeof force === 'boolean' ? force : !welcomeModal.classList.contains('open');
+                welcomeModal.classList.toggle('open', open);
+                if (open) document.getElementById('panel-welcome').scrollTop = 0;
+            }
+
+            wavesBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleModal();
+            });
+            modalOk.addEventListener('click', () => toggleModal(false));
+
+            // Klik area gelap di luar kartu = tutup
+            welcomeModal.addEventListener('click', (e) => {
+                if (e.target === welcomeModal) toggleModal(false);
+            });
+
+            // Tab Peta Denah Kolam: belum aktif, tampilkan Coming Soon kecil
+            tabMap.addEventListener('click', () => {
+                soonToast.classList.add('show');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => soonToast.classList.remove('show'), 1800);
             });
 
             // Init UI
