@@ -199,6 +199,7 @@
                 resetCat();                // v3.9
                 generatePlecos();          // v4.0
                 generateFlowers();         // v4.2
+                generateSprinklers();      // v4.8
             });
 
             // Lighting Modes: 0: Morning, 1: Noon, 2: Sunset, 3: Night
@@ -1024,6 +1025,123 @@
             }
             generateFlowers();
 
+            // --- v4.8: Rotary sprinkler di rumput (khusus siang): 1 utara, 2 selatan ---
+            // Menyemprot 1 detik, jeda 1 detik. Saat siang berakhir, berhenti berurutan 1-2-3 dengan jeda 2 detik.
+            const SPRAY_ON = 1000, SPRAY_CYCLE = 2000, SPRAY_STOP_GAP = 2000;
+            let sprinklers = [];
+            let sprayDrops = [];
+            let sprinklerWasNoon = currentLightIdx === 1;
+
+            function placeSprinkler(north, xLo, xHi) {
+                const yMin = north ? 110 : pondCenter.y;
+                const yMax = north ? pondCenter.y : height - 140;
+                if (yMax <= yMin) return null;
+                // Coba di zona x yang diminta dulu; kalau layar terlalu sempit, longgarkan ke lebar penuh
+                for (const [lo, hi] of [[xLo, xHi], [0, 1]]) {
+                    for (let t = 0; t < 80; t++) {
+                        const margin = 90 - t * 0.4;
+                        const x = 30 + (lo + Math.random() * (hi - lo)) * Math.max(1, width - 60);
+                        const y = yMin + Math.random() * (yMax - yMin);
+                        if (isInsidePond(x, y) || distToPondEdge(x, y) < margin) continue;
+                        if (sprinklers.some(s => Math.hypot(s.x - x, s.y - y) < 90)) continue;
+                        return { x, y };
+                    }
+                }
+                return null;
+            }
+
+            function generateSprinklers() {
+                sprinklers = [];
+                sprayDrops = [];
+                const noon = currentLightIdx === 1;
+                const northLeft = Math.random() < 0.5;
+                [
+                    { north: true,  lo: northLeft ? 0.08 : 0.62, hi: northLeft ? 0.38 : 0.92 }, // utara: bukan di tengah
+                    { north: false, lo: 0.08, hi: 0.38 },                                       // selatan kiri
+                    { north: false, lo: 0.62, hi: 0.92 }                                        // selatan kanan
+                ].forEach(z => {
+                    const p = placeSprinkler(z.north, z.lo, z.hi);
+                    if (!p) return;
+                    sprinklers.push({
+                        x: p.x, y: p.y,
+                        angle: Math.random() * Math.PI * 2,
+                        t0: Date.now() - Math.random() * SPRAY_CYCLE,
+                        active: noon,
+                        stopAt: null,
+                        vis: noon ? 1 : 0
+                    });
+                });
+            }
+            generateSprinklers();
+
+            function updateSprinklers() {
+                const now = Date.now();
+                const noon = currentLightIdx === 1;
+
+                if (noon !== sprinklerWasNoon) {
+                    sprinklerWasNoon = noon;
+                    sprinklers.forEach((s, i) => {
+                        if (noon) { s.active = true; s.stopAt = null; s.t0 = now - Math.random() * SPRAY_CYCLE; }
+                        else s.stopAt = now + i * SPRAY_STOP_GAP;
+                    });
+                }
+
+                for (let i = sprayDrops.length - 1; i >= 0; i--) {
+                    const d = sprayDrops[i];
+                    d.dist += d.speed;
+                    if (d.dist >= d.max) { sprayDrops.splice(i, 1); continue; }
+                    const t = d.dist / d.max;
+                    ctx.fillStyle = `rgba(224, 242, 254, ${0.8 * (1 - t * t)})`;
+                    ctx.beginPath();
+                    ctx.arc(d.x + Math.cos(d.a) * d.dist, d.y + Math.sin(d.a) * d.dist, d.r * (1 - t * 0.4), 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                sprinklers.forEach(s => {
+                    if (s.stopAt !== null && now >= s.stopAt) { s.active = false; s.stopAt = null; }
+
+                    if (s.active && ((now - s.t0) % SPRAY_CYCLE) < SPRAY_ON) {
+                        s.angle += 0.09;
+                        for (let k = 0; k < 2; k++) {
+                            sprayDrops.push({
+                                x: s.x, y: s.y,
+                                a: s.angle + k * Math.PI + (Math.random() - 0.5) * 0.12,
+                                dist: 3,
+                                max: 78 + Math.random() * 60,
+                                speed: 2.8 + Math.random() * 1.2,
+                                r: 0.8 + Math.random() * 0.5
+                            });
+                        }
+                    }
+
+                    s.vis += ((s.active ? 1 : 0) - s.vis) * 0.05;
+                    if (s.vis < 0.01) return;
+
+                    ctx.save();
+                    ctx.translate(s.x, s.y);
+                    ctx.globalAlpha = s.vis;
+                    ctx.fillStyle = 'rgba(71, 85, 105, 0.95)';
+                    ctx.strokeStyle = 'rgba(148, 163, 184, 0.9)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                    ctx.rotate(s.angle);
+                    ctx.lineWidth = 1.5;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(-5, 0);
+                    ctx.lineTo(5, 0);
+                    ctx.stroke();
+                    ctx.fillStyle = '#cbd5e1';
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 1.6, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                });
+            }
+
             // --- v4.6: Kumbang merah kecil (pagi hari, hinggap dari bunga ke bunga) ---
             let beetle = null;
             let beetleAlpha = 0; // 0..1, fade in/out saat ganti waktu
@@ -1663,6 +1781,8 @@
                 const flowerTarget = currentLightIdx === 0 ? 1 : 0;
                 const flowerTime = Date.now() * 0.001;
                 flowers.forEach(f => { f.update(flowerTarget); f.draw(flowerTime); });
+
+                updateSprinklers(); // v4.8
 
                 // 3. Render Random Organic Pond Base Structure & Water Edge
                 ctx.save();
