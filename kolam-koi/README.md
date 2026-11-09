@@ -2,7 +2,7 @@
 
 Aplikasi simulasi kolam ikan koi interaktif berbasis web dengan tampilan tampak atas (*top-down view*), UI *glassmorphism* yang bersih, serta lingkungan alami yang berubah mengikuti waktu. Latar ceritanya adalah kolam milik Kakek di sebuah pedesaan di Kabupaten Kebumen.
 
-Versi saat ini: v4.7 (mengikuti penanda versi pada komentar kode).
+Versi saat ini: v4.8 (mengikuti penanda versi pada komentar kode).
 
 ---
 
@@ -30,7 +30,7 @@ Aplikasi memiliki empat suasana waktu. Mode awal ditentukan dari jam perangkat (
 | Waktu | Suasana dan kejadian |
 |-------|----------------------|
 | Pagi | Kabut tipis di atas kolam dan rumput, bunga mekar, dan seekor kumbang merah mungil dengan tiga bintik hitam hinggap berpindah dari bunga ke bunga. |
-| Siang | Pencahayaan terang. Bayangan burung walet melintas pelan di atas rumput dan air (maksimal 3 sekaligus). Bunga menguncup. |
+| Siang | Pencahayaan terang. Bayangan burung walet melintas pelan di atas rumput dan air (maksimal 3 sekaligus). Bunga menguncup. Sprinkle aktif menyemprotkan air. |
 | Sore | Cahaya jingga hangat dari arah barat (kiri layar) yang berdenyut halus di atas air dan rumput. |
 | Malam | Suasana gelap dengan empat lampu bawah air di tepi kolam, kunang-kunang yang berkedip pelan, dan ikan yang berenang lebih tenang. Seekor kucing hitam muncul sekali setiap kali halaman dimuat, minum di tepi kolam, lalu pergi. Jika waktu berganti ke siang saat kucing masih ada, kucing langsung pulang. |
 
@@ -40,6 +40,7 @@ Aplikasi memiliki empat suasana waktu. Mode awal ditentukan dari jam perangkat (
 - **Beri makan lewat klik atau tap:** Klik atau tap di area air untuk menjatuhkan pelet di lokasi tersebut. Klik di luar kolam diabaikan.
 - **Ubah waktu:** Tombol di header berpindah berurutan: Pagi, Siang, Sore, Malam.
 - **Papan Sambutan:** Tombol ikon gelombang di header membuka pop up berisi surat sambutan yang menceritakan suasana kolam di tiap waktu. Pop up bisa ditutup dengan tombol OK atau dengan mengetuk area gelap di luar kartu. Pop up memiliki dua tab, yaitu Papan Sambutan dan Peta Denah Kolam. Tab Peta Denah Kolam belum aktif dan hanya menampilkan notifikasi "Coming Soon".
+- **Audio ambient:** Suara latar dimulai saat tombol ikon gelombang pertama kali ditekan (sesuai aturan autoplay browser), lalu berputar terus dengan volume 50%. Tidak ada tombol pause di UI, dan kalau dijeda dari luar halaman (misalnya kontrol media OS), suara dilanjutkan lagi. File `ambient.mp3` harus berada satu folder dengan `index.html`.
 - **Responsif untuk mobile:** Tinggi layar mengikuti viewport aktual (`dvh`), dan kontrol bawah dipasang dengan mempertimbangkan area aman (*safe area*) perangkat.
 
 ---
@@ -68,7 +69,7 @@ Catatan: Tailwind, Lucide, dan font dimuat lewat CDN, jadi dibutuhkan koneksi in
 
 1. **Beri makan:** Tekan tombol "Beri Makan Koi" di bawah layar, atau klik/tap langsung di area kolam untuk menjatuhkan pelet.
 2. **Ganti waktu:** Tekan tombol waktu di header untuk berpindah suasana Pagi, Siang, Sore, dan Malam.
-3. **Baca sambutan:** Tekan ikon gelombang di header untuk membuka Papan Sambutan.
+3. **Baca sambutan:** Tekan ikon gelombang di header untuk membuka Papan Sambutan. Musik ambient ikut mulai saat tombol ini pertama kali ditekan.
 4. **Kejutan malam hari:** Pindah ke waktu malam dan tunggu beberapa saat untuk melihat kucing hitam datang minum di tepi kolam. Kucing hanya muncul sekali per pemuatan halaman, jadi muat ulang halaman untuk melihatnya lagi.
 
 ---
