@@ -200,6 +200,7 @@
                 generatePlecos();          // v4.0
                 generateFlowers();         // v4.2
                 generateSprinklers();      // v4.8
+                generateTree();            // v4.9
             });
 
             // Lighting Modes: 0: Morning, 1: Noon, 2: Sunset, 3: Night
@@ -1074,7 +1075,7 @@
                 sprinklers = [];
                 sprayDrops = [];
                 const noon = currentLightIdx === 1;
-                const northLeft = Math.random() < 0.5;
+                const northLeft = false; // v4.9: utara selalu di kanan (kiri atas ditempati pohon)
                 [
                     { north: true,  lo: northLeft ? 0.08 : 0.62, hi: northLeft ? 0.38 : 0.92 }, // utara: bukan di tengah
                     { north: false, lo: 0.08, hi: 0.38 },                                       // selatan kiri
@@ -1093,6 +1094,74 @@
                 });
             }
             generateSprinklers();
+
+            // --- v4.9: Pucuk pohon (tampak atas, pojok kiri atas, terpotong batas atas & kiri layar) ---
+            const TREE_CUT = 0.20; // porsi kanopi yang terpotong di sisi atas dan kiri layar (mobile & layar besar)
+            const TREE_COLORS = [
+                { dark: '#166534', mid: '#16a34a', light: '#4ade80' }, // pagi
+                { dark: '#14532d', mid: '#15803d', light: '#22c55e' }, // siang
+                { dark: '#052e16', mid: '#166534', light: '#4ade80' }, // sore
+                { dark: '#021a0e', mid: '#0a3d1f', light: '#14532d' }  // malam
+            ];
+            let tree = null;
+
+            function generateTree() {
+                tree = null;
+                const isMobile = width < 640; // sama dengan breakpoint "sm" Tailwind
+                let R = Math.max(70, Math.min(150, isMobile ? width * 0.3 : Math.min(width, height) * 0.2));
+                let cx, cy;
+
+                // Pohon fix di pojok kiri atas, terpotong TREE_CUT di sisi atas dan kiri.
+                // Kalau kanopi menabrak kolam/batu, kecilkan sampai muat.
+                for (;; R -= 6) {
+                    cx = cy = 2 * R * (1 - TREE_CUT) - R; // pusat kanopi
+                    const ok = [[R, 0], [0, R], [R * 0.7, R * 0.7]]
+                        .every(([dx, dy]) => !isInsidePond(cx + dx, cy + dy) && distToPondEdge(cx + dx, cy + dy) > 75);
+                    if (ok || R <= 50) break;
+                }
+
+                const lobes = [{ x: 0, y: 0, r: R * 0.55 }];
+                const n = 9;
+                for (let i = 0; i < n; i++) {
+                    const a = (i / n) * Math.PI * 2 + Math.random() * 0.3;
+                    const d = R * (0.55 + Math.random() * 0.12);
+                    lobes.push({ x: Math.cos(a) * d, y: Math.sin(a) * d, r: R * (0.3 + Math.random() * 0.1) });
+                }
+
+                tree = { x: cx, y: cy, lobes };
+            }
+
+            function drawTree(mode) {
+                if (!tree) return;
+                const c = TREE_COLORS[currentLightIdx];
+                ctx.save();
+                ctx.translate(tree.x, tree.y);
+
+                // Bayangan di rumput (satu path agar tidak menggelap ganda saat lingkaran tumpang tindih)
+                const so = mode.shadowOffset * 2.2;
+                ctx.fillStyle = mode.isNight ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.22)';
+                ctx.beginPath();
+                tree.lobes.forEach(l => {
+                    ctx.moveTo(l.x + so * 0.5 + l.r, l.y + so);
+                    ctx.arc(l.x + so * 0.5, l.y + so, l.r, 0, Math.PI * 2);
+                });
+                ctx.fill();
+
+                // Gumpalan: gelap -> sedang -> terang
+                tree.lobes.forEach(l => {
+                    ctx.fillStyle = c.dark;
+                    ctx.beginPath(); ctx.arc(l.x, l.y, l.r, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = c.mid;
+                    ctx.beginPath(); ctx.arc(l.x - l.r * 0.12, l.y - l.r * 0.15, l.r * 0.85, 0, Math.PI * 2); ctx.fill();
+                    ctx.globalAlpha = 0.55;
+                    ctx.fillStyle = c.light;
+                    ctx.beginPath(); ctx.arc(l.x - l.r * 0.3, l.y - l.r * 0.35, l.r * 0.42, 0, Math.PI * 2); ctx.fill();
+                    ctx.globalAlpha = 1;
+                });
+
+                ctx.restore();
+            }
+            generateTree();
 
             function updateSprinklers() {
                 const now = Date.now();
@@ -1969,20 +2038,10 @@
 
                 ctx.restore(); // End Pond Clip
 
-                // v4.3: cahaya sunset dari barat (di atas air dan rumput)
-                sunsetGlow += ((currentLightIdx === 2 ? 1 : 0) - sunsetGlow) * 0.02;
-                drawSunsetLight(Date.now() * 0.001);
-
+                // v4.9: urutan layer (bawah -> atas):
+                // bunga -> kumbang -> kucing -> kunang-kunang -> POHON -> sinar sore -> kabut -> bayangan walet
                 // v4.6: kumbang merah pagi hari
                 updateBeetle();
-
-                // v4.5: Kabut tipis pagi hari (memudar saat siang)
-                drawMorningFog(Date.now() * 0.001);
-
-                // v4.4: bayangan burung walet (menimpa rumput, batu, air, koi, dan karang)
-                if (swiftGlow > 0.01) {
-                swifts.forEach(s => s.drawShadow(0.42 * swiftGlow));
-                }
 
                 // 10. v3.9: Kucing hitam malam hari (sekali per reload; minum di tepi kolam lalu pergi)
                 if (!cat && catPending && mode.isNight) {
@@ -2003,6 +2062,21 @@
                     ctx.globalCompositeOperation = 'lighter';
                     fireflies.forEach(ff => { ff.update(); ff.draw(fireflyGlow); });
                     ctx.restore();
+                }
+
+                // v4.9: pucuk pohon
+                drawTree(mode);
+
+                // v4.3: cahaya sunset dari barat (di atas pohon)
+                sunsetGlow += ((currentLightIdx === 2 ? 1 : 0) - sunsetGlow) * 0.02;
+                drawSunsetLight(Date.now() * 0.001);
+
+                // v4.5: Kabut tipis pagi hari (memudar saat siang)
+                drawMorningFog(Date.now() * 0.001);
+
+                // v4.4: bayangan burung walet (menimpa rumput, batu, air, koi, dan karang)
+                if (swiftGlow > 0.01) {
+                swifts.forEach(s => s.drawShadow(0.42 * swiftGlow));
                 }
 
                 requestAnimationFrame(animate);
