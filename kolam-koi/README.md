@@ -1,65 +1,88 @@
-# 🎏 Kolam Koi (Koi Pond MVP)
+# Kolam Koi
 
-Aplikasi simulasi kolam ikan koi interaktif berbasis web dengan tampilan tampak atas (*top-down view*), desain UI modern yang bersih (*clean glassmorphism UI*), serta lingkungan alami yang dinamis.
+Aplikasi simulasi kolam ikan koi interaktif berbasis web dengan tampilan tampak atas (*top-down view*), UI *glassmorphism* yang bersih, serta lingkungan alami yang berubah mengikuti waktu. Latar ceritanya adalah kolam milik Kakek di sebuah pedesaan di Kabupaten Kebumen.
 
-![Kolam Koi Screenshot Placeholder](https://via.placeholder.com/800x450/0f172a/ffffff?text=Kolam+Koi+MVP+Top-Down+View)
-
----
-
-## 🌟 Fitur Utama
-
-- **Perspektif Top-Down Realistis:** View dari atas kolam menampilkan pergerakan ikan koi, bayangan dasar kolam, dan ekosistem air.
-- **Bentuk Kolam Organik & Air Jernih:** Shapes kolam acak alami dengan efek animasi riak air (*water ripples*) dinamis saat ikan bergerak atau makan.
-- **Ekosistem Dasar Kolam:** 
-  - **Rumput Laut (POV Atas):** Gugusan rumpun tanaman air titik-titik melingkar yang mengembang dan menguncup halus (*pulsing sway effect*).
-  - **Terumbu Karang Hias:** Cluster terumbu karang berwarna-warni di area *top-left* dan *bottom-right* dasar kolam.
-- **Lansekap Luar Kolam:** Dikelilingi padang rumput hijau segar berpola tekstur alami dan bebatuan abu-abu dengan bayangan dinamis sesuai siklus waktu.
-- **Sistem 4 Siklus Pencahayaan (Waktu Real & Manual):**
-  - 🌅 **Pagi:** Nuansa hangat lembut dengan rumput hijau muda.
-  - ☀️ **Siang:** Pencahayaan terang dan kontras jernih.
-  - 🌇 **Sore:** Rona merah/keemasan hangat khas senja.
-  - 🌙 **Malam:** Nuansa zamrud gelap dengan **lampu otomatis (*subtle underwater spotlights*)** di sudut-sudut kolam, bayangan pekat di dasar, **kunang-kunang** berkedip pelan, serta **kucing hitam rahasia** yang muncul sekali saat malam untuk minum air di tepi kolam.
-- **Interaksi "Beri Makan":** 
-  - Tombol **Beri Makan** atau klik langsung di area air untuk menjatuhkan pelet.
-  - AI Ikan Koi mendeteksi makanan, berenang mendekat, dan membuat efek gelombang air di permukaan saat melahap pelet.
+Versi saat ini: v4.7 (mengikuti penanda versi pada komentar kode).
 
 ---
 
-## 🛠️ Teknologi yang Digunakan
+## Fitur Utama
 
-- **HTML5 & Canvas 2D API:** Untuk komputasi visual, simulasi fisika riak air, AI kawanan ikan, perilaku hewan, dan rendering grafis *real-time*.
-- **Tailwind CSS (CDN):** Untuk tata letak responsif dan komponen UI modern.
-- **Lucide Icons:** Ikonografi UI modern.
-- **Vanilla JavaScript (ES6+):** Tanpa dependensi berat tambahan.
+### Kolam dan Penghuninya
+
+- **Bentuk kolam organik:** Tepi kolam berupa kurva acak yang terlihat alami, dibangun ulang setiap kali ukuran layar berubah.
+- **Ikan koi:** 16 ekor koi (7 ukuran sedang dan 9 ukuran kecil) dengan lima variasi warna. Koi berenang santai, berbelok menjauhi tepi kolam, dan mengejar pelet makanan yang berada dalam jangkauannya. Saat makan, ikan sedikit naik ke permukaan dan menimbulkan riak.
+- **Ikan sapu-sapu:** 4 ekor ikan sapu-sapu menyusuri tepi dasar kolam dengan pelan. Sesekali mereka berhenti dan menghadap dinding kolam untuk "bersih-bersih".
+- **Gelembung udara:** Gelembung naik dari dasar kolam dan pecah di permukaan sambil membentuk riak kecil.
+- **Riak air:** Muncul secara berkala, saat pelet jatuh, saat ikan makan, dan saat gelembung pecah.
+- **Ekosistem dasar kolam:** Rumpun rumput laut (tampak atas, berupa titik-titik yang bergoyang pelan) dan dua kelompok karang berwarna-warni di area kiri atas dan kanan bawah.
+
+### Lansekap Sekitar Kolam
+
+- **Padang rumput:** Tekstur titik dan gradasi acak yang dibuat sekali lalu digambar ulang di setiap frame, dengan warna yang menyesuaikan waktu.
+- **Batu tepi kolam:** Disusun mengelilingi kolam, lengkap dengan bayangan yang arah dan ukurannya mengikuti waktu.
+- **Bunga kecil:** Tiga jenis bunga (merah muda berkelompok 3, kuning tunggal, dan biru kecil berkelompok banyak) yang mekar di pagi hari lalu menguncup dan memudar saat siang.
+
+### Siklus Waktu
+
+Aplikasi memiliki empat suasana waktu. Mode awal ditentukan dari jam perangkat (pagi 06.00-10.59, siang 11.00-14.59, sore 15.00-17.59, selain itu malam), dan bisa diganti manual kapan saja.
+
+| Waktu | Suasana dan kejadian |
+|-------|----------------------|
+| Pagi | Kabut tipis di atas kolam dan rumput, bunga mekar, dan seekor kumbang merah mungil dengan tiga bintik hitam hinggap berpindah dari bunga ke bunga. |
+| Siang | Pencahayaan terang. Bayangan burung walet melintas pelan di atas rumput dan air (maksimal 3 sekaligus). Bunga menguncup. |
+| Sore | Cahaya jingga hangat dari arah barat (kiri layar) yang berdenyut halus di atas air dan rumput. |
+| Malam | Suasana gelap dengan empat lampu bawah air di tepi kolam, kunang-kunang yang berkedip pelan, dan ikan yang berenang lebih tenang. Seekor kucing hitam muncul sekali setiap kali halaman dimuat, minum di tepi kolam, lalu pergi. Jika waktu berganti ke siang saat kucing masih ada, kucing langsung pulang. |
+
+### Interaksi dan UI
+
+- **Beri makan lewat tombol:** Tombol "Beri Makan Koi" menebar pelet di sekitar tengah kolam.
+- **Beri makan lewat klik atau tap:** Klik atau tap di area air untuk menjatuhkan pelet di lokasi tersebut. Klik di luar kolam diabaikan.
+- **Ubah waktu:** Tombol di header berpindah berurutan: Pagi, Siang, Sore, Malam.
+- **Papan Sambutan:** Tombol ikon gelombang di header membuka pop up berisi surat sambutan yang menceritakan suasana kolam di tiap waktu. Pop up bisa ditutup dengan tombol OK atau dengan mengetuk area gelap di luar kartu. Pop up memiliki dua tab, yaitu Papan Sambutan dan Peta Denah Kolam. Tab Peta Denah Kolam belum aktif dan hanya menampilkan notifikasi "Coming Soon".
+- **Responsif untuk mobile:** Tinggi layar mengikuti viewport aktual (`dvh`), dan kontrol bawah dipasang dengan mempertimbangkan area aman (*safe area*) perangkat.
 
 ---
 
-## 🚀 Cara Menjalankan
+## Teknologi yang Digunakan
+
+- **HTML5 dan Canvas 2D API:** Rendering visual real-time, simulasi riak air, perilaku hewan, dan seluruh efek lingkungan.
+- **Vanilla JavaScript (ES6+):** Tanpa framework dan tanpa dependensi tambahan untuk logika simulasi.
+- **Tailwind CSS (CDN):** Tata letak responsif dan komponen UI.
+- **Lucide Icons (CDN):** Ikon antarmuka.
+- **Google Fonts (Plus Jakarta Sans):** Tipografi antarmuka.
+
+Catatan: Tailwind, Lucide, dan font dimuat lewat CDN, jadi dibutuhkan koneksi internet saat pertama kali membuka aplikasi.
+
+---
+
+## Cara Menjalankan
 
 1. Download atau clone repository ini.
-2. Buka file `index.html` langsung di browser web favorit Anda (Chrome, Firefox, Edge, Safari, dll.).
-3. Tidak memerlukan *build tool* atau server lokal (Node.js/Python) untuk menjalankannya.
+2. Buka file `index.html` langsung di browser (Chrome, Firefox, Edge, Safari, dan sebagainya).
+3. Tidak diperlukan *build tool* maupun server lokal.
 
 ---
 
-## 🎮 Cara Bermain / Interaksi
+## Cara Bermain
 
-1. **Beri Makan (Tombol Utama):** Klik tombol **"Beri Makan Koi"** di bagian bawah layar untuk menebar pelet secara acak di tengah kolam.
-2. **Beri Makan (Klik Langsung):** Klik atau tap bagian mana saja di dalam kolam untuk menjatuhkan pelet tepat di lokasi tersebut.
-3. **Ubah Waktu Pencahayaan:** Klik tombol **"Ubah Waktu"** di header atas untuk berganti suasana pencahayaan secara manual (Pagi → Siang → Sore → Malam).
-4. **Kejutan Malam Hari:** Beralih ke waktu malam dan tunggu beberapa saat untuk melihat kunjungan kucing hitam di pinggir kolam.
-
----
-
-## 🗺️ Rencana Pengembangan Fitur Selanjutnya (Roadmap)
-
-- [ ] **Variasi Jenis & Toko Ikan:** Opsi menambah spesies ikan baru (Ikan Mas Koki, Black Tele, Koi Tancho).
-- [ ] **Dekorasi Kolam Kustom:** Memungkinkan pemain menempatkan bunga teratai (*water lilies*), lentera batu, atau jembatan kayu kecil.
-- [ ] **Audio & SFX:** Musik latar ambient yang menenangkan dan suara gemericik air/riak air saat memberi makan.
-- [ ] **Sistem Level & Kebutuhan Ikan:** Tingkat kenyang, pertumbuhan ukuran ikan, dan pengumpulan poin Koi.
+1. **Beri makan:** Tekan tombol "Beri Makan Koi" di bawah layar, atau klik/tap langsung di area kolam untuk menjatuhkan pelet.
+2. **Ganti waktu:** Tekan tombol waktu di header untuk berpindah suasana Pagi, Siang, Sore, dan Malam.
+3. **Baca sambutan:** Tekan ikon gelombang di header untuk membuka Papan Sambutan.
+4. **Kejutan malam hari:** Pindah ke waktu malam dan tunggu beberapa saat untuk melihat kucing hitam datang minum di tepi kolam. Kucing hanya muncul sekali per pemuatan halaman, jadi muat ulang halaman untuk melihatnya lagi.
 
 ---
 
-## 📄 Lisensi
+## Roadmap
+
+- [ ] **Peta Denah Kolam:** Mengaktifkan tab kedua pada pop up Papan Sambutan.
+- [ ] **Variasi jenis ikan dan toko ikan:** Opsi menambah spesies baru (Ikan Mas Koki, Black Tele, Koi Tancho).
+- [ ] **Dekorasi kolam kustom:** Menempatkan bunga teratai, lentera batu, atau jembatan kayu kecil.
+- [ ] **Audio dan SFX:** Musik latar ambient serta suara gemericik air saat memberi makan.
+- [ ] **Sistem level dan kebutuhan ikan:** Tingkat kenyang, pertumbuhan ukuran ikan, dan pengumpulan poin koi.
+
+---
+
+## Lisensi
 
 Proyek ini dibuat sebagai prototipe MVP (*Minimum Viable Product*) dan bebas dikembangkan lebih lanjut.
