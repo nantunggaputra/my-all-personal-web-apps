@@ -2,7 +2,7 @@
 
 Aplikasi simulasi kolam ikan koi interaktif berbasis web dengan tampilan tampak atas (*top-down view*), UI *glassmorphism* yang bersih, serta lingkungan alami yang berubah mengikuti waktu. Latar ceritanya adalah kolam milik Kakek di sebuah pedesaan di Kabupaten Kebumen.
 
-Versi saat ini: v4.8 (mengikuti penanda versi pada komentar kode).
+Versi saat ini: v4.9 (mengikuti penanda versi pada komentar kode).
 
 ---
 
@@ -22,6 +22,7 @@ Versi saat ini: v4.8 (mengikuti penanda versi pada komentar kode).
 - **Padang rumput:** Tekstur titik dan gradasi acak yang dibuat sekali lalu digambar ulang di setiap frame, dengan warna yang menyesuaikan waktu.
 - **Batu tepi kolam:** Disusun mengelilingi kolam, lengkap dengan bayangan yang arah dan ukurannya mengikuti waktu.
 - **Bunga kecil:** Tiga jenis bunga (merah muda berkelompok 3, kuning tunggal, dan biru kecil berkelompok banyak) yang mekar di pagi hari lalu menguncup dan memudar saat siang.
+- **Pohon apel:** Pucuk pohon di pojok kiri atas, tampak menutupi hewan-hewan (kumbang, kucing, kunang-kunang) dan bunga, berada di bawah kabut dan bayangan walet.
 
 ### Siklus Waktu
 
