@@ -500,7 +500,13 @@
 
             // Spawn berkala: beberapa gelembung tiap detik, lebih jarang dari riak ambient
             setInterval(() => {
-                if (bubbles.length < 25 && Math.random() < 0.7) bubbles.push(new Bubble());
+                const morning = currentLightIdx === 0;
+                const cap = morning ? 50 : 25;
+                const batch = morning ? 3 : 1;
+                const chance = morning ? 0.95 : 0.7;
+                for (let i = 0; i < batch; i++) {
+                    if (bubbles.length < cap && Math.random() < chance) bubbles.push(new Bubble());
+                }
             }, 600);
 
             // Periodic Ambient Ripples (Air Jernih Sedikit Riak)
@@ -662,7 +668,7 @@
                     }
 
                     // v4.0: malam + tidak mengejar pelet -> 0.5x, transisi halus
-                    const wantScale = (LIGHT_MODES[currentLightIdx].isNight && !this.targetFood) ? 0.5 : 1;
+                    const wantScale = (LIGHT_MODES[currentLightIdx].isNight && !this.targetFood) ? 0.3 : 1;
                     this.timeScale += (wantScale - this.timeScale) * 0.05;
 
                     // Move
@@ -864,11 +870,11 @@
                     ctx.rotate(this.angle);
 
                     // Sirip dada lebar
-                    ctx.fillStyle = '#44403c';
-                    ctx.beginPath();
-                    ctx.ellipse(len * 0.2, -w * 1.0, len * 0.14, w * 0.22, -0.6, 0, Math.PI * 2);
-                    ctx.ellipse(len * 0.2, w * 1.0, len * 0.14, w * 0.22, 0.6, 0, Math.PI * 2);
-                    ctx.fill();
+                    // ctx.fillStyle = '#44403c';
+                    // ctx.beginPath();
+                    // ctx.ellipse(len * 0.2, -w * 1.0, len * 0.14, w * 0.22, -0.6, 0, Math.PI * 2);
+                    // ctx.ellipse(len * 0.2, w * 1.0, len * 0.14, w * 0.22, 0.6, 0, Math.PI * 2);
+                    // ctx.fill();
 
                     // Ekor
                     ctx.save();
@@ -1070,6 +1076,24 @@
 
                 draw(alpha) {
                     const s = this.grow;
+                    
+                    // Bayangan: hanya saat terbang, makin jauh & jelas seiring wingA naik
+                    if (this.wingA > 0.05) {
+                        const lift = this.wingA;
+                        const flap = 0.4 + 0.6 * Math.abs(Math.sin(this.t));
+                        ctx.save();
+                        ctx.translate(this.x + 5 * lift, this.y + 7 * lift);
+                        ctx.rotate(this.angle);
+                        ctx.globalAlpha = alpha * lift * 0.28;
+                        ctx.fillStyle = '#020617';
+                        ctx.beginPath();
+                        ctx.arc(0, 0, 2.2 * s, 0, Math.PI * 2);                         // badan
+                        ctx.ellipse(-0.5 * s, -2.3 * s, 2.4 * s, 1.1 * s * flap, -0.5, 0, Math.PI * 2); // sayap kiri
+                        ctx.ellipse(-0.5 * s, 2.3 * s, 2.4 * s, 1.1 * s * flap, 0.5, 0, Math.PI * 2);   // sayap kanan
+                        ctx.fill();
+                        ctx.restore();
+                    }
+    
                     ctx.save();
                     ctx.translate(this.x, this.y);
                     ctx.rotate(this.angle);
