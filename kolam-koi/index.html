@@ -892,7 +892,7 @@
                     ctx.rotate(this.angle);
 
                     // Sirip dada lebar
-                    // ctx.fillStyle = '#44403c';
+                    // ctx.fillStyle = '#475569';
                     // ctx.beginPath();
                     // ctx.ellipse(len * 0.2, -w * 1.0, len * 0.14, w * 0.22, -0.6, 0, Math.PI * 2);
                     // ctx.ellipse(len * 0.2, w * 1.0, len * 0.14, w * 0.22, 0.6, 0, Math.PI * 2);
@@ -902,7 +902,7 @@
                     ctx.save();
                     ctx.translate(-len * 0.5, 0);
                     ctx.rotate(tail);
-                    ctx.fillStyle = '#57534e';
+                    ctx.fillStyle = '#64748b';
                     ctx.beginPath();
                     ctx.moveTo(0, -w * 0.25);
                     ctx.lineTo(-len * 0.38, -w * 0.55);
@@ -913,7 +913,7 @@
                     ctx.restore();
 
                     // Badan + kepala pipih
-                    ctx.fillStyle = '#57534e';
+                    ctx.fillStyle = '#64748b';
                     ctx.beginPath();
                     ctx.ellipse(-len * 0.05, 0, len * 0.55, w * 0.7, 0, 0, Math.PI * 2);
                     ctx.fill();
@@ -922,7 +922,7 @@
                     ctx.fill();
 
                     // Bercak gelap
-                    ctx.fillStyle = 'rgba(28, 25, 23, 0.6)';
+                    ctx.fillStyle = 'rgba(30, 41, 59, 0.65)';
                     this.spots.forEach(sp => {
                         ctx.beginPath();
                         ctx.arc(sp.x * len, sp.y * len, sp.r * len, 0, Math.PI * 2);
@@ -930,7 +930,7 @@
                     });
 
                     // Sirip punggung (garis di tengah punggung)
-                    ctx.strokeStyle = 'rgba(28, 25, 23, 0.75)';
+                    ctx.strokeStyle = 'rgba(30, 41, 59, 0.75)';
                     ctx.lineWidth = 1.6;
                     ctx.lineCap = 'round';
                     ctx.beginPath();
@@ -939,7 +939,7 @@
                     ctx.stroke();
 
                     // Mulut hisap + mata
-                    ctx.fillStyle = '#a8a29e';
+                    ctx.fillStyle = '#cbd5e1';
                     ctx.beginPath();
                     ctx.ellipse(len * 0.62, 0, len * 0.07, w * 0.4, 0, 0, Math.PI * 2);
                     ctx.fill();
