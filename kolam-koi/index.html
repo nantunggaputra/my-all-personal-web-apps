@@ -198,6 +198,7 @@
                 generateFireflies();       // v3.7
                 resetCat();                // v3.9
                 generatePlecos();          // v4.0
+                generateTurtle();          // v5.0
                 generateFlowers();         // v4.2
                 generateSprinklers();      // v4.8
                 generateTree();            // v4.9
@@ -962,6 +963,150 @@
                 }
             }
             generatePlecos();
+
+            // --- v5.0: Kura-kura hijau (dasar kolam, sangat lambat; malam diam tapi kaki tetap mengayuh) ---
+            let turtle = null;
+
+            class Turtle {
+                constructor() {
+                    this.size = 19 + Math.random() * 2; // panjang cangkang (sapu-sapu: 11-15)
+                    let sx = pondCenter.x, sy = pondCenter.y;
+                    for (let t = 0; t < 80; t++) {
+                        const x = pondCenter.x + (Math.random() - 0.5) * width * 0.6;
+                        const y = pondCenter.y + (Math.random() - 0.5) * height * 0.6;
+                        if (inWater(x, y) && distToPondEdge(x, y) > 50) { sx = x; sy = y; break; }
+                    }
+                    this.x = sx; this.y = sy;
+                    this.angle = Math.random() * Math.PI * 2;
+                    this.goal = this.angle;
+                    this.speed = 0.07 + Math.random() * 0.03; // v5.1: lebih pelan lagi
+                    this.ext = 1;                             // v5.1: 1 = kepala & kaki keluar, 0 = ngumpet di cangkang
+                    this.move = 1;                            // 0 = diam (malam), 1 = jalan
+                    this.paddle = Math.random() * 100;
+                    this.timer = 0;
+                    this.nextTurn = 180 + Math.random() * 420; // ~3-10 detik per keputusan arah
+                }
+
+                update() {
+                    const night = LIGHT_MODES[currentLightIdx].isNight;
+                    this.ext += ((night ? 0 : 1) - this.ext) * 0.03;   // v5.1: malam -> kepala & kaki masuk cangkang
+                    this.move += (((night || this.ext < 0.8) ? 0 : 1) - this.move) * 0.03; // jalan hanya setelah kepala & kaki keluar
+                    this.paddle += 0.025 * this.move;                  // v5.1: kayuhan lebih lambat, berhenti saat ngumpet
+
+                    // Keputusan arah acak: lurus / belok / putar balik
+                    if (++this.timer > this.nextTurn) {
+                        this.timer = 0;
+                        this.nextTurn = 180 + Math.random() * 420;
+                        const r = Math.random();
+                        if (r < 0.2) this.goal = this.angle + Math.PI + (Math.random() - 0.5) * 0.6; // putar balik
+                        else if (r < 0.7) this.goal = this.angle + (Math.random() - 0.5) * Math.PI;   // belok
+                        // sisanya: lanjut lurus
+                    }
+
+                    // Di depan bukan air -> arahkan ke tengah kolam
+                    const ahead = inWater(this.x + Math.cos(this.angle) * this.size, this.y + Math.sin(this.angle) * this.size);
+                    if (!ahead) {
+                        this.goal = Math.atan2(pondCenter.y - this.y, pondCenter.x - this.x);
+                        this.timer = 0;
+                    }
+
+                    this.angle += normalizeAngle(this.goal - this.angle) * (ahead ? 0.015 : 0.05) * this.move;
+                    if (ahead) {
+                        this.x += Math.cos(this.angle) * this.speed * this.move;
+                        this.y += Math.sin(this.angle) * this.speed * this.move;
+                    }
+                }
+
+                draw() {
+                    const len = this.size;
+                    const sw = Math.sin(this.paddle);
+                    const e = this.ext; // v5.1: 0..1, skala kepala & kaki
+
+                    // Sirip: kiri-depan & kanan-belakang searah, kanan-depan & kiri-belakang berlawanan (gaya diagonal)
+                    const flipper = (x, y, side, swing, base, l, w) => {
+                        if (e < 0.03) return;
+                        x *= e; y *= e; l *= e; w *= e; // menyusut ke arah badan saat ngumpet
+                        ctx.save();
+                        ctx.translate(x, y);
+                        ctx.rotate(side * (base + swing * 0.5));
+                        ctx.beginPath();
+                        ctx.ellipse(l * 0.5, 0, l * 0.5, w, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.restore();
+                    };
+                    const limbs = () => {
+                        flipper(len * 0.26, -len * 0.3, -1,  sw, 1.2, len * 0.42, len * 0.1);
+                        flipper(len * 0.26,  len * 0.3,  1, -sw, 1.2, len * 0.42, len * 0.1);
+                        flipper(-len * 0.28, -len * 0.26, -1, -sw, 2.3, len * 0.3, len * 0.09);
+                        flipper(-len * 0.28,  len * 0.26,  1,  sw, 2.3, len * 0.3, len * 0.09);
+                    };
+
+                    // Bayangan tipis di dasar (sama seperti sapu-sapu: offset kecil & tetap)
+                    ctx.save();
+                    ctx.translate(this.x + 1.5, this.y + 2);
+                    ctx.rotate(this.angle);
+                    ctx.fillStyle = 'rgba(2, 6, 23, 0.3)';
+                    limbs();
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, len * 0.5, len * 0.42, 0, 0, Math.PI * 2);
+                    ctx.ellipse(len * 0.62 * e, 0, len * 0.14 * e, len * 0.11 * e, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.rotate(this.angle);
+
+                    // Sirip + kepala + ekor (kulit hijau muda)
+                    ctx.fillStyle = '#65a30d';
+                    limbs();
+                    ctx.beginPath(); // ekor kecil
+                    ctx.moveTo(-len * 0.45, -len * 0.05);
+                    ctx.lineTo(-len * 0.66, 0);
+                    ctx.lineTo(-len * 0.45, len * 0.05);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.beginPath(); // leher + kepala
+                    ctx.ellipse(len * 0.5 * e, 0, len * 0.14 * e, len * 0.09 * e, 0, 0, Math.PI * 2);
+                    ctx.ellipse(len * 0.62 * e, 0, len * 0.14 * e, len * 0.11 * e, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#0c0a09'; // mata
+                    ctx.beginPath();
+                    ctx.arc(len * 0.66 * e, -len * 0.06 * e, len * 0.025 * e, 0, Math.PI * 2);
+                    ctx.arc(len * 0.66 * e,  len * 0.06 * e, len * 0.025 * e, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Cangkang: tepi terang -> badan hijau -> pola sisik gelap
+                    ctx.fillStyle = '#4d7c0f';
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, len * 0.5, len * 0.42, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#15803d';
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, len * 0.43, len * 0.35, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(5, 46, 22, 0.8)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, len * 0.2, len * 0.16, 0, 0, Math.PI * 2); // sisik tengah
+                    [[-1, -1], [-1, 1], [1, -1], [1, 1]].forEach(([sx, sy]) => { // garis ke sisik tepi
+                        ctx.moveTo(sx * len * 0.17, sy * len * 0.12);
+                        ctx.lineTo(sx * len * 0.36, sy * len * 0.27);
+                    });
+                    ctx.moveTo(len * 0.2, 0);  ctx.lineTo(len * 0.42, 0);
+                    ctx.moveTo(-len * 0.2, 0); ctx.lineTo(-len * 0.42, 0);
+                    ctx.stroke();
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.12)'; // kilau
+                    ctx.beginPath();
+                    ctx.ellipse(-len * 0.08, -len * 0.12, len * 0.22, len * 0.1, 0, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.restore();
+                }
+            }
+
+            function generateTurtle() { turtle = new Turtle(); }
+            generateTurtle();
 
             // --- v4.2: Bunga kecil di rumput (mekar pagi, menguncup siang, hilang sore-malam) ---
             const FLOWER_COLORS = {
@@ -1951,6 +2096,9 @@
 
                 // v4.0: Ikan sapu-sapu (dasar kolam, di bawah koi)
                 plecos.forEach(pl => { pl.update(); pl.draw(); });
+
+                // v5.0: Kura-kura hijau (dasar kolam)
+                if (turtle) { turtle.update(); turtle.draw(); }
 
                 // 4. Render Koi Fish Bottom Shadows (Berbayang di dasar kolam)
                 koiList.forEach(koi => {
