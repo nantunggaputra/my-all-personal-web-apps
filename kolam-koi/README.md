@@ -2,7 +2,7 @@
 
 Aplikasi simulasi kolam ikan koi interaktif berbasis web dengan tampilan tampak atas (*top-down view*), UI *glassmorphism* yang bersih, serta lingkungan alami yang berubah mengikuti waktu. Latar ceritanya adalah kolam milik Kakek di sebuah pedesaan di Kabupaten Kebumen.
 
-Versi saat ini: v4.9 (mengikuti penanda versi pada komentar kode).
+Versi saat ini: v5.1 (mengikuti penanda versi pada komentar kode).
 
 ---
 
@@ -13,6 +13,7 @@ Versi saat ini: v4.9 (mengikuti penanda versi pada komentar kode).
 - **Bentuk kolam organik:** Tepi kolam berupa kurva acak yang terlihat alami, dibangun ulang setiap kali ukuran layar berubah.
 - **Ikan koi:** 16 ekor koi (7 ukuran sedang dan 9 ukuran kecil) dengan lima variasi warna. Koi berenang santai, berbelok menjauhi tepi kolam, dan mengejar pelet makanan yang berada dalam jangkauannya. Saat makan, ikan sedikit naik ke permukaan dan menimbulkan riak.
 - **Ikan sapu-sapu:** 4 ekor ikan sapu-sapu menyusuri tepi dasar kolam dengan pelan. Sesekali mereka berhenti dan menghadap dinding kolam untuk "bersih-bersih".
+- **Kura-kura hijau:** Seekor kura-kura hijau di dasar kolam. Geraknya sangat lambat dan acak: lurus, berbelok, atau putar balik, bisa ke tepi maupun ke tengah. Saat malam berhenti berenang dan diam beristirahat.
 - **Gelembung udara:** Gelembung naik dari dasar kolam dan pecah di permukaan sambil membentuk riak kecil.
 - **Riak air:** Muncul secara berkala, saat pelet jatuh, saat ikan makan, dan saat gelembung pecah.
 - **Ekosistem dasar kolam:** Rumpun rumput laut (tampak atas, berupa titik-titik yang bergoyang pelan) dan dua kelompok karang berwarna-warni di area kiri atas dan kanan bawah.
@@ -33,7 +34,7 @@ Aplikasi memiliki empat suasana waktu. Mode awal ditentukan dari jam perangkat (
 | Pagi | Kabut tipis di atas kolam dan rumput, bunga mekar, dan seekor kumbang merah mungil dengan tiga bintik hitam hinggap berpindah dari bunga ke bunga. |
 | Siang | Pencahayaan terang. Bayangan burung walet melintas pelan di atas rumput dan air (maksimal 3 sekaligus). Bunga menguncup. Sprinkle aktif menyemprotkan air. |
 | Sore | Cahaya jingga hangat dari arah barat (kiri layar) yang berdenyut halus di atas air dan rumput. |
-| Malam | Suasana gelap dengan empat lampu bawah air di tepi kolam, kunang-kunang yang berkedip pelan, dan ikan yang berenang lebih tenang. Seekor kucing hitam muncul sekali setiap kali halaman dimuat, minum di tepi kolam, lalu pergi. Jika waktu berganti ke siang saat kucing masih ada, kucing langsung pulang. |
+| Malam | Suasana gelap dengan empat lampu bawah air di tepi kolam, kunang-kunang yang berkedip pelan, ikan yang berenang lebih tenang, dan kura-kura yang beristirahat. Seekor kucing hitam muncul sekali setiap kali halaman dimuat, minum di tepi kolam, lalu pergi. Jika waktu berganti ke siang saat kucing masih ada, kucing langsung pulang. |
 
 ### Interaksi dan UI
 
