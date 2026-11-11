@@ -64,6 +64,39 @@
         }
         .btn-pleco:active { transform: translateY(1px); }
 
+        /* v5.3: tombol 4 (hitam), 5 (biru), 6 (merah), glow + hover/active sama seperti tombol 1-3 */
+        .btn-cat {
+            background: linear-gradient(135deg, #27272a 0%, #09090b 100%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.5);
+            transition: all 0.2s ease;
+        }
+        .btn-cat:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.6);
+        }
+        .btn-cat:active { transform: translateY(1px); }
+        .btn-drain {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            box-shadow: 0 2px 8px 0 rgba(59, 130, 246, 0.39);
+            transition: all 0.2s ease;
+        }
+        .btn-drain:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px 0 rgba(59, 130, 246, 0.5);
+        }
+        .btn-drain:active { transform: translateY(1px); }
+        .btn-fire {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 2px 8px 0 rgba(239, 68, 68, 0.39);
+            transition: all 0.2s ease;
+        }
+        .btn-fire:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px 0 rgba(239, 68, 68, 0.5);
+        }
+        .btn-fire:active { transform: translateY(1px); }
+
         /* v5.2: slider tombol (geser kanan -> kiri) */
         #btn-slider { touch-action: pan-y; }
         #btn-track { transition: transform 0.3s ease; }
@@ -181,6 +214,24 @@
                     <button id="plecoBtn" class="btn-pleco w-full py-3.5 px-6 rounded-2xl text-white font-bold text-base flex items-center justify-center gap-2.5 tracking-wide">
                         <i data-lucide="vector-square" class="w-5 h-5"></i>
                         <span id="plecoLabel">Tangkap Sapu-Sapu</span>
+                    </button>
+                </div>
+                <div class="w-full shrink-0 px-3">
+                    <button id="catBtn" class="btn-cat w-full py-3.5 px-6 rounded-2xl text-white font-bold text-base flex items-center justify-center gap-2.5 tracking-wide">
+                        <i data-lucide="paw-print" class="w-5 h-5"></i>
+                        <span>Panggil Kucing Hitam</span>
+                    </button>
+                </div>
+                <div class="w-full shrink-0 px-3">
+                    <button id="drainBtn" class="btn-drain w-full py-3.5 px-6 rounded-2xl text-white font-bold text-base flex items-center justify-center gap-2.5 tracking-wide">
+                        <i data-lucide="waves-horizontal" class="w-5 h-5"></i>
+                        <span>Kuras Air Kolam</span>
+                    </button>
+                </div>
+                <div class="w-full shrink-0 px-3">
+                    <button id="fireBtn" class="btn-fire w-full py-3.5 px-6 rounded-2xl text-white font-bold text-base flex items-center justify-center gap-2.5 tracking-wide">
+                        <i data-lucide="flame-kindling" class="w-5 h-5"></i>
+                        <span id="fireLabel">Nyalakan Api Unggun</span>
                     </button>
                 </div>
             </div>
@@ -2335,9 +2386,13 @@
             const turtleBtn = document.getElementById('turtleBtn');
             const plecoBtn = document.getElementById('plecoBtn');
             const plecoLabel = document.getElementById('plecoLabel');
+            const catBtn = document.getElementById('catBtn');
+            const drainBtn = document.getElementById('drainBtn');
+            const fireBtn = document.getElementById('fireBtn');
+            const fireLabel = document.getElementById('fireLabel');
             const soonToastMain = document.getElementById('soon-toast-main');
-            const SLIDE_COUNT = 3;
-            let slideIdx = 0, swipeStartX = null, swiped = false, plecoCaught = false, toastMainTimer = null;
+            const SLIDE_COUNT = 6;
+            let slideIdx = 0, swipeStartX = null, swiped = false, plecoCaught = false, fireOn = false, toastMainTimer = null;
 
             function goSlide(i) {
                 slideIdx = (i + SLIDE_COUNT) % SLIDE_COUNT;
@@ -2367,6 +2422,15 @@
             plecoBtn.addEventListener('click', () => {
                 plecoCaught = !plecoCaught;
                 plecoLabel.textContent = plecoCaught ? 'Lepaskan Sapu-Sapu' : 'Tangkap Sapu-Sapu';
+                showSoonMain();
+            });
+
+            // v5.3: tombol 4-6 (belum ada fitur, masih Segera Hadir)
+            catBtn.addEventListener('click', showSoonMain);
+            drainBtn.addEventListener('click', showSoonMain);
+            fireBtn.addEventListener('click', () => {
+                fireOn = !fireOn;
+                fireLabel.textContent = fireOn ? 'Matikan Api Unggun' : 'Nyalakan Api Unggun';
                 showSoonMain();
             });
 
