@@ -2,7 +2,7 @@
 
 Aplikasi simulasi kolam ikan koi interaktif berbasis web dengan tampilan tampak atas (*top-down view*), UI *glassmorphism* yang bersih, serta lingkungan alami yang berubah mengikuti waktu. Latar ceritanya adalah kolam milik Kakek di sebuah pedesaan di Kabupaten Kebumen.
 
-Versi saat ini: v5.1 (mengikuti penanda versi pada komentar kode).
+Versi saat ini: v5.3 (mengikuti penanda versi pada komentar kode).
 
 ---
 
