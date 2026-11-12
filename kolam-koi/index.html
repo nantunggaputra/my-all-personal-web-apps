@@ -67,6 +67,7 @@
         /* v5.3: tombol 4 (hitam), 5 (biru), 6 (merah), glow + hover/active sama seperti tombol 1-3 */
         .btn-cat {
             background: linear-gradient(135deg, #27272a 0%, #09090b 100%);
+            border: 1px solid rgba(255, 255, 255, 0.14);
             box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.5);
             transition: all 0.2s ease;
         }
@@ -86,7 +87,7 @@
         }
         .btn-drain:active { transform: translateY(1px); }
         .btn-fire {
-            background: linear-gradient(135deg, #f02626 0%, #ed0000 100%);
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
             box-shadow: 0 2px 8px 0 rgba(239, 68, 68, 0.39);
             transition: all 0.2s ease;
         }
@@ -311,6 +312,7 @@
                 generateFlowers();         // v4.2
                 generateSprinklers();      // v4.8
                 generateTree();            // v4.9
+                generateCampfire();        // v5.6
             });
 
             // Lighting Modes: 0: Morning, 1: Noon, 2: Sunset, 3: Night
@@ -1417,6 +1419,143 @@
             }
             generateTree();
 
+            // --- v5.6: Tumpukan kayu & ranting api unggun (belum menyala), jam 4 (tenggara) di luar batu tepi kolam ---
+            const WOOD_COLORS = [
+                { log: '#78502d', dark: '#4a2f17', end: '#c9a06a', twig: '#6b4423' }, // pagi
+                { log: '#7c5532', dark: '#4a2f17', end: '#d4a574', twig: '#6b4423' }, // siang
+                { log: '#6b4526', dark: '#3f2812', end: '#b98a5a', twig: '#5a3a1e' }, // sore
+                { log: '#2e2118', dark: '#1a110b', end: '#55402d', twig: '#2a1d13' }  // malam
+            ];
+            let campfire = null;
+
+            function generateCampfire() {
+                // Tepat di luar batu ke-1 (sudut ~26 derajat dari timur = arah jam 4 / tenggara).
+                // Posisi batu = titik kolam + 46 ke arah luar, jadi tumpukan kayu digeser lagi ke arah yang sama.
+                const p = pondPath[1];
+                const a = Math.atan2(p.y - pondCenter.y, p.x - pondCenter.x);
+                const dist = 46 + 56; // 46 = posisi batu, +56 = ruang untuk batu & tumpukan kayu
+                // Jaga tetap terlihat di layar sempit (mobile)
+                const x = Math.max(40, Math.min(width - 40, p.x + Math.cos(a) * dist));
+                const y = Math.max(110, Math.min(height - 40, p.y + Math.sin(a) * dist));
+
+                // Balok kayu: tersusun melingkar seperti tenda kerucut (tampak atas = jari-jari)
+                const logs = [];
+                const n = 5;
+                for (let i = 0; i < n; i++) {
+                    logs.push({
+                        ang: (i / n) * Math.PI * 2 + (Math.random() - 0.5) * 0.35,
+                        len: 18 + Math.random() * 4,   // v5.6: lebih pendek (sebelumnya 26-32)
+                        w: 5 + Math.random() * 1.2,    // v5.6: sedikit lebih kecil (sebelumnya 6-7.5)
+                        off: 4 + Math.random() * 3
+                    });
+                }
+
+                // Ranting kecil mengumpul di tengah tumpukan (sebagian bercabang)
+                const twigs = [];
+                for (let i = 0; i < 48; i++) { // v5.6: 4x lipat
+                    const ta = Math.random() * Math.PI * 2;
+                    const td = 2 + Math.random() * 11; // rapat di tengah
+                    twigs.push({
+                        x: Math.cos(ta) * td,
+                        y: Math.sin(ta) * td,
+                        ang: Math.random() * Math.PI * 2,
+                        len: 8 + Math.random() * 7,
+                        w: 1 + Math.random() * 0.7,
+                        fork: Math.random() < 0.5 ? (Math.random() < 0.5 ? -0.6 : 0.6) : 0
+                    });
+                }
+
+                campfire = { x, y, logs, twigs };
+            }
+            generateCampfire();
+
+            function drawCampfire(mode) {
+                if (!campfire) return;
+                const c = WOOD_COLORS[currentLightIdx];
+
+                ctx.save();
+                ctx.translate(campfire.x, campfire.y);
+                ctx.lineCap = 'round';
+
+                // Bayangan: offset sama persis dengan bayangan batu (pendek, ikut waktu)
+                ctx.save();
+                ctx.translate(mode.shadowOffset * 0.3, mode.shadowOffset * 0.4);
+                ctx.strokeStyle = mode.isNight ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.25)';
+                ctx.lineWidth = 5.6;
+                ctx.beginPath();
+                campfire.logs.forEach(l => {
+                    ctx.moveTo(Math.cos(l.ang) * l.off, Math.sin(l.ang) * l.off);
+                    ctx.lineTo(Math.cos(l.ang) * (l.off + l.len), Math.sin(l.ang) * (l.off + l.len));
+                });
+                ctx.stroke();
+                ctx.lineWidth = 1.4;
+                ctx.beginPath();
+                campfire.twigs.forEach(t => {
+                    ctx.moveTo(t.x, t.y);
+                    ctx.lineTo(t.x + Math.cos(t.ang) * t.len, t.y + Math.sin(t.ang) * t.len);
+                });
+                ctx.stroke();
+                ctx.restore();
+
+                // Balok kayu
+                campfire.logs.forEach(l => {
+                    ctx.save();
+                    ctx.rotate(l.ang);
+                    const x0 = l.off, x1 = l.off + l.len;
+
+                    ctx.strokeStyle = c.log; // badan balok
+                    ctx.lineWidth = l.w;
+                    ctx.beginPath();
+                    ctx.moveTo(x0, 0);
+                    ctx.lineTo(x1, 0);
+                    ctx.stroke();
+
+                    ctx.strokeStyle = c.dark; // serat kulit kayu
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(x0 + 2, l.w * 0.22);  ctx.lineTo(x1 - 2, l.w * 0.22);
+                    ctx.moveTo(x0 + 5, -l.w * 0.1);  ctx.lineTo(x1 - 6, -l.w * 0.1);
+                    ctx.stroke();
+
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)'; // sorotan tipis di sisi atas
+                    ctx.beginPath();
+                    ctx.moveTo(x0 + 2, -l.w * 0.3);
+                    ctx.lineTo(x1 - 2, -l.w * 0.3);
+                    ctx.stroke();
+
+                    ctx.fillStyle = c.end; // ujung potongan kayu
+                    ctx.beginPath();
+                    ctx.arc(x1, 0, l.w * 0.4, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = c.dark;
+                    ctx.beginPath();
+                    ctx.arc(x1, 0, l.w * 0.2, 0, Math.PI * 2);
+                    ctx.stroke();
+
+                    ctx.restore();
+                });
+
+                // Ranting (di atas balok)
+                ctx.strokeStyle = c.twig;
+                campfire.twigs.forEach(t => {
+                    const ex = t.x + Math.cos(t.ang) * t.len;
+                    const ey = t.y + Math.sin(t.ang) * t.len;
+                    ctx.lineWidth = t.w;
+                    ctx.beginPath();
+                    ctx.moveTo(t.x, t.y);
+                    ctx.lineTo(ex, ey);
+                    if (t.fork) { // cabang kecil di sekitar 60% panjang ranting
+                        const bx = t.x + Math.cos(t.ang) * t.len * 0.6;
+                        const by = t.y + Math.sin(t.ang) * t.len * 0.6;
+                        ctx.moveTo(bx, by);
+                        ctx.lineTo(bx + Math.cos(t.ang + t.fork) * t.len * 0.35, by + Math.sin(t.ang + t.fork) * t.len * 0.35);
+                    }
+                    ctx.stroke();
+                });
+
+                ctx.restore();
+            }
+
             function updateSprinklers() {
                 const now = Date.now();
                 const noon = currentLightIdx === 1;
@@ -2119,6 +2258,9 @@
 
                     ctx.restore();
                 }
+
+                // v5.6: tumpukan kayu api unggun (layer sama seperti batu)
+                drawCampfire(mode);
 
                 // v4.2: bunga mekar di pagi hari, menguncup dan hilang di siang/sore/malam
                 const flowerTarget = currentLightIdx === 0 ? 1 : 0;
