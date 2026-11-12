@@ -1475,7 +1475,7 @@
 
                 // Ranting kecil mengumpul di tengah tumpukan (sebagian bercabang)
                 const twigs = [];
-                for (let i = 0; i < 48; i++) { // v5.6: 4x lipat
+                for (let i = 0; i < 30; i++) { // v5.7: 2.5x lipat
                     const ta = Math.random() * Math.PI * 2;
                     const td = 2 + Math.random() * 11; // rapat di tengah
                     twigs.push({
@@ -1502,7 +1502,7 @@
 
                 // Bayangan: offset sama persis dengan bayangan batu (pendek, ikut waktu)
                 ctx.save();
-                ctx.translate(mode.shadowOffset * 0.3, mode.shadowOffset * 0.4);
+                ctx.translate(mode.shadowOffset * 0.2, mode.shadowOffset * 0.26);
                 ctx.strokeStyle = mode.isNight ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.25)';
                 ctx.lineWidth = 5.6;
                 ctx.beginPath();
