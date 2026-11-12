@@ -253,6 +253,30 @@
     <div id="welcome-modal" class="fixed left-0 right-0 bottom-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
         <div class="modal-card glass-panel w-full max-w-md rounded-2xl shadow-2xl flex flex-col overflow-hidden" style="max-height: 100%; background: rgba(15, 23, 42, 0.9);">
 
+            <!-- v5.7: Mini Weather -->
+            <div id="weather-strip" class="grid grid-cols-4 gap-1 px-3 py-3 border-b border-slate-700/60 shrink-0 text-center">
+                <div>
+                    <div id="wx-icon" class="flex justify-center text-amber-300"></div>
+                    <div id="wx-weather" class="text-xs font-semibold text-slate-100 mt-1">-</div>
+                    <div class="text-[10px] text-slate-400">Cuaca</div>
+                </div>
+                <div>
+                    <div class="flex justify-center text-rose-300"><i data-lucide="thermometer" class="w-5 h-5"></i></div>
+                    <div id="wx-temp" class="text-xs font-semibold text-slate-100 mt-1">-</div>
+                    <div class="text-[10px] text-slate-400">Suhu</div>
+                </div>
+                <div>
+                    <div class="flex justify-center text-sky-300"><i data-lucide="droplets" class="w-5 h-5"></i></div>
+                    <div id="wx-hum" class="text-xs font-semibold text-slate-100 mt-1">-</div>
+                    <div class="text-[10px] text-slate-400">Kelembapan</div>
+                </div>
+                <div>
+                    <div class="flex justify-center text-slate-300"><i data-lucide="cloud-fog" class="w-5 h-5"></i></div>
+                    <div id="wx-fog" class="text-xs font-semibold text-slate-100 mt-1">-</div>
+                    <div class="text-[10px] text-slate-400">Kabut</div>
+                </div>
+            </div>
+
             <!-- Tabs -->
             <div class="flex border-b border-slate-700/60 shrink-0">
                 <button id="tab-welcome" class="tab-btn active flex-1 py-3 text-sm font-semibold border-b-2 border-transparent transition">
@@ -2508,6 +2532,7 @@
                     timeDot.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
                 }
 
+                renderWeather(); // v5.7
                 lucide.createIcons();
             }
 
@@ -2641,6 +2666,31 @@
                 clearTimeout(toastTimer);
                 toastTimer = setTimeout(() => soonToast.classList.remove('show'), 1800);
             });
+
+            // --- v5.7: Mini Weather (nilai diacak sekali per reload, dekat dengan saran) ---
+            const WEATHER_BASE = [
+                { label: 'Misty', icon: 'cloud-fog', temp: 21, hum: 92, fog: 40, jt: 2, jh: 4, jf: 10 }, // Pagi
+                { label: 'Sunny', icon: 'sun',       temp: 30, hum: 58, fog: 0,  jt: 2, jh: 6, jf: 0  }, // Siang
+                { label: 'Warm',  icon: 'sunset',    temp: 25, hum: 74, fog: 0,  jt: 2, jh: 5, jf: 0  }, // Sore
+                { label: 'Clear', icon: 'moon',      temp: 20, hum: 90, fog: 4,  jt: 2, jh: 4, jf: 3  }  // Malam
+            ];
+            const jitter = (v, r) => Math.round(v + (Math.random() * 2 - 1) * r);
+            const WEATHER = WEATHER_BASE.map(w => ({
+                label: w.label,
+                icon: w.icon,
+                temp: jitter(w.temp, w.jt),
+                hum: Math.min(100, jitter(w.hum, w.jh)),
+                fog: Math.max(0, Math.min(100, jitter(w.fog, w.jf)))
+            }));
+
+            function renderWeather() {
+                const w = WEATHER[currentLightIdx];
+                document.getElementById('wx-icon').innerHTML = `<i data-lucide="${w.icon}" class="w-5 h-5"></i>`;
+                document.getElementById('wx-weather').textContent = w.label;
+                document.getElementById('wx-temp').textContent = `${w.temp}°C`;
+                document.getElementById('wx-hum').textContent = `${w.hum}%`;
+                document.getElementById('wx-fog').textContent = `${w.fog}%`;
+            }
 
             // Init UI
             updateUIForLighting();
