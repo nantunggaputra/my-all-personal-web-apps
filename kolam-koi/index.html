@@ -190,7 +190,7 @@
         <div class="absolute -top-11 inset-x-0 flex justify-center pointer-events-none">
             <div id="soon-toast-main" class="glass-panel py-1.5 px-3 rounded-full text-xs text-slate-300 flex items-center gap-1.5 whitespace-nowrap shadow-inner">
                 <i data-lucide="clock" class="w-3.5 h-3.5 text-orange-400"></i>
-                <span>Segera Hadir</span>
+                <span id="soon-toast-main-text">Segera Hadir</span>
             </div>
         </div>
 
@@ -1450,6 +1450,13 @@
                 { log: '#6b4526', dark: '#3f2812', end: '#b98a5a', twig: '#5a3a1e' }, // sore
                 { log: '#2e2118', dark: '#1a110b', end: '#55402d', twig: '#2a1d13' }  // malam
             ];
+            // v6.0: status api unggun (dipisah dari campfire supaya tidak reset saat resize)
+            const FIRE_WORK_MS = 1000;   // Bolang berhenti sebelum api berubah
+            const FIRE_CHAR_MS = 3000;   // lama bekas gosong setelah api padam
+            const FIRE_CHAR_FADE = 1000; // memudar kembali ke kayu normal
+            const fire = { on: false, flame: 0, char: 0, charPending: false, charAt: 0 };
+            let embers = [];
+            let fireTask = null;         // tugas menunggu Bolang muncul: 'light' | 'extinguish'
             let campfire = null;
 
             function generateCampfire() {
@@ -1490,12 +1497,23 @@
                 }
 
                 campfire = { x, y, logs, twigs };
+                embers.length = 0; // v6.0
             }
             generateCampfire();
 
             function drawCampfire(mode) {
                 if (!campfire) return;
-                const c = WOOD_COLORS[currentLightIdx];
+                const base = WOOD_COLORS[currentLightIdx];
+                const ch = fire.char, heat = fire.flame * 0.45;
+                const hx2 = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+                const mx = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+                const tint = (col, burn, charC, k = 1) => `rgb(${mx(mx(hx2(col), hx2(burn), heat), hx2(charC), ch * k).map(Math.round).join(',')})`;
+                const c = { // v6.0: kayu memerah saat terbakar, menghitam (gosong) setelah padam
+                    log: tint(base.log, '#9a3412', '#0d0b0a', 0.92),
+                    dark: tint(base.dark, '#431407', '#000000'),
+                    end: tint(base.end, '#fb923c', '#1c1917'),
+                    twig: tint(base.twig, '#9a3412', '#0a0807', 0.95)
+                };
 
                 ctx.save();
                 ctx.translate(campfire.x, campfire.y);
@@ -1522,6 +1540,12 @@
                 ctx.restore();
 
                 // Balok kayu
+                if (ch > 0.02) { // v6.0: bekas gosong / abu di tanah
+                    ctx.fillStyle = `rgba(12, 10, 9, ${0.6 * ch})`;
+                    ctx.beginPath(); ctx.ellipse(0, 1, 23, 20, 0.4, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = `rgba(87, 83, 78, ${0.3 * ch})`;
+                    ctx.beginPath(); ctx.ellipse(-4, -2, 12, 9, -0.3, 0, Math.PI * 2); ctx.fill();
+                }
                 campfire.logs.forEach(l => {
                     ctx.save();
                     ctx.rotate(l.ang);
@@ -1578,6 +1602,101 @@
                 });
 
                 ctx.restore();
+            }
+
+            // --- v6.0: Api unggun menyala / padam (dipicu bocah Bolang) ---
+            function triggerFire(task) {
+                if (task === 'light') { fire.on = true; fire.charPending = false; fire.charAt = 0; }
+                else { fire.on = false; fire.charPending = true; fire.charAt = 0; }
+                syncFireLabel();
+            }
+
+            function updateFire() {
+                const now = Date.now();
+                fire.flame += ((fire.on ? 1 : 0) - fire.flame) * 0.03;
+                if (fire.on) {
+                    fire.char = Math.max(0, fire.char - 0.03);
+                } else if (fire.charPending) {
+                    if (fire.flame < 0.03) { fire.flame = 0; fire.charPending = false; fire.char = 1; fire.charAt = now; }
+                    else fire.char = Math.max(fire.char, 1 - fire.flame); // menghitam seiring api mengecil
+                } else if (fire.char > 0 && fire.charAt) {
+                    const e = now - fire.charAt;
+                    if (e > FIRE_CHAR_MS) fire.char = Math.max(0, 1 - (e - FIRE_CHAR_MS) / FIRE_CHAR_FADE);
+                    if (fire.char === 0) fire.charAt = 0;
+                }
+            }
+
+            function drawFire(mode, time) {
+                if (!campfire) return;
+                const f = fire.flame, cx = campfire.x, cy = campfire.y;
+
+                // Bara: terbang menyebar dari api, memudar di radius tertentu
+                if (f > 0.25 && embers.length < 90 && Math.random() < 0.55 * f) {
+                    embers.push({
+                        x0: cx + (Math.random() - 0.5) * 10, y0: cy + (Math.random() - 0.5) * 10,
+                        a: Math.random() * Math.PI * 2, dist: 0,
+                        max: 45 + Math.random() * 85,          // radius hilang
+                        speed: 0.25 + Math.random() * 0.5,
+                        size: 0.7 + Math.random() * 1.3,
+                        wob: Math.random() * 6.28, tw: Math.random() * 6.28
+                    });
+                }
+                if (f < 0.01 && !embers.length) return;
+
+                const flick = 0.9 + 0.07 * Math.sin(time * 11) + 0.04 * Math.sin(time * 23 + 1);
+                ctx.save();
+                ctx.globalCompositeOperation = 'lighter';
+
+                // Cahaya hangat di sekitar api (lebih kuat saat malam)
+                if (f > 0.01) {
+                    const a = (mode.isNight ? 0.55 : currentLightIdx === 2 ? 0.32 : 0.16) * f * flick;
+                    const R = (mode.isNight ? 150 : 115) * (0.55 + 0.45 * f) * flick;
+                    const g = ctx.createRadialGradient(cx, cy, 2, cx, cy, R);
+                    g.addColorStop(0, `rgba(253, 186, 116, ${a})`);
+                    g.addColorStop(0.4, `rgba(249, 115, 22, ${a * 0.45})`);
+                    g.addColorStop(1, 'rgba(249, 115, 22, 0)');
+                    ctx.fillStyle = g;
+                    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fill();
+                }
+
+                for (let i = embers.length - 1; i >= 0; i--) {
+                    const e = embers[i];
+                    e.dist += e.speed; e.wob += 0.12; e.tw += 0.3;
+                    if (e.dist >= e.max) { embers.splice(i, 1); continue; }
+                    const t = e.dist / e.max;
+                    const sway = Math.sin(e.wob) * 3;
+                    const x = e.x0 + Math.cos(e.a) * e.dist - Math.sin(e.a) * sway;
+                    const y = e.y0 + Math.sin(e.a) * e.dist + Math.cos(e.a) * sway;
+                    const al = Math.pow(1 - t, 1.4) * (0.65 + 0.35 * Math.sin(e.tw));
+                    ctx.fillStyle = `rgba(${t < 0.45 ? '253, 186, 74' : '239, 90, 30'}, ${0.22 * al})`;
+                    ctx.beginPath(); ctx.arc(x, y, e.size * 3, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = `rgba(254, 215, 130, ${0.95 * al})`;
+                    ctx.beginPath(); ctx.arc(x, y, e.size, 0, Math.PI * 2); ctx.fill();
+                }
+                ctx.restore();
+
+                // Lidah api (tampak atas: gumpalan berlapis merah -> oranye -> kuning -> inti terang)
+                if (f > 0.02) {
+                    const s = f * flick;
+                    ctx.save();
+                    const halo = ctx.createRadialGradient(cx, cy, 0, cx, cy, 24 * s);
+                    halo.addColorStop(0, 'rgba(251, 146, 60, 0.6)');
+                    halo.addColorStop(1, 'rgba(251, 146, 60, 0)');
+                    ctx.fillStyle = halo;
+                    ctx.beginPath(); ctx.arc(cx, cy, 24 * s, 0, Math.PI * 2); ctx.fill();
+                    for (let i = 0; i < 7; i++) {
+                        const a = (i / 7) * Math.PI * 2 + time * 0.8;
+                        const len = (8 + 4 * Math.sin(time * 6 + i * 1.9)) * s;
+                        const r = (5.5 + 1.6 * Math.sin(time * 7 + i * 2.3)) * s;
+                        ctx.fillStyle = i % 2 ? 'rgba(239, 68, 68, 0.85)' : 'rgba(249, 115, 22, 0.88)';
+                        ctx.beginPath(); ctx.arc(cx + Math.cos(a) * len * 0.75, cy + Math.sin(a) * len * 0.75, r, 0, Math.PI * 2); ctx.fill();
+                    }
+                    ctx.fillStyle = 'rgba(251, 191, 36, 0.95)';
+                    ctx.beginPath(); ctx.arc(cx, cy, 7 * s * (0.92 + 0.08 * Math.sin(time * 9)), 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = 'rgba(254, 243, 199, 0.95)';
+                    ctx.beginPath(); ctx.arc(cx, cy, 3.6 * s, 0, Math.PI * 2); ctx.fill();
+                    ctx.restore();
+                }
             }
 
             function updateSprinklers() {
@@ -2209,7 +2328,7 @@
 
             // --- v5.8: Bocah Bolang (hanya Sore: berkeliling santai; begitu malam langsung berlari keluar scene) ---
             const KID_EDGE = 62; // jarak minimal ke tepi air (di luar lingkar batu)
-            const KID_SCALE = 2.2;
+            const KID_SCALE = 1.8;
             let kid = null;
             let kidDelay = 0;
 
@@ -2271,6 +2390,17 @@
                     this.dead = false;
                 }
 
+                // v6.0: tugas api unggun. route = titik-titik yang dilewati, spot = tempat berdiri di samping tumpukan kayu
+                setTask(task, plan) {
+                    this.task = task;
+                    this.route = plan.route.slice();
+                    this.runFrom = plan.runFrom;
+                    this.target = this.route.shift();
+                    this.state = 'walk';
+                    this.timer = 0;
+                    this.look = 0;
+                }
+
                 pickNext() {
                     const to = pickKidSpot(this.x, this.y);
                     this.timer = 0;
@@ -2280,6 +2410,13 @@
 
                 // Malam tiba: lari lurus menjauhi kolam sampai keluar layar (dari titik luar kolam, garis radial tidak pernah menembus air)
                 startRun() {
+                    if (this.runFrom) { // v6.0: selesai urusan api -> lari menjauhi tumpukan kayu
+                        const a2 = Math.atan2(this.y - this.runFrom.y, this.x - this.runFrom.x);
+                        const L2 = Math.max(width, height) * 2;
+                        this.target = { x: this.x + Math.cos(a2) * L2, y: this.y + Math.sin(a2) * L2 };
+                        this.state = 'run'; this.timer = 0; this.task = null; this.route = []; this.runFrom = null;
+                        return;
+                    }
                     const a = Math.atan2(this.y - pondCenter.y, this.x - pondCenter.x);
                     const L = Math.max(width, height) * 2;
                     this.target = { x: this.x + Math.cos(a) * L, y: this.y + Math.sin(a) * L };
@@ -2290,6 +2427,14 @@
                 update(stay) {
                     if (!stay && this.state !== 'run') this.startRun();
                     const run = this.state === 'run';
+
+                    if (this.state === 'work') { // v6.0: berhenti 1 detik di depan kayu, lalu api berubah & lari
+                        this.stride += (0 - this.stride) * 0.2;
+                        this.look = 0;
+                        this.angle += normalizeAngle(this.faceGoal - this.angle) * 0.1;
+                        if (Date.now() - this.workT0 >= FIRE_WORK_MS) { triggerFire(this.task); this.startRun(); }
+                        return;
+                    }
 
                     if (this.state === 'idle') {
                         this.stride += (0 - this.stride) * 0.2;
@@ -2302,6 +2447,13 @@
                     this.look *= 0.9;
                     const dx = this.target.x - this.x, dy = this.target.y - this.y;
                     if (!run && Math.hypot(dx, dy) < 4) {
+                        if (this.route && this.route.length) { this.target = this.route.shift(); return; }
+                        if (this.task) {
+                            this.state = 'work';
+                            this.workT0 = Date.now();
+                            this.faceGoal = Math.atan2(campfire.y - this.y, campfire.x - this.x);
+                            return;
+                        }
                         this.state = 'idle';
                         this.timer = 0;
                         this.idleTime = 90 + Math.random() * 170;
@@ -2314,7 +2466,7 @@
                     const v = (run ? 3.4 : this.speed) * Math.max(0, Math.cos(diff)); // putar dulu kalau masih membelakangi tujuan
                     const nx = this.x + Math.cos(this.angle) * v;
                     const ny = this.y + Math.sin(this.angle) * v;
-                    if (isInsidePond(nx, ny)) { if (!run) this.pickNext(); } // jangan nyemplung
+                    if (isInsidePond(nx, ny)) { if (!run && !this.task) this.pickNext(); } // jangan nyemplung
                     else { this.x = nx; this.y = ny; }
 
                     const moving = v > 0.05 ? 1 : 0;
@@ -2473,6 +2625,71 @@
                     if (to) return new Kid({ x, y }, to);
                 }
                 return null;
+            }
+
+            // v6.0: jalur Bolang ke tumpukan kayu. Berdiri di sisi samping (bukan sisi kolam), jadi lari menjauh tidak menembus kayu/air.
+            function segClearOfFire(a, b) {
+                const n = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / 8));
+                for (let i = 0; i <= n; i++) {
+                    if (Math.hypot(a.x + (b.x - a.x) * i / n - campfire.x, a.y + (b.y - a.y) * i / n - campfire.y) < 30) return false;
+                }
+                return true;
+            }
+
+            function planFireRoute(sx, sy) {
+                if (!campfire) return null;
+                const a0 = Math.atan2(campfire.y - pondCenter.y, campfire.x - pondCenter.x); // arah keluar kolam
+                const thetaS = Math.atan2(sy - pondCenter.y, sx - pondCenter.x);
+                const pref = normalizeAngle(thetaS - a0) >= 0 ? 1 : -1;
+                const L = Math.max(width, height) * 1.5, m = 14;
+                let spot = null, side = pref;
+                for (const sd of [pref, -pref, 0]) {
+                    const ang = a0 + sd * Math.PI / 2;
+                    const sp = { x: campfire.x + Math.cos(ang) * 38, y: campfire.y + Math.sin(ang) * 38 };
+                    const onScreen = sp.x > m && sp.x < width - m && sp.y > m && sp.y < height - m;
+                    const runOK = pathClear([sp, { x: sp.x + Math.cos(ang) * L, y: sp.y + Math.sin(ang) * L }]);
+                    spot = sp;
+                    if (sd !== 0) side = sd;
+                    if (sd === 0 || (onScreen && !isInsidePond(sp.x, sp.y) && runOK)) break;
+                }
+                const start = { x: sx, y: sy };
+                const route = [];
+                if (!(pathClear([start, spot]) && segClearOfFire(start, spot))) {
+                    // Jalur lurus terhalang air/kayu -> memutar lewat sisi luar kolam
+                    const delta = normalizeAngle(a0 + side * 0.22 - thetaS);
+                    const n = Math.max(1, Math.ceil(Math.abs(delta) / 0.25));
+                    for (let i = 0; i <= n; i++) route.push(waterPointAt(thetaS + delta * i / n, -(KID_EDGE + 8)));
+                }
+                route.push(spot);
+                return { route, spot, runFrom: { x: campfire.x, y: campfire.y } };
+            }
+
+            function trySpawnFireKid(task) {
+                const m = 40;
+                let best = null;
+                for (let t = 0; t < 30; t++) {
+                    const side = Math.floor(Math.random() * 4);
+                    let x, y;
+                    if (side === 0) { x = -m; y = Math.random() * height; }
+                    else if (side === 1) { x = width + m; y = Math.random() * height; }
+                    else if (side === 2) { x = Math.random() * width; y = -m; }
+                    else { x = Math.random() * width; y = height + m; }
+                    const plan = planFireRoute(x, y);
+                    if (!plan) return null;
+                    if (plan.route.length === 1) { best = { x, y, plan }; break; } // jalur lurus dulu
+                    if (!best) best = { x, y, plan };
+                }
+                if (!best) return null;
+                const k = new Kid({ x: best.x, y: best.y }, best.plan.route[0]);
+                k.setTask(task, best.plan);
+                return k;
+            }
+
+            function assignFireTask(task) { // Bolang sedang berkeliling (Sore) -> alihkan ke tumpukan kayu
+                const plan = planFireRoute(kid.x, kid.y);
+                if (!plan) return false;
+                kid.setTask(task, plan);
+                return true;
             }
 
             function resetKid() { // dipanggil saat resize: geometri berubah -> spawn ulang kalau masih Sore
@@ -2737,6 +2954,8 @@
                 // v4.9: urutan layer (bawah -> atas):
                 // bunga -> kumbang -> kucing -> bocah Bolang -> kunang-kunang -> POHON -> sinar sore -> kabut -> bayangan walet
                 // v4.6: kumbang merah pagi hari
+                updateFire(); // v6.0: api unggun (di atas batu & air, di bawah kumbang/kucing/Bolang)
+                drawFire(mode, Date.now() * 0.001);
                 updateBeetle();
 
                 // 10. v3.9: Kucing hitam malam hari (sekali per reload; minum di tepi kolam lalu pergi)
@@ -2753,13 +2972,14 @@
 
                 // 10b. v5.8: Bocah Bolang (Sore saja; di bawah pohon & kunang-kunang)
                 const kidStay = currentLightIdx === 2;
+                if (!kid && fireTask) { kid = trySpawnFireKid(fireTask); if (kid) fireTask = null; } // v6.0
                 if (!kid && kidStay) {
                     if (++kidDelay > 90) { kid = trySpawnKid(); kidDelay = 0; }
                 } else if (!kidStay) {
                     kidDelay = 0;
                 }
                 if (kid) {
-                    kid.update(kidStay);
+                    kid.update(kidStay || !!kid.task);
                     if (kid.dead) kid = null;
                     else kid.draw(mode);
                 }
@@ -2842,9 +3062,11 @@
             const drainBtn = document.getElementById('drainBtn');
             const fireBtn = document.getElementById('fireBtn');
             const fireLabel = document.getElementById('fireLabel');
+            function syncFireLabel() { fireLabel.textContent = fire.on ? 'Matikan Api Unggun' : 'Nyalakan Api Unggun'; }
             const soonToastMain = document.getElementById('soon-toast-main');
+            const soonTextMain = document.getElementById('soon-toast-main-text');
             const SLIDE_COUNT = 6;
-            let slideIdx = 0, swipeStartX = null, swiped = false, plecoCaught = false, fireOn = false, toastMainTimer = null;
+            let slideIdx = 0, swipeStartX = null, swiped = false, plecoCaught = false, toastMainTimer = null;
 
             function goSlide(i) {
                 slideIdx = (i + SLIDE_COUNT) % SLIDE_COUNT;
@@ -2864,7 +3086,8 @@
                 if (swiped) { e.stopPropagation(); e.preventDefault(); swiped = false; }
             }, true);
 
-            function showSoonMain() {
+            function showSoonMain(msg) {
+                soonTextMain.textContent = typeof msg === 'string' ? msg : 'Segera Hadir'; // v6.0
                 soonToastMain.classList.add('show');
                 clearTimeout(toastMainTimer);
                 toastMainTimer = setTimeout(() => soonToastMain.classList.remove('show'), 1800);
@@ -2881,9 +3104,11 @@
             catBtn.addEventListener('click', showSoonMain);
             drainBtn.addEventListener('click', showSoonMain);
             fireBtn.addEventListener('click', () => {
-                fireOn = !fireOn;
-                fireLabel.textContent = fireOn ? 'Matikan Api Unggun' : 'Nyalakan Api Unggun';
-                showSoonMain();
+                // v6.0: Bolang masih bertugas / lari di layar -> tombol tidak berfungsi
+                if (fireTask || (kid && (kid.task || kid.state === 'run'))) { showSoonMain('Harap Tunggu'); return; }
+                const task = fire.on ? 'extinguish' : 'light';
+                if (kid) { if (!assignFireTask(task)) showSoonMain('Harap Tunggu'); }
+                else fireTask = task;
             });
 
             // Tap / Click on Canvas to Feed at Specific Spot

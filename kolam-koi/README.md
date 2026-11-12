@@ -2,7 +2,7 @@
 
 Aplikasi simulasi kolam ikan koi interaktif berbasis web dengan tampilan tampak atas (*top-down view*), UI *glassmorphism* yang bersih, serta lingkungan alami yang berubah mengikuti waktu. Latar ceritanya adalah kolam milik Kakek di sebuah pedesaan di Kabupaten Kebumen.
 
-Versi saat ini: v5.7 (mengikuti penanda versi pada komentar kode).
+Versi saat ini: v6.0 (mengikuti penanda versi pada komentar kode).
 
 ---
 
@@ -24,7 +24,20 @@ Versi saat ini: v5.7 (mengikuti penanda versi pada komentar kode).
 - **Batu tepi kolam:** Disusun mengelilingi kolam, lengkap dengan bayangan yang arah dan ukurannya mengikuti waktu.
 - **Bunga kecil:** Tiga jenis bunga (merah muda berkelompok 3, kuning tunggal, dan biru kecil berkelompok banyak) yang mekar di pagi hari lalu menguncup dan memudar saat siang.
 - **Pohon apel:** Pucuk pohon di pojok kiri atas, tampak menutupi hewan-hewan (kumbang, kucing, kunang-kunang) dan bunga, berada di bawah kabut dan bayangan walet.
-- **Tumpukan kayu api unggun:** Balok kayu dan ranting kecil yang masih utuh, tersusun di tenggara kolam (arah jam 4). Ranting berkumpul rapat di tengah tumpukan. Belum menyala.
+- **Api unggun:** Tumpukan balok kayu dan ranting kecil di tenggara kolam (arah jam 4), dengan ranting berkumpul rapat di tengah tumpukan. Awalnya belum menyala. Api dinyalakan dan dimatikan oleh Bocah Bolang lewat tombol slider (lihat bagian Api Unggun di bawah).
+- **Bocah Bolang:** Muncul berkeliling di sore hari, dan juga datang dari tepi layar kapan saja saat diminta menyalakan atau mematikan api unggun. Ia berkeliling santai di sekitar kolam, bisa berteduh di bawah pohon apel, berjalan di tepi kolam, atau melintas di rerumputan. Penampilannya tampak atas dengan topi merah terbalik, singlet putih, dan ransel hitam. Begitu malam tiba, ia langsung berlari pergi.
+
+### Api Unggun (Baru di v6.0)
+
+Tombol api unggun di slider bawah berganti label antara "Nyalakan Api Unggun" dan "Matikan Api Unggun", dan seluruh pekerjaannya dilakukan oleh Bocah Bolang:
+
+- **Menyalakan:** Bolang berjalan ke tumpukan kayu (dengan gaya jalan yang sama seperti biasa), berhenti 1 detik, lalu api mulai menyala dan ia berlari pergi.
+- **Mematikan:** Bolang berjalan ke tumpukan kayu, berhenti 1 detik, lalu api mulai padam dan ia berlari pergi. Setelah api benar-benar padam, kayu meninggalkan bekas gosong selama 3 detik, lalu memudar kembali ke warna kayu normal.
+- **Efek api:** Lidah api tampak atas berlapis merah, oranye, kuning, dan inti terang yang berkedip. Cahaya hangat menerangi sekitar api (paling kuat saat malam), dan kayu tampak memerah saat terbakar.
+- **Bara api:** Bara berterbangan ke segala arah dari api lalu memudar dan hilang pada radius tertentu.
+- **Tombol terkunci:** Jika tombol diklik saat Bolang masih bertugas atau masih berlari di layar, tombol tidak berfungsi dan muncul pop up "Harap Tunggu" (gaya yang sama dengan "Segera Hadir").
+- **Di luar sore hari:** Bolang muncul dari tepi layar hanya untuk tugas ini, lalu berlari pergi dan tidak kembali sampai sore. Jika diklik saat ia sedang berkeliling di sore hari, ia langsung dialihkan ke tumpukan kayu.
+- **Lintasan:** Bolang berdiri di sisi samping tumpukan kayu (bukan sisi kolam). Jika jalur lurus terhalang kolam, ia memutar lewat sisi luar kolam.
 
 ### Siklus Waktu
 
@@ -34,13 +47,16 @@ Aplikasi memiliki empat suasana waktu. Mode awal ditentukan dari jam perangkat (
 |-------|----------------------|
 | Pagi | Kabut tipis di atas kolam dan rumput, bunga mekar, dan seekor kumbang merah mungil dengan tiga bintik hitam hinggap berpindah dari bunga ke bunga. |
 | Siang | Pencahayaan terang. Bayangan burung walet melintas pelan di atas rumput dan air (maksimal 3 sekaligus). Bunga menguncup. Sprinkle aktif menyemprotkan air. |
-| Sore | Cahaya jingga hangat dari arah barat (kiri layar) yang berdenyut halus di atas air dan rumput. |
+| Sore | Cahaya jingga hangat dari arah barat (kiri layar) yang berdenyut halus di atas air dan rumput. Seorang bocah Bolang bertopi merah terbalik berkeliling santai, lalu berlari pergi saat malam tiba. |
 | Malam | Suasana gelap dengan empat lampu bawah air di tepi kolam, kunang-kunang yang berkedip pelan, ikan yang berenang lebih tenang, dan kura-kura yang beristirahat. Seekor kucing hitam muncul sekali setiap kali halaman dimuat, minum di tepi kolam, lalu pergi. Jika waktu berganti ke siang saat kucing masih ada, kucing langsung pulang. |
+
+Api unggun bisa menyala di waktu apa pun. Cahayanya paling terasa saat malam dan sore.
 
 ### Interaksi dan UI
 
 - **Beri makan lewat tombol:** Tombol "Beri Makan Koi" menebar pelet di sekitar tengah kolam.
 - **Beri makan lewat klik atau tap:** Klik atau tap di area air untuk menjatuhkan pelet di lokasi tersebut. Klik di luar kolam diabaikan.
+- **Slider 6 tombol:** Tombol bawah bisa digeser ke kiri untuk berganti aktivitas: Beri Makan Koi, Pindahkan Kura-Kura, Tangkap Sapu-Sapu, Panggil Kucing Hitam, Kuras Air Kolam, dan Nyalakan/Matikan Api Unggun. Selain Beri Makan Koi dan Api Unggun, tombol lainnya masih menampilkan "Segera Hadir".
 - **Ubah waktu:** Tombol di header berpindah berurutan: Pagi, Siang, Sore, Malam.
 - **Mini Weather:** Di bagian paling atas pop up (di atas tab) ada strip 4 ikon berjejer: Cuaca, Suhu, Kelembapan, dan Kabut, masing-masing dengan keterangan singkat di bawahnya. Isinya berganti mengikuti waktu (Pagi, Siang, Sore, Malam). Angkanya diacak sedikit di sekitar nilai acuan setiap kali halaman dimuat, lalu tetap sama selama sesi, jadi ganti waktu manual tidak mengacak ulang.
 
@@ -80,9 +96,10 @@ Catatan: Tailwind, Lucide, dan font dimuat lewat CDN, jadi dibutuhkan koneksi in
 
 1. **Beri makan:** Tekan tombol "Beri Makan Koi" di bawah layar, atau klik/tap langsung di area kolam untuk menjatuhkan pelet.
 2. **Ganti waktu:** Tekan tombol waktu di header untuk berpindah suasana Pagi, Siang, Sore, dan Malam.
+3. **Nyalakan api unggun:** Geser tombol bawah ke kiri sampai "Nyalakan Api Unggun", lalu tekan. Tunggu Bolang berjalan ke tumpukan kayu dan menyalakan apinya. Tekan lagi ("Matikan Api Unggun") untuk memadamkannya. Selama Bolang masih bertugas atau berlari di layar, tombol akan menampilkan "Harap Tunggu".
 4. **Baca sambutan:** Tekan ikon gelombang di header untuk membuka Papan Sambutan. Musik ambient ikut mulai saat tombol ini pertama kali ditekan.
 5. **Cek cuaca:** Di pop up yang sama, lihat strip Mini Weather di bagian atas. Isinya ikut berubah saat kamu mengganti waktu.
-6. **Kejutan malam hari:** Pindah ke waktu malam dan tunggu beberapa saat untuk melihat kucing hitam datang minum di tepi kolam. Kucing hanya muncul sekali per pemuatan halaman, jadi muat ulang halaman untuk melihatnya lagi.
+6. **Kejutan malam hari:** Pindah ke waktu malam dan tunggu beberapa saat untuk melihat kucing hitam datang minum di tepi kolam. Kucing hanya muncul sekali per pemuatan halaman, jadi muat ulang halaman untuk melihatnya lagi. Nyalakan api unggun di malam hari untuk melihat cahaya dan bara apinya paling jelas.
 
 ---
 
@@ -91,12 +108,12 @@ Catatan: Tailwind, Lucide, dan font dimuat lewat CDN, jadi dibutuhkan koneksi in
 - [ ] **Peta Denah Kolam:** Mengaktifkan tab kedua pada pop up Papan Sambutan.
 - [ ] **Variasi jenis ikan dan toko ikan:** Opsi menambah spesies baru (Ikan Mas Koki, Black Tele, Koi Tancho).
 - [ ] **Dekorasi kolam kustom:** Menempatkan bunga teratai, lentera batu, atau jembatan kayu kecil.
-- [ ] **Audio dan SFX:** Musik latar ambient serta suara gemericik air saat memberi makan.
+- [ ] **Audio dan SFX:** Musik latar ambient serta suara gemericik air saat memberi makan. (Musik latar sudah ada, SFX belum.)
 - [ ] **Pindahkan kura-kura:** Memindahkan kura-kura hijau ke luar atau ke dalam kolam (saat ini tombol masih Segera Hadir).
 - [ ] **Tangkap sapu-sapu:** Menangkap dan melepaskan ikan sapu-sapu (saat ini tombol masih Segera Hadir).
 - [ ] **Panggil kucing hitam:** Memanggil kucing hitam kapan saja / bisa di luar waktu malam (saat ini tombol masih Segera Hadir).
 - [ ] **Kuras air kolam:** Menguras air kolam yang keruh saat tidak ada ikan sapu-sapu (saat ini tombol masih Segera Hadir).
-- [ ] **Api unggun:** Membakar dan menyiram tumpukan kayu untuk menyalakan atau mematikan api unggun (saat ini tombol masih Segera Hadir).
+- [x] **Api unggun:** Bocah Bolang menyalakan dan mematikan api unggun, lengkap dengan efek api, bara, dan bekas gosong (v6.0).
 - [ ] **Sistem level dan kebutuhan ikan:** Tingkat kenyang, pertumbuhan ukuran ikan, dan pengumpulan poin koi.
 
 ---
