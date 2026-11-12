@@ -292,7 +292,7 @@
                 <p>Halo kawan lama, selamat datang kembali di Kolam Koi milik Kakek-ku ini. Di sinilah, di sudut tenang di sebuah pedesaan Kabupaten Kebumen, waktu seolah berjalan lebih pelan dari biasanya.</p>
                 <p>Kalau kamu datang di <span class="text-amber-300 font-semibold">pagi hari</span>, kabut tipis masih menyelimuti air dan embun menggantung di rerumputan. Bunga-bunga kecil baru mekar, dan seekor kumbang merah mungil hinggap dari kelopak ke kelopak, seperti sedang menyapa satu per satu.</p>
                 <p>Saat <span class="text-yellow-200 font-semibold">siang</span> tiba, matahari tepat di atas kepala. Bayangan burung walet melintas pelan di atas air dan rumput, sementara bunga-bunga menguncup, beristirahat dari terik. Tiga sprinkler Kakek menyemprotkan percikan-percikan air, menjaga rumput tetap segar sampai sore menjemput.</p>
-                <p>Lalu <span class="text-orange-300 font-semibold">sore</span> datang membawa cahaya jingga dari barat. Air kolam berkilau hangat, dan para koi berenang malas seolah ikut menikmati senja yang sama denganmu.</p>
+                <p>Lalu <span class="text-orange-300 font-semibold">sore</span> datang membawa cahaya jingga dari barat. Air kolam berkilau hangat, dan para koi berenang malas seolah ikut menikmati senja yang sama denganmu. Kalau beruntung, kamu akan melihat seorang bocah Bolang bertopi merah terbalik berkeliling santai, sampai gelap memanggilnya pulang.</p>
                 <p>Ketika <span class="text-indigo-300 font-semibold">malam</span> turun, kunang-kunang menari pelan di antara rerumputan. Lampu-lampu remang-remang kecil menyala di tepi kolam, ikan-ikan berenang lebih tenang, dan kalau kamu sabar menunggu, seekor kucing hitam mungkin akan datang mampir untuk minum, lalu pergi lagi tanpa suara.</p>
                 <p>Duduklah sebentar. Beri makan para koi, dengarkan hening yang ramah, dan biarkan penatmu larut bersama riak air. Kolam ini selalu menunggumu pulang.</p>
                 <p class="pt-2 text-orange-300 font-semibold italic">Salam Hangat dari Kawan-mu, Nan</p>
@@ -330,6 +330,7 @@
                 generateGrassTexture();    // v3.5
                 generateFireflies();       // v3.7
                 resetCat();                // v3.9
+                resetKid();                // v5.8
                 generatePlecos();          // v4.0
                 generateTurtle();          // v5.0
                 generateFlowers();         // v4.2
@@ -2206,6 +2207,276 @@
                 if (cat) { cat = null; catPending = true; catDelay = 0; }
             }
 
+            // --- v5.8: Bocah Bolang (hanya Sore: berkeliling santai; begitu malam langsung berlari keluar scene) ---
+            const KID_EDGE = 62; // jarak minimal ke tepi air (di luar lingkar batu)
+            let kid = null;
+            let kidDelay = 0;
+
+            function roundRectPath(x, y, w, h, r) {
+                ctx.beginPath();
+                ctx.moveTo(x + r, y);
+                ctx.arcTo(x + w, y, x + w, y + h, r);
+                ctx.arcTo(x + w, y + h, x, y + h, r);
+                ctx.arcTo(x, y + h, x, y, r);
+                ctx.arcTo(x, y, x + w, y, r);
+                ctx.closePath();
+            }
+
+            // Cari tujuan di daratan: bawah pohon / tepi kolam / rumput. Jalur tidak boleh lewat air atau tumpukan kayu.
+            function pickKidSpot(fx, fy) {
+                for (let t = 0; t < 40; t++) {
+                    const r = Math.random();
+                    let x, y;
+                    if (r < 0.22 && tree) {
+                        const l = tree.lobes[Math.floor(Math.random() * tree.lobes.length)];
+                        x = tree.x + l.x; y = tree.y + l.y;                      // di bawah kanopi pohon
+                    } else if (r < 0.55) {
+                        const p = waterPointAt(Math.random() * Math.PI * 2, -KID_EDGE); // tepi kolam (sisi luar)
+                        x = p.x; y = p.y;
+                    } else {
+                        x = 24 + Math.random() * (width - 48);
+                        y = 24 + Math.random() * (height - 48);
+                    }
+                    if (x < 16 || x > width - 16 || y < 16 || y > height - 16) continue;
+                    if (isInsidePond(x, y) || distToPondEdge(x, y) < KID_EDGE - 4) continue;
+                    if (Math.hypot(x - fx, y - fy) < 50) continue;
+                    if (!pathClear([{ x: fx, y: fy }, { x, y }])) continue;
+                    if (campfire) {
+                        let hit = false;
+                        const n = Math.ceil(Math.hypot(x - fx, y - fy) / 10);
+                        for (let i = 0; i <= n; i++) {
+                            if (Math.hypot(fx + (x - fx) * i / n - campfire.x, fy + (y - fy) * i / n - campfire.y) < 30) { hit = true; break; }
+                        }
+                        if (hit) continue;
+                    }
+                    return { x, y };
+                }
+                return null;
+            }
+
+            class Kid {
+                constructor(start, first) {
+                    this.x = start.x; this.y = start.y;
+                    this.target = first;
+                    this.angle = Math.atan2(first.y - start.y, first.x - start.x);
+                    this.faceGoal = this.angle;
+                    this.state = 'walk';   // walk | idle | run
+                    this.speed = 0.62;     // santai (kucing: 0.6)
+                    this.walk = Math.random() * 6;
+                    this.stride = 0;       // 0..1, amplitudo ayunan kaki & tangan
+                    this.timer = 0;
+                    this.idleTime = 0;
+                    this.look = 0;         // kepala menoleh saat diam
+                    this.dead = false;
+                }
+
+                pickNext() {
+                    const to = pickKidSpot(this.x, this.y);
+                    this.timer = 0;
+                    if (to) { this.target = to; this.state = 'walk'; }
+                    else { this.state = 'idle'; this.idleTime = 60; this.faceGoal = this.angle; }
+                }
+
+                // Malam tiba: lari lurus menjauhi kolam sampai keluar layar (dari titik luar kolam, garis radial tidak pernah menembus air)
+                startRun() {
+                    const a = Math.atan2(this.y - pondCenter.y, this.x - pondCenter.x);
+                    const L = Math.max(width, height) * 2;
+                    this.target = { x: this.x + Math.cos(a) * L, y: this.y + Math.sin(a) * L };
+                    this.state = 'run';
+                    this.timer = 0;
+                }
+
+                update(stay) {
+                    if (!stay && this.state !== 'run') this.startRun();
+                    const run = this.state === 'run';
+
+                    if (this.state === 'idle') {
+                        this.stride += (0 - this.stride) * 0.2;
+                        this.look = Math.sin(this.timer * 0.05) * 0.4;
+                        this.angle += normalizeAngle(this.faceGoal - this.angle) * 0.04;
+                        if (++this.timer > this.idleTime) { this.look = 0; this.pickNext(); }
+                        return;
+                    }
+
+                    this.look *= 0.9;
+                    const dx = this.target.x - this.x, dy = this.target.y - this.y;
+                    if (!run && Math.hypot(dx, dy) < 4) {
+                        this.state = 'idle';
+                        this.timer = 0;
+                        this.idleTime = 90 + Math.random() * 170;
+                        this.faceGoal = this.angle + (Math.random() - 0.5) * 2.4;
+                        return;
+                    }
+
+                    const diff = normalizeAngle(Math.atan2(dy, dx) - this.angle);
+                    this.angle += diff * (run ? 0.25 : 0.07);
+                    const v = (run ? 3.4 : this.speed) * Math.max(0, Math.cos(diff)); // putar dulu kalau masih membelakangi tujuan
+                    const nx = this.x + Math.cos(this.angle) * v;
+                    const ny = this.y + Math.sin(this.angle) * v;
+                    if (isInsidePond(nx, ny)) { if (!run) this.pickNext(); } // jangan nyemplung
+                    else { this.x = nx; this.y = ny; }
+
+                    const moving = v > 0.05 ? 1 : 0;
+                    this.stride += (moving - this.stride) * 0.2;
+                    this.walk += (run ? 0.34 : 0.16) * moving;
+
+                    if (run && (++this.timer > 600 || this.x < -40 || this.x > width + 40 || this.y < -40 || this.y > height + 40)) this.dead = true;
+                }
+
+                draw(mode) {
+                    const k = this.state === 'run' ? 1.3 : 1;   // lari: ayunan lebih lebar
+                    const sw = Math.sin(this.walk) * this.stride;
+                    const skin = '#e3b48c';                      // kulit tropis, tidak terlalu gelap
+                    const hair = '#1a120d';
+
+                    // Bayangan (offset mengikuti waktu, sama seperti batu)
+                    ctx.save();
+                    ctx.translate(this.x + mode.shadowOffset * 0.3, this.y + mode.shadowOffset * 0.4);
+                    ctx.rotate(this.angle);
+                    ctx.fillStyle = mode.isNight ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.24)';
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, 10, 8.5, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.rotate(this.angle); // menghadap +x
+
+                    // Kaki telanjang (hanya ujung depan/belakang yang menyembul dari badan)
+                    ctx.fillStyle = skin;
+                    [-1, 1].forEach(s => {
+                        ctx.beginPath();
+                        ctx.ellipse(s * sw * 4.2 * k, s * 2.9, 4.6, 2.1, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+
+                    // Lengan (sedikit menyembul dari lubang singlet), berayun berlawanan dengan kaki
+                    [-1, 1].forEach(s => {
+                        ctx.beginPath();
+                        ctx.ellipse(-s * sw * 3.4 * k + 0.5, s * 8.6, 3.4, 1.9, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+
+                    ctx.save();
+                    ctx.rotate(sw * 0.05); // badan sedikit oleng saat melangkah
+
+                    // Singlet putih
+                    ctx.fillStyle = '#f8fafc';
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, 5.4, 7.4, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(148, 163, 184, 0.55)';
+                    ctx.lineWidth = 0.8;
+                    ctx.stroke();
+
+                    // Tali ransel di bahu
+                    ctx.strokeStyle = '#1f2937';
+                    ctx.lineWidth = 1.5;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    [-1, 1].forEach(s => { ctx.moveTo(-2.5, s * 4.5); ctx.lineTo(3.3, s * 3.8); });
+                    ctx.stroke();
+
+                    // Tas ransel hitam (di punggung = sisi belakang)
+                    ctx.fillStyle = '#0a0a0f';
+                    roundRectPath(-8.6, -5.6, 9, 11.2, 2.6);
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(148, 163, 184, 0.25)';
+                    ctx.lineWidth = 0.8;
+                    ctx.stroke();
+                    ctx.fillStyle = '#1f2937';
+                    roundRectPath(-7.6, -4.2, 4.6, 8.4, 1.6);
+                    ctx.fill();
+
+                    // Kepala: telinga + rambut hitam
+                    ctx.save();
+                    ctx.rotate(this.look);
+                    ctx.fillStyle = skin;
+                    [-1, 1].forEach(s => {
+                        ctx.beginPath();
+                        ctx.ellipse(1.8, s * 4.8, 1.2, 1.5, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+                    ctx.fillStyle = hair;
+                    ctx.beginPath();
+                    ctx.arc(1.6, 0, 5, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Topi merah DIPAKAI TERBALIK: lidah topi mengarah ke belakang (menutupi ransel bagian atas)
+                    ctx.fillStyle = '#b91c1c';
+                    ctx.strokeStyle = '#7f1d1d';
+                    ctx.lineWidth = 0.7;
+                    ctx.beginPath();
+                    ctx.ellipse(-3.3, 0, 3.6, 4.6, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    // Mahkota topi
+                    ctx.fillStyle = '#dc2626';
+                    ctx.beginPath();
+                    ctx.arc(0.9, 0, 4.5, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(127, 29, 29, 0.45)';
+                    ctx.lineWidth = 0.6;
+                    ctx.beginPath();
+                    for (let i = 0; i < 6; i++) {
+                        const a = (i / 6) * Math.PI * 2;
+                        ctx.moveTo(0.9, 0);
+                        ctx.lineTo(0.9 + Math.cos(a) * 4.4, Math.sin(a) * 4.4);
+                    }
+                    ctx.stroke();
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.14)';
+                    ctx.beginPath();
+                    ctx.arc(0.2, -1.3, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#991b1b'; // kancing topi
+                    ctx.beginPath();
+                    ctx.arc(0.9, 0, 0.9, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Pengikat topi di sisi depan (karena terbalik) + helai poni yang menyumbul dari celahnya
+                    ctx.fillStyle = '#7f1d1d';
+                    roundRectPath(4.2, -3.3, 1.7, 2.1, 0.5); ctx.fill();
+                    roundRectPath(4.2, 1.2, 1.7, 2.1, 0.5); ctx.fill();
+                    ctx.fillStyle = hair;
+                    ctx.beginPath();
+                    ctx.ellipse(5.8, 0, 1.9, 1.3, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = hair;
+                    ctx.lineWidth = 0.9;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(5.4, 0.2); ctx.lineTo(7.9, -0.9);
+                    ctx.moveTo(5.4, -0.2); ctx.lineTo(7.8, 1.0);
+                    ctx.stroke();
+                    ctx.restore(); // kepala
+
+                    ctx.restore(); // sway badan
+                    ctx.restore();
+                }
+            }
+
+            function trySpawnKid() {
+                const m = 40; // titik muncul di luar layar
+                for (let t = 0; t < 40; t++) {
+                    const side = Math.floor(Math.random() * 4);
+                    let x, y;
+                    if (side === 0) { x = -m; y = Math.random() * height; }
+                    else if (side === 1) { x = width + m; y = Math.random() * height; }
+                    else if (side === 2) { x = Math.random() * width; y = -m; }
+                    else { x = Math.random() * width; y = height + m; }
+                    const to = pickKidSpot(x, y);
+                    if (to) return new Kid({ x, y }, to);
+                }
+                return null;
+            }
+
+            function resetKid() { // dipanggil saat resize: geometri berubah -> spawn ulang kalau masih Sore
+                kid = null;
+                kidDelay = 0;
+            }
+
             // Main Animation & Render Loop
             function animate() {
                 ctx.clearRect(0, 0, width, height);
@@ -2461,7 +2732,7 @@
                 ctx.restore(); // End Pond Clip
 
                 // v4.9: urutan layer (bawah -> atas):
-                // bunga -> kumbang -> kucing -> kunang-kunang -> POHON -> sinar sore -> kabut -> bayangan walet
+                // bunga -> kumbang -> kucing -> bocah Bolang -> kunang-kunang -> POHON -> sinar sore -> kabut -> bayangan walet
                 // v4.6: kumbang merah pagi hari
                 updateBeetle();
 
@@ -2475,6 +2746,19 @@
                     cat.update(mode.isNight);
                     if (cat.state === 'gone') cat = null;
                     else cat.draw(mode, fireflyGlow);
+                }
+
+                // 10b. v5.8: Bocah Bolang (Sore saja; di bawah pohon & kunang-kunang)
+                const kidStay = currentLightIdx === 2;
+                if (!kid && kidStay) {
+                    if (++kidDelay > 90) { kid = trySpawnKid(); kidDelay = 0; }
+                } else if (!kidStay) {
+                    kidDelay = 0;
+                }
+                if (kid) {
+                    kid.update(kidStay);
+                    if (kid.dead) kid = null;
+                    else kid.draw(mode);
                 }
 
                 // 11. v3.7: Kunang-kunang malam hari (di luar clip kolam, glow additive)
