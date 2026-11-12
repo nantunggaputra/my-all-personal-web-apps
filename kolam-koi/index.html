@@ -261,12 +261,12 @@
                     <div class="text-[10px] text-slate-400">Cuaca</div>
                 </div>
                 <div>
-                    <div class="flex justify-center text-rose-300"><i data-lucide="thermometer" class="w-5 h-5"></i></div>
+                    <div class="flex justify-center text-rose-500"><i data-lucide="thermometer" class="w-5 h-5"></i></div>
                     <div id="wx-temp" class="text-xs font-semibold text-slate-100 mt-1">-</div>
                     <div class="text-[10px] text-slate-400">Suhu</div>
                 </div>
                 <div>
-                    <div class="flex justify-center text-sky-300"><i data-lucide="droplets" class="w-5 h-5"></i></div>
+                    <div class="flex justify-center text-sky-400"><i data-lucide="droplets" class="w-5 h-5"></i></div>
                     <div id="wx-hum" class="text-xs font-semibold text-slate-100 mt-1">-</div>
                     <div class="text-[10px] text-slate-400">Kelembapan</div>
                 </div>
@@ -1467,7 +1467,7 @@
                 for (let i = 0; i < n; i++) {
                     logs.push({
                         ang: (i / n) * Math.PI * 2 + (Math.random() - 0.5) * 0.35,
-                        len: 18 + Math.random() * 4,   // v5.6: lebih pendek (sebelumnya 26-32)
+                        len: 14 + Math.random() * 4,   // v5.7: lebih pendek lagi
                         w: 5 + Math.random() * 1.2,    // v5.6: sedikit lebih kecil (sebelumnya 6-7.5)
                         off: 4 + Math.random() * 3
                     });
@@ -1548,11 +1548,11 @@
 
                     ctx.fillStyle = c.end; // ujung potongan kayu
                     ctx.beginPath();
-                    ctx.arc(x1, 0, l.w * 0.4, 0, Math.PI * 2);
+                    ctx.ellipse(x1, 0, l.w * 0.15, l.w * 0.4, 0, 0, Math.PI * 2); // pipih: tampak miring dari atas
                     ctx.fill();
                     ctx.strokeStyle = c.dark;
                     ctx.beginPath();
-                    ctx.arc(x1, 0, l.w * 0.2, 0, Math.PI * 2);
+                    ctx.ellipse(x1, 0, l.w * 0.07, l.w * 0.2, 0, 0, Math.PI * 2); // lingkar tahun dalam, ikut pipih
                     ctx.stroke();
 
                     ctx.restore();
