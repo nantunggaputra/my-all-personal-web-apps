@@ -2319,7 +2319,7 @@
 
                     const moving = v > 0.05 ? 1 : 0;
                     this.stride += (moving - this.stride) * 0.2;
-                    this.walk += (run ? 0.34 : 0.16) * moving;
+                    this.walk += (run ? 0.255 : 0.08) * moving;
 
                     if (run && (++this.timer > 600 || this.x < -40 || this.x > width + 40 || this.y < -40 || this.y > height + 40)) this.dead = true;
                 }
