@@ -2,7 +2,7 @@
 
 Aplikasi simulasi kolam ikan koi interaktif berbasis web dengan tampilan tampak atas (*top-down view*), UI *glassmorphism* yang bersih, serta lingkungan alami yang berubah mengikuti waktu. Latar ceritanya adalah kolam milik Kakek di sebuah pedesaan di Kabupaten Kebumen.
 
-Versi saat ini: v5.3 (mengikuti penanda versi pada komentar kode).
+Versi saat ini: v5.6 (mengikuti penanda versi pada komentar kode).
 
 ---
 
@@ -24,6 +24,7 @@ Versi saat ini: v5.3 (mengikuti penanda versi pada komentar kode).
 - **Batu tepi kolam:** Disusun mengelilingi kolam, lengkap dengan bayangan yang arah dan ukurannya mengikuti waktu.
 - **Bunga kecil:** Tiga jenis bunga (merah muda berkelompok 3, kuning tunggal, dan biru kecil berkelompok banyak) yang mekar di pagi hari lalu menguncup dan memudar saat siang.
 - **Pohon apel:** Pucuk pohon di pojok kiri atas, tampak menutupi hewan-hewan (kumbang, kucing, kunang-kunang) dan bunga, berada di bawah kabut dan bayangan walet.
+- **Tumpukan kayu api unggun:** Balok kayu dan ranting kecil yang masih utuh, tersusun di tenggara kolam (arah jam 4). Ranting berkumpul rapat di tengah tumpukan. Belum menyala.
 
 ### Siklus Waktu
 
@@ -82,6 +83,11 @@ Catatan: Tailwind, Lucide, dan font dimuat lewat CDN, jadi dibutuhkan koneksi in
 - [ ] **Variasi jenis ikan dan toko ikan:** Opsi menambah spesies baru (Ikan Mas Koki, Black Tele, Koi Tancho).
 - [ ] **Dekorasi kolam kustom:** Menempatkan bunga teratai, lentera batu, atau jembatan kayu kecil.
 - [ ] **Audio dan SFX:** Musik latar ambient serta suara gemericik air saat memberi makan.
+- [ ] **Pindahkan kura-kura:** Memindahkan kura-kura hijau ke luar atau ke dalam kolam (saat ini tombol masih Segera Hadir).
+- [ ] **Tangkap sapu-sapu:** Menangkap dan melepaskan ikan sapu-sapu (saat ini tombol masih Segera Hadir).
+- [ ] **Panggil kucing hitam:** Memanggil kucing hitam kapan saja / bisa di luar waktu malam (saat ini tombol masih Segera Hadir).
+- [ ] **Kuras air kolam:** Menguras air kolam yang keruh saat tidak ada ikan sapu-sapu (saat ini tombol masih Segera Hadir).
+- [ ] **Api unggun:** Membakar dan menyiram tumpukan kayu untuk menyalakan atau mematikan api unggun (saat ini tombol masih Segera Hadir).
 - [ ] **Sistem level dan kebutuhan ikan:** Tingkat kenyang, pertumbuhan ukuran ikan, dan pengumpulan poin koi.
 
 ---
