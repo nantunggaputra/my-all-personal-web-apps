@@ -2,7 +2,7 @@
 
 Aplikasi simulasi kolam ikan koi interaktif berbasis web dengan tampilan tampak atas (*top-down view*), UI *glassmorphism* yang bersih, serta lingkungan alami yang berubah mengikuti waktu. Latar ceritanya adalah kolam milik Kakek di sebuah pedesaan di Kabupaten Kebumen.
 
-Versi saat ini: v5.7 (mengikuti penanda versi pada komentar kode).
+Versi saat ini: v5.9 (mengikuti penanda versi pada komentar kode).
 
 ---
 
@@ -25,6 +25,7 @@ Versi saat ini: v5.7 (mengikuti penanda versi pada komentar kode).
 - **Bunga kecil:** Tiga jenis bunga (merah muda berkelompok 3, kuning tunggal, dan biru kecil berkelompok banyak) yang mekar di pagi hari lalu menguncup dan memudar saat siang.
 - **Pohon apel:** Pucuk pohon di pojok kiri atas, tampak menutupi hewan-hewan (kumbang, kucing, kunang-kunang) dan bunga, berada di bawah kabut dan bayangan walet.
 - **Tumpukan kayu api unggun:** Balok kayu dan ranting kecil yang masih utuh, tersusun di tenggara kolam (arah jam 4). Ranting berkumpul rapat di tengah tumpukan. Belum menyala.
+- **Bocah Bolang:** Hanya muncul di sore hari. Ia berkeliling santai di sekitar kolam, bisa berteduh di bawah pohon apel, berjalan di tepi kolam, atau melintas di rerumputan. Penampilannya tampak atas dengan topi merah terbalik, singlet putih, dan ransel hitam. Begitu malam tiba, ia langsung berlari pergi.
 
 ### Siklus Waktu
 
@@ -34,7 +35,7 @@ Aplikasi memiliki empat suasana waktu. Mode awal ditentukan dari jam perangkat (
 |-------|----------------------|
 | Pagi | Kabut tipis di atas kolam dan rumput, bunga mekar, dan seekor kumbang merah mungil dengan tiga bintik hitam hinggap berpindah dari bunga ke bunga. |
 | Siang | Pencahayaan terang. Bayangan burung walet melintas pelan di atas rumput dan air (maksimal 3 sekaligus). Bunga menguncup. Sprinkle aktif menyemprotkan air. |
-| Sore | Cahaya jingga hangat dari arah barat (kiri layar) yang berdenyut halus di atas air dan rumput. |
+| Sore | Cahaya jingga hangat dari arah barat (kiri layar) yang berdenyut halus di atas air dan rumput. Seorang bocah Bolang bertopi merah terbalik berkeliling santai, lalu berlari pergi saat malam tiba. |
 | Malam | Suasana gelap dengan empat lampu bawah air di tepi kolam, kunang-kunang yang berkedip pelan, ikan yang berenang lebih tenang, dan kura-kura yang beristirahat. Seekor kucing hitam muncul sekali setiap kali halaman dimuat, minum di tepi kolam, lalu pergi. Jika waktu berganti ke siang saat kucing masih ada, kucing langsung pulang. |
 
 ### Interaksi dan UI
