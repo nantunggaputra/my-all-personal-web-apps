@@ -2479,8 +2479,13 @@
                 draw(mode) {
                     const k = this.state === 'run' ? 1.3 : 1;   // lari: ayunan lebih lebar
                     const sw = Math.sin(this.walk) * this.stride;
-                    const skin = '#c68a5e';                      // kulit tropis, tidak terlalu gelap
-                    const hair = '#1a120d';
+                    const dim = Math.max(0.5, Math.min(1, mode.brightness));
+                    const sh = hex => {
+                        const n = parseInt(hex.slice(1), 16);
+                        return `rgb(${Math.round((n >> 16 & 255) * dim)},${Math.round((n >> 8 & 255) * dim)},${Math.round((n & 255) * dim)})`;
+                    };
+                    const skin = sh('#c68a5e');                  // kulit tropis, tidak terlalu gelap
+                    const hair = sh('#1a120d');
 
                     // Bayangan (offset mengikuti waktu, sama seperti batu)
                     ctx.save();
@@ -2517,7 +2522,7 @@
                     ctx.rotate(sw * 0.05); // badan sedikit oleng saat melangkah
 
                     // Singlet putih
-                    ctx.fillStyle = '#f8fafc';
+                    ctx.fillStyle = sh('#f8fafc');
                     ctx.beginPath();
                     ctx.ellipse(0, 0, 5.4, 7.4, 0, 0, Math.PI * 2);
                     ctx.fill();
@@ -2526,7 +2531,7 @@
                     ctx.stroke();
 
                     // Tali ransel di bahu
-                    ctx.strokeStyle = '#374151';
+                    ctx.strokeStyle = sh('#374151');
                     ctx.lineWidth = 1.5;
                     ctx.lineCap = 'round';
                     ctx.beginPath();
@@ -2534,13 +2539,13 @@
                     ctx.stroke();
 
                     // Tas ransel hitam (di punggung = sisi belakang)
-                    ctx.fillStyle = '#6b7280';
+                    ctx.fillStyle = sh('#6b7280');
                     roundRectPath(-8.6, -5.6, 9, 11.2, 2.6);
                     ctx.fill();
                     ctx.strokeStyle = 'rgba(15, 23, 42, 0.45)';
                     ctx.lineWidth = 0.8;
                     ctx.stroke();
-                    ctx.fillStyle = '#4b5563';
+                    ctx.fillStyle = sh('#4b5563');
                     roundRectPath(-7.6, -4.2, 4.6, 8.4, 1.6);
                     ctx.fill();
 
@@ -2559,8 +2564,8 @@
                     ctx.fill();
 
                     // Topi merah DIPAKAI TERBALIK: lidah topi mengarah ke belakang (menutupi ransel bagian atas)
-                    ctx.fillStyle = '#b91c1c';
-                    ctx.strokeStyle = '#7f1d1d';
+                    ctx.fillStyle = sh('#b91c1c');
+                    ctx.strokeStyle = sh('#7f1d1d');
                     ctx.lineWidth = 0.7;
                     ctx.beginPath();
                     ctx.ellipse(-3.3, 0, 3.6, 4.6, 0, 0, Math.PI * 2);
@@ -2568,7 +2573,7 @@
                     ctx.stroke();
 
                     // Mahkota topi
-                    ctx.fillStyle = '#dc2626';
+                    ctx.fillStyle = sh('#dc2626');
                     ctx.beginPath();
                     ctx.arc(0.9, 0, 4.5, 0, Math.PI * 2);
                     ctx.fill();
@@ -2585,13 +2590,13 @@
                     ctx.beginPath();
                     ctx.arc(0.2, -1.3, 2, 0, Math.PI * 2);
                     ctx.fill();
-                    ctx.fillStyle = '#991b1b'; // kancing topi
+                    ctx.fillStyle = sh('#991b1b'); // kancing topi
                     ctx.beginPath();
                     ctx.arc(0.9, 0, 0.9, 0, Math.PI * 2);
                     ctx.fill();
 
                     // Pengikat topi di sisi depan (karena terbalik) + helai poni yang menyumbul dari celahnya
-                    ctx.fillStyle = '#7f1d1d';
+                    ctx.fillStyle = sh('#7f1d1d');
                     roundRectPath(4.2, -3.3, 1.7, 2.1, 0.5); ctx.fill();
                     roundRectPath(4.2, 1.2, 1.7, 2.1, 0.5); ctx.fill();
                     ctx.fillStyle = hair;
