@@ -2,7 +2,7 @@
 
 Aplikasi simulasi kolam ikan koi interaktif berbasis web dengan tampilan tampak atas (*top-down view*), UI *glassmorphism* yang bersih, serta lingkungan alami yang berubah mengikuti waktu. Latar ceritanya adalah kolam milik Kakek di sebuah pedesaan di Kabupaten Kebumen.
 
-Versi saat ini: v6.2 (mengikuti penanda versi pada komentar kode).
+Versi saat ini: v6.4 (mengikuti penanda versi pada komentar kode).
 
 ---
 
@@ -60,6 +60,18 @@ Tombol di slider bawah berganti label antara "Tangkap Sapu-Sapu" dan "Lepaskan S
 - **Peralihan halus:** Perubahan warna air dan jumlah gelembung berlangsung bertahap (sekitar beberapa detik), bukan mendadak. Gelembung yang sudah naik tetap pecah seperti biasa.
 - **Ubah ukuran layar:** Status tangkap/lepas tetap tersimpan.
 
+### Panggil Kucing Hitam (Baru di v6.3)
+
+Tombol "Panggil Kucing Hitam" di slider bawah kini sudah berfungsi dan bisa digunakan kapan saja, tanpa harus menunggu malam:
+
+- **Panggil:** Kucing hitam datang dari luar layar melalui jalur yang menghindari area kolam, kemudian mendekati tepi kolam untuk minum.
+- **Semua waktu:** Kucing bisa dipanggil pada pagi, siang, sore, maupun malam.
+- **Tidak otomatis pulang:** Jika waktu berubah ketika kucing masih berada di layar, kucing tetap melanjutkan aktivitasnya sampai selesai dan pergi melalui jalur kedatangannya.
+- **Sudah datang:** Jika tombol ditekan ketika kucing masih berada di layar, muncul notifikasi "Sudah Datang".
+- **Panggil kembali:** Setelah kucing selesai dan meninggalkan layar, tombol bisa digunakan kembali untuk memanggilnya.
+- **Kemunculan otomatis malam:** Mekanisme kemunculan otomatis pada malam hari tetap dipertahankan, yaitu sekali setiap pemuatan halaman. Jika kucing sudah dipanggil secara manual, kemunculan otomatis tidak akan membuat kucing kedua.
+- **Tidak ada tempat:** Jika tidak ditemukan jalur yang memungkinkan kucing datang dengan aman, muncul notifikasi "Tidak ada tempat".
+
 ### Siklus Waktu
 
 Aplikasi memiliki empat suasana waktu. Mode awal ditentukan dari jam perangkat (pagi 06.00-10.59, siang 11.00-14.59, sore 15.00-17.59, selain itu malam), dan bisa diganti manual kapan saja.
@@ -69,7 +81,7 @@ Aplikasi memiliki empat suasana waktu. Mode awal ditentukan dari jam perangkat (
 | Pagi | Kabut tipis di atas kolam dan rumput, bunga mekar, dan seekor kumbang merah mungil dengan tiga bintik hitam hinggap berpindah dari bunga ke bunga. |
 | Siang | Pencahayaan terang. Bayangan burung walet melintas pelan di atas rumput dan air (maksimal 3 sekaligus). Bunga menguncup. Sprinkle aktif menyemprotkan air. |
 | Sore | Cahaya jingga hangat dari arah barat (kiri layar) yang berdenyut halus di atas air dan rumput. Seorang bocah Bolang bertopi merah terbalik berkeliling santai, lalu berlari pergi saat malam tiba. |
-| Malam | Suasana gelap dengan empat lampu bawah air di tepi kolam, kunang-kunang yang berkedip pelan, ikan yang berenang lebih tenang, dan kura-kura yang beristirahat. Seekor kucing hitam muncul sekali setiap kali halaman dimuat, minum di tepi kolam, lalu pergi. Jika waktu berganti ke siang saat kucing masih ada, kucing langsung pulang. |
+| Malam | Suasana gelap dengan empat lampu bawah air di tepi kolam, kunang-kunang yang berkedip pelan, ikan yang berenang lebih tenang, dan kura-kura yang beristirahat. Seekor kucing hitam muncul sekali setiap kali halaman dimuat, minum di tepi kolam, lalu pergi. Kucing tidak lagi otomatis pulang ketika waktu berganti ke siang dan tetap menyelesaikan aktivitasnya. Kucing juga bisa dipanggil secara manual kapan saja melalui tombol Panggil Kucing Hitam. |
 
 Api unggun bisa menyala di waktu apa pun. Cahayanya paling terasa saat malam dan sore.
 
@@ -77,7 +89,7 @@ Api unggun bisa menyala di waktu apa pun. Cahayanya paling terasa saat malam dan
 
 - **Beri makan lewat tombol:** Tombol "Beri Makan Koi" menebar pelet di sekitar tengah kolam.
 - **Beri makan lewat klik atau tap:** Klik atau tap di area air untuk menjatuhkan pelet di lokasi tersebut. Klik di luar kolam diabaikan.
-- **Slider 6 tombol:** Tombol bawah bisa digeser ke kiri untuk berganti aktivitas: Beri Makan Koi, Pindahkan Kura-Kura, Tangkap Sapu-Sapu, Panggil Kucing Hitam, Kuras Air Kolam, dan Nyalakan/Matikan Api Unggun. Tombol yang sudah berfungsi: Beri Makan Koi, Pindahkan Kura-Kura, Tangkap Sapu-Sapu, dan Api Unggun. Panggil Kucing Hitam dan Kuras Air Kolam masih menampilkan "Segera Hadir".
+- **Slider 6 tombol:** Tombol bawah bisa digeser ke kiri untuk berganti aktivitas: Beri Makan Koi, Pindahkan Kura-Kura, Tangkap Sapu-Sapu, Panggil Kucing Hitam, Kuras Air Kolam, dan Nyalakan/Matikan Api Unggun. Tombol yang sudah berfungsi: Beri Makan Koi, Pindahkan Kura-Kura, Tangkap Sapu-Sapu, Panggil Kucing Hitam, dan Api Unggun. Kuras Air Kolam masih menampilkan "Segera Hadir".
 - **Ubah waktu:** Tombol di header berpindah berurutan: Pagi, Siang, Sore, Malam.
 - **Mini Weather:** Di bagian paling atas pop up (di atas tab) ada strip 4 ikon berjejer: Cuaca, Suhu, Kelembapan, dan Kabut, masing-masing dengan keterangan singkat di bawahnya. Isinya berganti mengikuti waktu (Pagi, Siang, Sore, Malam). Angkanya diacak sedikit di sekitar nilai acuan setiap kali halaman dimuat, lalu tetap sama selama sesi, jadi ganti waktu manual tidak mengacak ulang.
 
@@ -87,7 +99,8 @@ Api unggun bisa menyala di waktu apa pun. Cahayanya paling terasa saat malam dan
   | Siang | Sunny | 30°C (±2) | 58% (±6) | 0% |
   | Sore | Warm | 25°C (±2) | 74% (±5) | 0% |
   | Malam | Clear | 20°C (±2) | 90% (±4) | 4% (±3) |
-- **Papan Sambutan:** Tombol ikon gelombang di header membuka pop up berisi surat sambutan yang menceritakan suasana kolam di tiap waktu. Pop up bisa ditutup dengan tombol OK atau dengan mengetuk area gelap di luar kartu. Pop up memiliki dua tab, yaitu Papan Sambutan dan Peta Denah Kolam. Tab Peta Denah Kolam belum aktif dan hanya menampilkan notifikasi "Coming Soon".
+- **Papan Sambutan:** Tombol ikon gelombang di header membuka pop up berisi surat sambutan yang menceritakan suasana kolam di tiap waktu. Pop up bisa ditutup dengan tombol OK atau dengan mengetuk area gelap di luar kartu. Pop up memiliki tiga tab, yaitu Papan Sambutan, Pesan, dan Peta Denah Kolam. Tab Pesan menampilkan percakapan dari Nan, sedangkan tab Peta Denah Kolam belum aktif dan hanya menampilkan notifikasi "Coming Soon".
+- **Pesan (Baru di v6.4):** Tab baru di dalam pop up Papan Sambutan yang menampilkan percakapan bergaya aplikasi pesan instan dari Nan. Melalui pesan ini, Nan memberi tahu bahwa ia sedang mengantar Kakek dan Nenek berlibur ke Kota Jakarta, sekaligus menitipkan kolam untuk sementara waktu. Pesan berisi panduan lima aktivitas yang bisa dilakukan pengunjung: memberi makan koi, memindahkan kura-kura, menangkap sapu-sapu, memanggil kucing hitam, dan menyalakan atau mematikan api unggun. Nan juga menyampaikan pesan khusus dari Kakek agar pengunjung tidak menguras air kolam selama beliau pergi.
 - **Audio ambient:** Suara latar dimulai saat tombol ikon gelombang pertama kali ditekan (sesuai aturan autoplay browser), lalu berputar terus dengan volume 50%. Tidak ada tombol pause di UI, dan kalau dijeda dari luar halaman (misalnya kontrol media OS), suara dilanjutkan lagi. File `ambient.mp3` harus berada satu folder dengan `index.html`.
 - **Responsif untuk mobile:** Tinggi layar mengikuti viewport aktual (`dvh`), dan kontrol bawah dipasang dengan mempertimbangkan area aman (*safe area*) perangkat.
 
@@ -120,21 +133,24 @@ Catatan: Tailwind, Lucide, dan font dimuat lewat CDN, jadi dibutuhkan koneksi in
 3. **Nyalakan api unggun:** Geser tombol bawah ke kiri sampai "Nyalakan Api Unggun", lalu tekan. Tunggu Bolang berjalan ke tumpukan kayu dan menyalakan apinya. Tekan lagi ("Matikan Api Unggun") untuk memadamkannya. Selama Bolang masih bertugas atau berlari di layar, tombol akan menampilkan "Harap Tunggu".
 4. **Pindahkan kura-kura:** Geser tombol ke "Pindahkan Kura-Kura" lalu tekan untuk memindahkannya ke rerumputan. Tekan lagi untuk mengembalikannya ke dasar kolam.
 5. **Tangkap sapu-sapu:** Geser tombol ke "Tangkap Sapu-Sapu" lalu tekan. Perhatikan air yang berubah kehijauan dan gelembung yang menghilang. Tekan lagi ("Lepaskan Sapu-Sapu") untuk mengembalikannya.
-6. **Baca sambutan:** Tekan ikon gelombang di header untuk membuka Papan Sambutan. Musik ambient ikut mulai saat tombol ini pertama kali ditekan.
-7. **Cek cuaca:** Di pop up yang sama, lihat strip Mini Weather di bagian atas. Isinya ikut berubah saat kamu mengganti waktu.
-8. **Kejutan malam hari:** Pindah ke waktu malam dan tunggu beberapa saat untuk melihat kucing hitam datang minum di tepi kolam. Kucing hanya muncul sekali per pemuatan halaman, jadi muat ulang halaman untuk melihatnya lagi. Nyalakan api unggun di malam hari untuk melihat cahaya dan bara apinya paling jelas.
+6. **Panggil kucing hitam:** Geser tombol ke "Panggil Kucing Hitam" lalu tekan untuk mendatangkan kucing kapan saja. Jika kucing masih berada di layar, muncul notifikasi "Sudah Datang".
+7. **Baca sambutan:** Tekan ikon gelombang di header untuk membuka Papan Sambutan. Musik ambient ikut mulai saat tombol ini pertama kali ditekan.
+8. **Baca pesan dari Nan:** Buka tab Pesan untuk mengetahui cerita Nan, panduan aktivitas kolam, dan pesan khusus dari Kakek.
+9. **Cek cuaca:** Di pop up yang sama, lihat strip Mini Weather di bagian atas. Isinya ikut berubah saat kamu mengganti waktu.
+10. **Kejutan malam hari:** Pindah ke waktu malam dan tunggu beberapa saat untuk melihat kucing hitam datang minum di tepi kolam. Kucing hanya muncul sekali per pemuatan halaman, jadi klik tombol kucing hitam atau muat ulang halaman untuk melihatnya lagi. Nyalakan api unggun di malam hari untuk melihat cahaya dan bara apinya paling jelas.
 
 ---
 
 ## Roadmap
 
-- [ ] **Peta Denah Kolam:** Mengaktifkan tab kedua pada pop up Papan Sambutan.
+- [x] **Pesan dari Nan:** Menambahkan tab percakapan berisi cerita perjalanan Nan, panduan aktivitas kolam, dan pesan khusus dari Kakek (v6.4).
+- [ ] **Peta Denah Kolam:** Mengaktifkan tab ketiga pada pop up Papan Sambutan.
 - [ ] **Variasi jenis ikan dan toko ikan:** Opsi menambah spesies baru (Ikan Mas Koki, Black Tele, Koi Tancho).
 - [ ] **Dekorasi kolam kustom:** Menempatkan bunga teratai, lentera batu, atau jembatan kayu kecil.
 - [ ] **Audio dan SFX:** Musik latar ambient serta suara gemericik air saat memberi makan. (Musik latar sudah ada, SFX belum.)
 - [x] **Pindahkan kura-kura:** Memindahkan kura-kura hijau ke rerumputan dan kembali ke dasar kolam (v6.1), meredup saat malam (v6.2).
 - [x] **Tangkap sapu-sapu:** Menangkap dan melepaskan ikan sapu-sapu, air berubah kehijauan dan gelembung menghilang saat tidak ada sapu-sapu (v6.2).
-- [ ] **Panggil kucing hitam:** Memanggil kucing hitam kapan saja / bisa di luar waktu malam (saat ini tombol masih Segera Hadir).
+- [x] **Panggil kucing hitam:** Memanggil kucing hitam kapan saja, termasuk di luar waktu malam, dengan perilaku tetap melanjutkan aktivitas meskipun waktu berubah (v6.3).
 - [ ] **Kuras air kolam:** Menguras air kolam yang keruh saat tidak ada ikan sapu-sapu (saat ini tombol masih Segera Hadir).
 - [x] **Api unggun:** Bocah Bolang menyalakan dan mematikan api unggun, lengkap dengan efek api, bara, dan bekas gosong (v6.0).
 - [ ] **Sistem level dan kebutuhan ikan:** Tingkat kenyang, pertumbuhan ukuran ikan, dan pengumpulan poin koi.
