@@ -2,7 +2,7 @@
 
 Aplikasi simulasi kolam ikan koi interaktif berbasis web dengan tampilan tampak atas (*top-down view*), UI *glassmorphism* yang bersih, serta lingkungan alami yang berubah mengikuti waktu. Latar ceritanya adalah kolam milik Kakek di sebuah pedesaan di Kabupaten Kebumen.
 
-Versi saat ini: v6.3 (mengikuti penanda versi pada komentar kode).
+Versi saat ini: v6.4 (mengikuti penanda versi pada komentar kode).
 
 ---
 
@@ -99,7 +99,8 @@ Api unggun bisa menyala di waktu apa pun. Cahayanya paling terasa saat malam dan
   | Siang | Sunny | 30°C (±2) | 58% (±6) | 0% |
   | Sore | Warm | 25°C (±2) | 74% (±5) | 0% |
   | Malam | Clear | 20°C (±2) | 90% (±4) | 4% (±3) |
-- **Papan Sambutan:** Tombol ikon gelombang di header membuka pop up berisi surat sambutan yang menceritakan suasana kolam di tiap waktu. Pop up bisa ditutup dengan tombol OK atau dengan mengetuk area gelap di luar kartu. Pop up memiliki dua tab, yaitu Papan Sambutan dan Peta Denah Kolam. Tab Peta Denah Kolam belum aktif dan hanya menampilkan notifikasi "Coming Soon".
+- **Papan Sambutan:** Tombol ikon gelombang di header membuka pop up berisi surat sambutan yang menceritakan suasana kolam di tiap waktu. Pop up bisa ditutup dengan tombol OK atau dengan mengetuk area gelap di luar kartu. Pop up memiliki tiga tab, yaitu Papan Sambutan, Pesan, dan Peta Denah Kolam. Tab Pesan menampilkan percakapan dari Nan, sedangkan tab Peta Denah Kolam belum aktif dan hanya menampilkan notifikasi "Coming Soon".
+- **Pesan (Baru di v6.4):** Tab baru di dalam pop up Papan Sambutan yang menampilkan percakapan bergaya aplikasi pesan instan dari Nan. Melalui pesan ini, Nan memberi tahu bahwa ia sedang mengantar Kakek dan Nenek berlibur ke Kota Jakarta, sekaligus menitipkan kolam untuk sementara waktu. Pesan berisi panduan lima aktivitas yang bisa dilakukan pengunjung: memberi makan koi, memindahkan kura-kura, menangkap sapu-sapu, memanggil kucing hitam, dan menyalakan atau mematikan api unggun. Nan juga menyampaikan pesan khusus dari Kakek agar pengunjung tidak menguras air kolam selama beliau pergi.
 - **Audio ambient:** Suara latar dimulai saat tombol ikon gelombang pertama kali ditekan (sesuai aturan autoplay browser), lalu berputar terus dengan volume 50%. Tidak ada tombol pause di UI, dan kalau dijeda dari luar halaman (misalnya kontrol media OS), suara dilanjutkan lagi. File `ambient.mp3` harus berada satu folder dengan `index.html`.
 - **Responsif untuk mobile:** Tinggi layar mengikuti viewport aktual (`dvh`), dan kontrol bawah dipasang dengan mempertimbangkan area aman (*safe area*) perangkat.
 
@@ -134,14 +135,16 @@ Catatan: Tailwind, Lucide, dan font dimuat lewat CDN, jadi dibutuhkan koneksi in
 5. **Tangkap sapu-sapu:** Geser tombol ke "Tangkap Sapu-Sapu" lalu tekan. Perhatikan air yang berubah kehijauan dan gelembung yang menghilang. Tekan lagi ("Lepaskan Sapu-Sapu") untuk mengembalikannya.
 6. **Panggil kucing hitam:** Geser tombol ke "Panggil Kucing Hitam" lalu tekan untuk mendatangkan kucing kapan saja. Jika kucing masih berada di layar, muncul notifikasi "Sudah Datang".
 7. **Baca sambutan:** Tekan ikon gelombang di header untuk membuka Papan Sambutan. Musik ambient ikut mulai saat tombol ini pertama kali ditekan.
-8. **Cek cuaca:** Di pop up yang sama, lihat strip Mini Weather di bagian atas. Isinya ikut berubah saat kamu mengganti waktu.
-9. **Kejutan malam hari:** Pindah ke waktu malam dan tunggu beberapa saat untuk melihat kucing hitam datang minum di tepi kolam secara otomatis. Kucing otomatis muncul sekali setiap pemuatan halaman. Kamu juga bisa memanggilnya secara manual kapan saja. Nyalakan api unggun di malam hari untuk melihat cahaya dan bara apinya paling jelas.
+8. **Baca pesan dari Nan:** Buka tab Pesan untuk mengetahui cerita Nan, panduan aktivitas kolam, dan pesan khusus dari Kakek.
+9. **Cek cuaca:** Di pop up yang sama, lihat strip Mini Weather di bagian atas. Isinya ikut berubah saat kamu mengganti waktu.
+10. **Kejutan malam hari:** Pindah ke waktu malam dan tunggu beberapa saat untuk melihat kucing hitam datang minum di tepi kolam. Kucing hanya muncul sekali per pemuatan halaman, jadi klik tombol kucing hitam atau muat ulang halaman untuk melihatnya lagi. Nyalakan api unggun di malam hari untuk melihat cahaya dan bara apinya paling jelas.
 
 ---
 
 ## Roadmap
 
-- [ ] **Peta Denah Kolam:** Mengaktifkan tab kedua pada pop up Papan Sambutan.
+- [x] **Pesan dari Nan:** Menambahkan tab percakapan berisi cerita perjalanan Nan, panduan aktivitas kolam, dan pesan khusus dari Kakek (v6.4).
+- [ ] **Peta Denah Kolam:** Mengaktifkan tab ketiga pada pop up Papan Sambutan.
 - [ ] **Variasi jenis ikan dan toko ikan:** Opsi menambah spesies baru (Ikan Mas Koki, Black Tele, Koi Tancho).
 - [ ] **Dekorasi kolam kustom:** Menempatkan bunga teratai, lentera batu, atau jembatan kayu kecil.
 - [ ] **Audio dan SFX:** Musik latar ambient serta suara gemericik air saat memberi makan. (Musik latar sudah ada, SFX belum.)
