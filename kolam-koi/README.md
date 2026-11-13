@@ -2,7 +2,7 @@
 
 Aplikasi simulasi kolam ikan koi interaktif berbasis web dengan tampilan tampak atas (*top-down view*), UI *glassmorphism* yang bersih, serta lingkungan alami yang berubah mengikuti waktu. Latar ceritanya adalah kolam milik Kakek di sebuah pedesaan di Kabupaten Kebumen.
 
-Versi saat ini: v6.0 (mengikuti penanda versi pada komentar kode).
+Versi saat ini: v6.2 (mengikuti penanda versi pada komentar kode).
 
 ---
 
@@ -12,9 +12,9 @@ Versi saat ini: v6.0 (mengikuti penanda versi pada komentar kode).
 
 - **Bentuk kolam organik:** Tepi kolam berupa kurva acak yang terlihat alami, dibangun ulang setiap kali ukuran layar berubah.
 - **Ikan koi:** 16 ekor koi (7 ukuran sedang dan 9 ukuran kecil) dengan lima variasi warna. Koi berenang santai, berbelok menjauhi tepi kolam, dan mengejar pelet makanan yang berada dalam jangkauannya. Saat makan, ikan sedikit naik ke permukaan dan menimbulkan riak.
-- **Ikan sapu-sapu:** 4 ekor ikan sapu-sapu menyusuri tepi dasar kolam dengan pelan. Sesekali mereka berhenti dan menghadap dinding kolam untuk "bersih-bersih".
-- **Kura-kura hijau:** Seekor kura-kura hijau di dasar kolam. Geraknya sangat lambat dan acak: lurus, berbelok, atau putar balik, bisa ke tepi maupun ke tengah. Saat malam berhenti berenang dan diam beristirahat.
-- **Gelembung udara:** Gelembung naik dari dasar kolam dan pecah di permukaan sambil membentuk riak kecil.
+- **Ikan sapu-sapu:** 4 ekor ikan sapu-sapu menyusuri tepi dasar kolam dengan pelan. Sesekali mereka berhenti dan menghadap dinding kolam untuk "bersih-bersih". Bisa ditangkap (disembunyikan) dan dilepaskan lagi lewat tombol slider (lihat bagian Tangkap Sapu-Sapu di bawah).
+- **Kura-kura hijau:** Seekor kura-kura hijau di dasar kolam. Geraknya sangat lambat dan acak: lurus, berbelok, atau putar balik, bisa ke tepi maupun ke tengah. Saat malam berhenti berenang, kepala dan kakinya masuk ke cangkang, dan ia diam beristirahat. Bisa dipindahkan ke rerumputan lewat tombol slider (lihat bagian Pindahkan Kura-Kura di bawah).
+- **Gelembung udara:** Gelembung naik dari dasar kolam dan pecah di permukaan sambil membentuk riak kecil. Gelembung perlahan berhenti muncul saat sapu-sapu sedang ditangkap, dan muncul lagi saat dilepaskan.
 - **Riak air:** Muncul secara berkala, saat pelet jatuh, saat ikan makan, dan saat gelembung pecah.
 - **Ekosistem dasar kolam:** Rumpun rumput laut (tampak atas, berupa titik-titik yang bergoyang pelan) dan dua kelompok karang berwarna-warni di area kiri atas dan kanan bawah.
 
@@ -39,6 +39,27 @@ Tombol api unggun di slider bawah berganti label antara "Nyalakan Api Unggun" da
 - **Di luar sore hari:** Bolang muncul dari tepi layar hanya untuk tugas ini, lalu berlari pergi dan tidak kembali sampai sore. Jika diklik saat ia sedang berkeliling di sore hari, ia langsung dialihkan ke tumpukan kayu.
 - **Lintasan:** Bolang berdiri di sisi samping tumpukan kayu (bukan sisi kolam). Jika jalur lurus terhalang kolam, ia memutar lewat sisi luar kolam.
 
+### Pindahkan Kura-Kura (Baru di v6.1)
+
+Tombol "Pindahkan Kura-Kura" di slider bawah memindahkan kura-kura antara dasar kolam dan rerumputan:
+
+- **Ke rerumputan:** Jika kura-kura di dasar kolam, klik membuatnya tiba-tiba berada di rerumputan. Kepala dan kakinya hilang dulu (masuk cangkang), lalu muncul pelan-pelan seperti sehabis tidur.
+- **Kembali ke kolam:** Jika diklik lagi, kura-kura tiba-tiba kembali ke dasar kolam, juga dengan kepala dan kaki hilang dulu.
+- **Gerak di darat:** Sama lambat dan acak seperti di kolam (lurus, belok, putar balik). Bayangannya sama di semua waktu.
+- **Tidak bisa kembali ke kolam sendiri:** Saat berjalan di darat, kura-kura menghindari kolam, lingkar batu, tumpukan api unggun, pohon, dan tepi layar. Jika jalannya terhalang, ia berbalik ke arah yang bebas.
+- **Malam hari:** Kura-kura tetap diam dengan kepala dan kaki di dalam cangkang. Jika sedang di rerumputan, warnanya ikut meredup perlahan.
+- **Tidak ada tempat:** Jika layar terlalu sempit sehingga tidak ada ruang kosong di rerumputan, muncul notifikasi "Tidak ada tempat".
+- **Ubah ukuran layar:** Kura-kura dibuat ulang di dasar kolam.
+
+### Tangkap Sapu-Sapu (Baru di v6.2)
+
+Tombol di slider bawah berganti label antara "Tangkap Sapu-Sapu" dan "Lepaskan Sapu-Sapu":
+
+- **Tangkap:** Keempat sapu-sapu memudar lalu hilang dari kolam. Warna air perlahan berubah menjadi biru kehijau-hijauan (tiga hijau toska bergradasi dari terang di tengah sampai gelap di tepi), dan gelembung perlahan berhenti muncul.
+- **Lepaskan:** Sapu-sapu muncul kembali dan melanjutkan dari posisi terakhirnya. Warna air perlahan kembali ke biru semula, dan gelembung perlahan muncul lagi.
+- **Peralihan halus:** Perubahan warna air dan jumlah gelembung berlangsung bertahap (sekitar beberapa detik), bukan mendadak. Gelembung yang sudah naik tetap pecah seperti biasa.
+- **Ubah ukuran layar:** Status tangkap/lepas tetap tersimpan.
+
 ### Siklus Waktu
 
 Aplikasi memiliki empat suasana waktu. Mode awal ditentukan dari jam perangkat (pagi 06.00-10.59, siang 11.00-14.59, sore 15.00-17.59, selain itu malam), dan bisa diganti manual kapan saja.
@@ -56,7 +77,7 @@ Api unggun bisa menyala di waktu apa pun. Cahayanya paling terasa saat malam dan
 
 - **Beri makan lewat tombol:** Tombol "Beri Makan Koi" menebar pelet di sekitar tengah kolam.
 - **Beri makan lewat klik atau tap:** Klik atau tap di area air untuk menjatuhkan pelet di lokasi tersebut. Klik di luar kolam diabaikan.
-- **Slider 6 tombol:** Tombol bawah bisa digeser ke kiri untuk berganti aktivitas: Beri Makan Koi, Pindahkan Kura-Kura, Tangkap Sapu-Sapu, Panggil Kucing Hitam, Kuras Air Kolam, dan Nyalakan/Matikan Api Unggun. Selain Beri Makan Koi dan Api Unggun, tombol lainnya masih menampilkan "Segera Hadir".
+- **Slider 6 tombol:** Tombol bawah bisa digeser ke kiri untuk berganti aktivitas: Beri Makan Koi, Pindahkan Kura-Kura, Tangkap Sapu-Sapu, Panggil Kucing Hitam, Kuras Air Kolam, dan Nyalakan/Matikan Api Unggun. Tombol yang sudah berfungsi: Beri Makan Koi, Pindahkan Kura-Kura, Tangkap Sapu-Sapu, dan Api Unggun. Panggil Kucing Hitam dan Kuras Air Kolam masih menampilkan "Segera Hadir".
 - **Ubah waktu:** Tombol di header berpindah berurutan: Pagi, Siang, Sore, Malam.
 - **Mini Weather:** Di bagian paling atas pop up (di atas tab) ada strip 4 ikon berjejer: Cuaca, Suhu, Kelembapan, dan Kabut, masing-masing dengan keterangan singkat di bawahnya. Isinya berganti mengikuti waktu (Pagi, Siang, Sore, Malam). Angkanya diacak sedikit di sekitar nilai acuan setiap kali halaman dimuat, lalu tetap sama selama sesi, jadi ganti waktu manual tidak mengacak ulang.
 
@@ -97,9 +118,11 @@ Catatan: Tailwind, Lucide, dan font dimuat lewat CDN, jadi dibutuhkan koneksi in
 1. **Beri makan:** Tekan tombol "Beri Makan Koi" di bawah layar, atau klik/tap langsung di area kolam untuk menjatuhkan pelet.
 2. **Ganti waktu:** Tekan tombol waktu di header untuk berpindah suasana Pagi, Siang, Sore, dan Malam.
 3. **Nyalakan api unggun:** Geser tombol bawah ke kiri sampai "Nyalakan Api Unggun", lalu tekan. Tunggu Bolang berjalan ke tumpukan kayu dan menyalakan apinya. Tekan lagi ("Matikan Api Unggun") untuk memadamkannya. Selama Bolang masih bertugas atau berlari di layar, tombol akan menampilkan "Harap Tunggu".
-4. **Baca sambutan:** Tekan ikon gelombang di header untuk membuka Papan Sambutan. Musik ambient ikut mulai saat tombol ini pertama kali ditekan.
-5. **Cek cuaca:** Di pop up yang sama, lihat strip Mini Weather di bagian atas. Isinya ikut berubah saat kamu mengganti waktu.
-6. **Kejutan malam hari:** Pindah ke waktu malam dan tunggu beberapa saat untuk melihat kucing hitam datang minum di tepi kolam. Kucing hanya muncul sekali per pemuatan halaman, jadi muat ulang halaman untuk melihatnya lagi. Nyalakan api unggun di malam hari untuk melihat cahaya dan bara apinya paling jelas.
+4. **Pindahkan kura-kura:** Geser tombol ke "Pindahkan Kura-Kura" lalu tekan untuk memindahkannya ke rerumputan. Tekan lagi untuk mengembalikannya ke dasar kolam.
+5. **Tangkap sapu-sapu:** Geser tombol ke "Tangkap Sapu-Sapu" lalu tekan. Perhatikan air yang berubah kehijauan dan gelembung yang menghilang. Tekan lagi ("Lepaskan Sapu-Sapu") untuk mengembalikannya.
+6. **Baca sambutan:** Tekan ikon gelombang di header untuk membuka Papan Sambutan. Musik ambient ikut mulai saat tombol ini pertama kali ditekan.
+7. **Cek cuaca:** Di pop up yang sama, lihat strip Mini Weather di bagian atas. Isinya ikut berubah saat kamu mengganti waktu.
+8. **Kejutan malam hari:** Pindah ke waktu malam dan tunggu beberapa saat untuk melihat kucing hitam datang minum di tepi kolam. Kucing hanya muncul sekali per pemuatan halaman, jadi muat ulang halaman untuk melihatnya lagi. Nyalakan api unggun di malam hari untuk melihat cahaya dan bara apinya paling jelas.
 
 ---
 
@@ -109,8 +132,8 @@ Catatan: Tailwind, Lucide, dan font dimuat lewat CDN, jadi dibutuhkan koneksi in
 - [ ] **Variasi jenis ikan dan toko ikan:** Opsi menambah spesies baru (Ikan Mas Koki, Black Tele, Koi Tancho).
 - [ ] **Dekorasi kolam kustom:** Menempatkan bunga teratai, lentera batu, atau jembatan kayu kecil.
 - [ ] **Audio dan SFX:** Musik latar ambient serta suara gemericik air saat memberi makan. (Musik latar sudah ada, SFX belum.)
-- [ ] **Pindahkan kura-kura:** Memindahkan kura-kura hijau ke luar atau ke dalam kolam (saat ini tombol masih Segera Hadir).
-- [ ] **Tangkap sapu-sapu:** Menangkap dan melepaskan ikan sapu-sapu (saat ini tombol masih Segera Hadir).
+- [x] **Pindahkan kura-kura:** Memindahkan kura-kura hijau ke rerumputan dan kembali ke dasar kolam (v6.1), meredup saat malam (v6.2).
+- [x] **Tangkap sapu-sapu:** Menangkap dan melepaskan ikan sapu-sapu, air berubah kehijauan dan gelembung menghilang saat tidak ada sapu-sapu (v6.2).
 - [ ] **Panggil kucing hitam:** Memanggil kucing hitam kapan saja / bisa di luar waktu malam (saat ini tombol masih Segera Hadir).
 - [ ] **Kuras air kolam:** Menguras air kolam yang keruh saat tidak ada ikan sapu-sapu (saat ini tombol masih Segera Hadir).
 - [x] **Api unggun:** Bocah Bolang menyalakan dan mematikan api unggun, lengkap dengan efek api, bara, dan bekas gosong (v6.0).
