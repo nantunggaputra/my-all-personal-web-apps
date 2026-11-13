@@ -2201,11 +2201,8 @@
                     this.speed = 0.6;
                 }
 
-                update(isNight) {
+                update() {
                     this.tailT += 0.02;
-
-                    // Kalau siang tiba saat kucing masih di sini, langsung pulang
-                    if (!isNight && (this.state === 'enter' || this.state === 'drink')) this.beginLeave();
 
                     if (this.state === 'drink') {
                         this.timer++;
@@ -3042,7 +3039,7 @@
                     catDelay = 0;
                 }
                 if (cat) {
-                    cat.update(mode.isNight);
+                    cat.update(); // v6.3: kucing tidak lagi dipaksa pulang saat siang
                     if (cat.state === 'gone') cat = null;
                     else cat.draw(mode, fireflyGlow);
                 }
@@ -3177,8 +3174,14 @@
                 plecoLabel.textContent = plecoCaught ? 'Lepaskan Sapu-Sapu' : 'Tangkap Sapu-Sapu';
             });
 
-            // v5.3: tombol 4-6 (belum ada fitur, masih Segera Hadir)
-            catBtn.addEventListener('click', showSoonMain);
+            // v5.3: tombol 4-6 (v6.3: kucing sudah berfungsi; kuras air masih Segera Hadir)
+            // v6.3: Panggil Kucing Hitam (semua waktu). Kalau kucing masih di layar -> "Sudah Datang"
+            catBtn.addEventListener('click', () => {
+                if (cat) { showSoonMain('Sudah Datang'); return; }
+                cat = trySpawnCat();
+                if (cat) { catPending = false; catDelay = 0; } // sudah dipanggil manual -> kemunculan otomatis malam tidak dobel
+                else showSoonMain('Tidak ada tempat');
+            });
             drainBtn.addEventListener('click', showSoonMain);
             fireBtn.addEventListener('click', () => {
                 // v6.0: Bolang masih bertugas / lari di layar -> tombol tidak berfungsi
