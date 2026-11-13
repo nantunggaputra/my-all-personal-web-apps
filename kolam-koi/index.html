@@ -636,12 +636,22 @@
                 }
             }
 
+            // v6.2: tanpa sapu-sapu -> air kehijau-hijauan (algae 0..1) & gelembung perlahan berhenti muncul
+            let plecoHidden = false; // true = sapu-sapu "ditangkap" (disembunyikan)
+            let plecoVis = 1;        // 0..1, fade in/out sapu-sapu
+            let algae = 0;           // 0 = air biru semula, 1 = air biru kehijauan
+            const mixHex = (a, b, t) => {
+                const h = x => [parseInt(x.slice(1, 3), 16), parseInt(x.slice(3, 5), 16), parseInt(x.slice(5, 7), 16)];
+                const A = h(a), B = h(b);
+                return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(',')})`;
+            };
+
             // Spawn berkala: beberapa gelembung tiap detik, lebih jarang dari riak ambient
             setInterval(() => {
                 const morning = currentLightIdx === 0;
-                const cap = morning ? 50 : 25;
+                const cap = Math.round((morning ? 50 : 25) * (1 - algae));
                 const batch = morning ? 3 : 1;
-                const chance = morning ? 0.95 : 0.7;
+                const chance = (morning ? 0.95 : 0.7) * (1 - algae);
                 for (let i = 0; i < batch; i++) {
                     if (bubbles.length < cap && Math.random() < chance) bubbles.push(new Bubble());
                 }
@@ -1120,10 +1130,58 @@
                     this.paddle = Math.random() * 100;
                     this.timer = 0;
                     this.nextTurn = 180 + Math.random() * 420; // ~3-10 detik per keputusan arah
+                    this.onLand = false;                       // v6.1: false = dasar kolam, true = rerumputan
+                    this.dim = 1;                              // v6.2: 1 = terang, 0.5 = gelap (malam, hanya di darat)
+                    this.sx = this.x; this.sy = this.y;        // v6.1: posisi aman terakhir di darat
+                }
+
+                // v6.1: titik darat yang boleh dijejaki kura-kura (di luar kolam & lingkar batu, jauh dari api unggun & pohon)
+                landOK(x, y) {
+                    if (x < 24 || x > width - 24 || y < 24 || y > height - 24) return false;
+                    if (isInsidePond(x, y) || distToPondEdge(x, y) < 80) return false;
+                    if (campfire && Math.hypot(x - campfire.x, y - campfire.y) < 40) return false;
+                    if (tree && tree.lobes.some(l => Math.hypot(x - (tree.x + l.x), y - (tree.y + l.y)) < l.r + 14)) return false;
+                    return true;
+                }
+
+                okAt(x, y) { return this.onLand ? this.landOK(x, y) : inWater(x, y); }
+
+                // Arah bebas di darat saat jalan terhalang (kolam/batu/api/pohon/tepi layar)
+                landEscape() {
+                    const open = [];
+                    for (let k = 0; k < 16; k++) {
+                        const a = (k / 16) * Math.PI * 2;
+                        if (this.landOK(this.x + Math.cos(a) * this.size * 3, this.y + Math.sin(a) * this.size * 3)) open.push(a);
+                    }
+                    if (open.length) return open[Math.floor(Math.random() * open.length)];
+                    return Math.atan2(this.sy - this.y, this.sx - this.x);
+                }
+
+                // v6.1: pindah mendadak dasar kolam <-> rerumputan; kepala & kaki langsung hilang, lalu muncul pelan seperti habis tidur
+                relocate() {
+                    const toLand = !this.onLand;
+                    let spot = null;
+                    for (let t = 0; t < 200 && !spot; t++) {
+                        const x = toLand ? 30 + Math.random() * (width - 60) : pondCenter.x + (Math.random() - 0.5) * width * 0.6;
+                        const y = toLand ? (t < 120 ? 110 + Math.random() * Math.max(1, height - 280) : 30 + Math.random() * (height - 60))
+                                         : pondCenter.y + (Math.random() - 0.5) * height * 0.6;
+                        if (toLand ? this.landOK(x, y) : (inWater(x, y) && distToPondEdge(x, y) > 50)) spot = { x, y };
+                    }
+                    if (!spot) return false;
+                    this.onLand = toLand;
+                    this.x = this.sx = spot.x;
+                    this.y = this.sy = spot.y;
+                    this.angle = this.goal = Math.random() * Math.PI * 2;
+                    this.ext = 0; this.move = 0;
+                    this.dim = (toLand && LIGHT_MODES[currentLightIdx].isNight) ? 0.5 : 1;
+                    this.timer = 0;
+                    this.nextTurn = 180 + Math.random() * 420;
+                    return true;
                 }
 
                 update() {
                     const night = LIGHT_MODES[currentLightIdx].isNight;
+                    this.dim += (((night && this.onLand) ? 0.5 : 1) - this.dim) * 0.03; // v6.2: ikut gelap saat malam di rumput
                     this.ext += ((night ? 0 : 1) - this.ext) * 0.03;   // v5.1: malam -> kepala & kaki masuk cangkang
                     this.move += (((night || this.ext < 0.8) ? 0 : 1) - this.move) * 0.03; // jalan hanya setelah kepala & kaki keluar
                     this.paddle += 0.025 * this.move;                  // v5.1: kayuhan lebih lambat, berhenti saat ngumpet
@@ -1138,10 +1196,12 @@
                         // sisanya: lanjut lurus
                     }
 
-                    // Di depan bukan air -> arahkan ke tengah kolam
-                    const ahead = inWater(this.x + Math.cos(this.angle) * this.size, this.y + Math.sin(this.angle) * this.size);
+                    // Di depan terhalang (air: bukan air; darat: kolam/batu/api/pohon/tepi layar) -> belok ke arah bebas
+                    if (this.onLand && this.landOK(this.x, this.y)) { this.sx = this.x; this.sy = this.y; }
+                    const ahead = this.okAt(this.x + Math.cos(this.angle) * this.size, this.y + Math.sin(this.angle) * this.size);
                     if (!ahead) {
-                        this.goal = Math.atan2(pondCenter.y - this.y, pondCenter.x - this.x);
+                        if (!this.onLand) this.goal = Math.atan2(pondCenter.y - this.y, pondCenter.x - this.x);
+                        else if (!this.landOK(this.x + Math.cos(this.goal) * this.size, this.y + Math.sin(this.goal) * this.size)) this.goal = this.landEscape();
                         this.timer = 0;
                     }
 
@@ -1156,6 +1216,10 @@
                     const len = this.size;
                     const sw = Math.sin(this.paddle);
                     const e = this.ext; // v5.1: 0..1, skala kepala & kaki
+                    const sh = hex => { // v6.2: peredup warna
+                        const n = parseInt(hex.slice(1), 16);
+                        return `rgb(${Math.round((n >> 16 & 255) * this.dim)},${Math.round((n >> 8 & 255) * this.dim)},${Math.round((n & 255) * this.dim)})`;
+                    };
 
                     // Sirip: kiri-depan & kanan-belakang searah, kanan-depan & kiri-belakang berlawanan (gaya diagonal)
                     const flipper = (x, y, side, swing, base, l, w) => {
@@ -1193,7 +1257,7 @@
                     ctx.rotate(this.angle);
 
                     // Sirip + kepala + ekor (kulit hijau muda)
-                    ctx.fillStyle = '#65a30d';
+                    ctx.fillStyle = sh('#65a30d');
                     limbs();
                     ctx.beginPath(); // ekor kecil
                     ctx.moveTo(-len * 0.45, -len * 0.05);
@@ -1212,11 +1276,11 @@
                     ctx.fill();
 
                     // Cangkang: tepi terang -> badan hijau -> pola sisik gelap
-                    ctx.fillStyle = '#4d7c0f';
+                    ctx.fillStyle = sh('#4d7c0f');
                     ctx.beginPath();
                     ctx.ellipse(0, 0, len * 0.5, len * 0.42, 0, 0, Math.PI * 2);
                     ctx.fill();
-                    ctx.fillStyle = '#15803d';
+                    ctx.fillStyle = sh('#15803d');
                     ctx.beginPath();
                     ctx.ellipse(0, 0, len * 0.43, len * 0.35, 0, 0, Math.PI * 2);
                     ctx.fill();
@@ -2812,9 +2876,11 @@
                     pondCenter.x, pondCenter.y, 50,
                     pondCenter.x, pondCenter.y, Math.min(width, height) * 0.5
                 );
-                waterGrad.addColorStop(0, '#0284c7'); // Clear turquoise blue center
-                waterGrad.addColorStop(0.7, '#0369a1');
-                waterGrad.addColorStop(1, '#0f4c81'); // Deep water edge
+                // v6.2: tanpa sapu-sapu, air perlahan berubah ke biru kehijauan (3 hijau bergradasi)
+                algae += ((plecoHidden ? 1 : 0) - algae) * 0.012;
+                waterGrad.addColorStop(0, mixHex('#0284c7', '#0e9f8a', algae));   // Clear turquoise blue center -> hijau toska terang
+                waterGrad.addColorStop(0.7, mixHex('#0369a1', '#0b8577', algae)); // hijau toska sedang
+                waterGrad.addColorStop(1, mixHex('#0f4c81', '#0a5f5a', algae));   // Deep water edge -> hijau toska gelap
                 ctx.fillStyle = waterGrad;
                 ctx.fillRect(0, 0, width, height);
 
@@ -2865,10 +2931,15 @@
                 });
 
                 // v4.0: Ikan sapu-sapu (dasar kolam, di bawah koi)
-                plecos.forEach(pl => { pl.update(); pl.draw(); });
+                plecoVis += ((plecoHidden ? 0 : 1) - plecoVis) * 0.04; // v6.2
+                if (plecoVis > 0.01) {
+                    ctx.globalAlpha = plecoVis;
+                    plecos.forEach(pl => { pl.update(); pl.draw(); });
+                    ctx.globalAlpha = 1;
+                }
 
                 // v5.0: Kura-kura hijau (dasar kolam)
-                if (turtle) { turtle.update(); turtle.draw(); }
+                if (turtle) { turtle.update(); if (!turtle.onLand) turtle.draw(); } // v6.1: di darat digambar di luar clip kolam
 
                 // 4. Render Koi Fish Bottom Shadows (Berbayang di dasar kolam)
                 koiList.forEach(koi => {
@@ -2962,6 +3033,7 @@
                 updateFire(); // v6.0: api unggun (di atas batu & air, di bawah kumbang/kucing/Bolang)
                 drawFire(mode, Date.now() * 0.001);
                 updateBeetle();
+                if (turtle && turtle.onLand) turtle.draw(); // v6.1: kura-kura di rerumputan (di bawah pohon)
 
                 // 10. v3.9: Kucing hitam malam hari (sekali per reload; minum di tepi kolam lalu pergi)
                 if (!cat && catPending && mode.isNight) {
@@ -3098,11 +3170,11 @@
                 toastMainTimer = setTimeout(() => soonToastMain.classList.remove('show'), 1800);
             }
 
-            turtleBtn.addEventListener('click', showSoonMain);
+            turtleBtn.addEventListener('click', () => { if (turtle && !turtle.relocate()) showSoonMain('Tidak ada tempat'); }); // v6.1
             plecoBtn.addEventListener('click', () => {
                 plecoCaught = !plecoCaught;
+                plecoHidden = plecoCaught; // v6.2: ditangkap = sapu-sapu hilang, air berubah hijau, gelembung berhenti
                 plecoLabel.textContent = plecoCaught ? 'Lepaskan Sapu-Sapu' : 'Tangkap Sapu-Sapu';
-                showSoonMain();
             });
 
             // v5.3: tombol 4-6 (belum ada fitur, masih Segera Hadir)
