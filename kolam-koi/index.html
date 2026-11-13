@@ -141,6 +141,36 @@
         .welcome-scroll::-webkit-scrollbar-thumb { background: rgba(249, 115, 22, 0.4); border-radius: 4px; }
         .welcome-scroll { user-select: text; -webkit-user-select: text; }
 
+        /* v6.4: Personal Message Chat */
+        .message-scroll { user-select: text; -webkit-user-select: text; }
+        .message-scroll::-webkit-scrollbar { width: 4px; }
+        .message-scroll::-webkit-scrollbar-thumb { background: rgba(249, 115, 22, 0.4); border-radius: 4px; }
+        .chat-date {
+            width: fit-content;
+            margin: 0 auto 1.25rem;
+            padding: 5px 14px;
+            border-radius: 999px;
+            background: rgba(71, 85, 105, 0.35);
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            color: #cbd5e1;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .chat-bubble {
+            width: fit-content;
+            max-width: 92%;
+            margin: 0 0 12px auto;
+            padding: 11px 13px 8px;
+            border-radius: 14px 14px 4px 14px;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+            box-shadow: 0 3px 12px rgba(249, 115, 22, 0.15);
+        }
+        .chat-sender { margin-bottom: 5px; color: #ffedd5; font-size: 11px; font-weight: 700; }
+        .chat-text { color: white; font-size: 13px; line-height: 1.65; overflow-wrap: anywhere; }
+        .chat-meta { display: flex; justify-content: flex-end; align-items: center; gap: 5px; margin-top: 5px; color: rgba(255,255,255,.75); font-size: 10px; }
+        .chat-check { color: #7dd3fc; font-size: 13px; font-weight: 700; letter-spacing: -3px; padding-right: 3px; }
+
         /* Toast Coming Soon */
         #soon-toast, #soon-toast-main {
             opacity: 0;
@@ -249,7 +279,7 @@
         </div>
     </footer>
 
-    <!-- v4.7: Pop up Papan Sambutan -->
+    <!-- v6.4: Pop up Papan Sambutan & Pesan -->
     <div id="welcome-modal" class="fixed left-0 right-0 bottom-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
         <div class="modal-card glass-panel w-full max-w-md rounded-2xl shadow-2xl flex flex-col overflow-hidden" style="max-height: 100%; background: rgba(15, 23, 42, 0.9);">
 
@@ -277,12 +307,15 @@
                 </div>
             </div>
 
-            <!-- Tabs -->
+            <!-- v6.4: Navigation Tabs -->
             <div class="flex border-b border-slate-700/60 shrink-0">
-                <button id="tab-welcome" class="tab-btn active flex-1 py-3 text-sm font-semibold border-b-2 border-transparent transition">
+                <button id="tab-welcome" class="tab-btn active flex-1 py-3 px-1 text-xs sm:text-sm font-semibold border-b-2 border-transparent transition">
                     Papan Sambutan
                 </button>
-                <button id="tab-map" class="tab-btn disabled flex-1 py-3 text-sm font-semibold border-b-2 border-transparent transition">
+                <button id="tab-message" class="tab-btn flex-1 py-3 px-1 text-xs sm:text-sm font-semibold border-b-2 border-transparent transition">
+                    Pesan
+                </button>
+                <button id="tab-map" class="tab-btn disabled flex-1 py-3 px-1 text-xs sm:text-sm font-semibold border-b-2 border-transparent transition">
                     Peta Denah Kolam
                 </button>
             </div>
@@ -296,6 +329,54 @@
                 <p>Ketika <span class="text-indigo-300 font-semibold">malam</span> turun, kunang-kunang menari pelan di antara rerumputan. Lampu-lampu remang-remang kecil menyala di tepi kolam, ikan-ikan berenang lebih tenang, dan kalau kamu sabar menunggu, seekor kucing hitam mungkin akan datang mampir untuk minum, lalu pergi lagi tanpa suara.</p>
                 <p>Duduklah sebentar. Beri makan para koi, dengarkan hening yang ramah, dan biarkan penatmu larut bersama riak air. Kolam ini selalu menunggumu pulang.</p>
                 <p class="pt-2 text-orange-300 font-semibold italic">Salam Hangat dari Kawan-mu, Nan</p>
+            </div>
+
+            <!-- v6.4: Personal Message from Nan -->
+            <div id="panel-message" class="message-scroll hidden flex-1 overflow-y-auto p-4 text-sm">
+                <div class="chat-date">Kemarin</div>
+
+                <div class="chat-bubble">
+                    <div class="chat-sender">Nan</div>
+                    <p class="chat-text">Halo, kawan lama! Hehehe, senang rasanya kamu mampir lagi. Ada sedikit kabar dariku, nih. 😊</p>
+                    <div class="chat-meta"><span>06:00</span><span class="chat-check">✓✓</span></div>
+                </div>
+
+                <div class="chat-bubble">
+                    <div class="chat-sender">Nan</div>
+                    <p class="chat-text">Sekarang aku sedang mengantar Kakek dan Nenek liburan keliling Kota Jakarta. Mereka sudah lama ingin jalan-jalan ke sana, jadi kali ini aku temani menikmati suasana ibu kota.</p>
+                    <div class="chat-meta"><span>06:00</span><span class="chat-check">✓✓</span></div>
+                </div>
+
+                <div class="chat-bubble">
+                    <div class="chat-sender">Nan</div>
+                    <p class="chat-text">Karena Kakek dan Nenek sedang tidak di rumah, boleh aku titip kolam kesayangan Kakek ini kepadamu untuk sementara waktu? Tolong temani dan urus penghuninya, ya.</p>
+                    <div class="chat-meta"><span>06:00</span><span class="chat-check">✓✓</span></div>
+                </div>
+
+                <div class="chat-bubble">
+                    <div class="chat-sender">Nan</div>
+                    <p class="chat-text">
+                        Ada beberapa hal yang bisa kamu lakukan di sini:
+                        <br><br>🍪 <b>Beri Makan Koi</b><br>Berikan pelet untuk ikan-ikan di kolam. Kamu juga bisa mengetuk area air untuk menjatuhkan pakan.
+                        <br><br>🐢 <b>Pindahkan Kura-Kura</b><br>Bantu kura-kura berpindah antara dasar kolam dan rerumputan.
+                        <br><br>🐟 <b>Tangkap Sapu-Sapu</b><br>Bantu menjaga kolam dengan menangkap ikan sapu-sapu. Kalau berubah pikiran, kamu bisa melepaskannya kembali.
+                        <br><br>🐈‍⬛ <b>Panggil Kucing Hitam</b><br>Kalau ingin, panggil si kucing hitam untuk mampir ke kolam.
+                        <br><br>🔥 <b>Nyalakan Api Unggun</b><br>Kamu juga bisa meminta Bolang menyalakan atau memadamkan api unggun.
+                    </p>
+                    <div class="chat-meta"><span>06:00</span><span class="chat-check">✓✓</span></div>
+                </div>
+
+                <div class="chat-bubble">
+                    <div class="chat-sender">Nan</div>
+                    <p class="chat-text">Oh iya, ada satu pesan penting dari Kakek: <b>jangan kuras air kolam dulu, ya!</b> Kuras kolam adalah urusan Kakek sendiri. Kita tunggu sampai beliau pulang. Jadi, untuk sementara tombol kuras jangan digunakan, ya. Hehe.</p>
+                    <div class="chat-meta"><span>06:00</span><span class="chat-check">✓✓</span></div>
+                </div>
+
+                <div class="chat-bubble">
+                    <div class="chat-sender">Nan</div>
+                    <p class="chat-text">Terima kasih banyak, ya, sudah mau membantu menjaga kolam ini. Aku senang masih punya kawan lama yang bisa dipercaya. Anggap saja rumah sendiri, nikmati suasananya, dan jangan lupa istirahat juga.<br><br>Sampai jumpa lagi, kawan! Salam hangat dari Jakarta. ❤️</p>
+                    <div class="chat-meta"><span>06:00</span><span class="chat-check">✓✓</span></div>
+                </div>
             </div>
 
             <!-- Footer pop up -->
@@ -3213,7 +3294,11 @@
             const welcomeModal = document.getElementById('welcome-modal');
             const wavesBtn = document.getElementById('waves-btn');
             const modalOk = document.getElementById('modal-ok');
+            const tabWelcome = document.getElementById('tab-welcome');
+            const tabMessage = document.getElementById('tab-message');
             const tabMap = document.getElementById('tab-map');
+            const panelWelcome = document.getElementById('panel-welcome');
+            const panelMessage = document.getElementById('panel-message');
             const soonToast = document.getElementById('soon-toast');
             let toastTimer = null;
             
@@ -3234,10 +3319,30 @@
                 ambient.play().catch(() => { ambientStarted = false; });
             }
 
+            // v6.4: perpindahan tab Papan Sambutan dan Pesan
+            function switchModalTab(tab) {
+                [tabWelcome, tabMessage, tabMap].forEach(button => button.classList.remove('active'));
+                panelWelcome.classList.add('hidden');
+                panelMessage.classList.add('hidden');
+
+                if (tab === 'message') {
+                    tabMessage.classList.add('active');
+                    panelMessage.classList.remove('hidden');
+                    panelMessage.scrollTop = 0;
+                } else {
+                    tabWelcome.classList.add('active');
+                    panelWelcome.classList.remove('hidden');
+                    panelWelcome.scrollTop = 0;
+                }
+            }
+
+            tabWelcome.addEventListener('click', () => switchModalTab('welcome'));
+            tabMessage.addEventListener('click', () => switchModalTab('message'));
+
             function toggleModal(force) {
                 const open = typeof force === 'boolean' ? force : !welcomeModal.classList.contains('open');
                 welcomeModal.classList.toggle('open', open);
-                if (open) document.getElementById('panel-welcome').scrollTop = 0;
+                if (open) switchModalTab('welcome');
             }
 
             wavesBtn.addEventListener('click', (e) => {
